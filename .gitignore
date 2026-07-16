@@ -1,0 +1,32 @@
+# dependencias
+/node_modules
+/.pnp
+.pnp.*
+
+# next.js
+/.next/
+/out/
+/build
+
+# producción / logs
+*.log
+npm-debug.log*
+
+# entorno (los secretos reales NO se commitean)
+.env
+.env*.local
+!.env.local.example
+
+# typescript / next
+*.tsbuildinfo
+next-env.d.ts
+
+# sistema
+.DS_Store
+Thumbs.db
+
+# archivos comprimidos del paquete de diseño (la carpeta extraída sí se versiona)
+*.zip
+
+# convex: la carpeta convex/_generated SÍ se versiona (tipos generados);
+# los secretos locales viven en .env.local

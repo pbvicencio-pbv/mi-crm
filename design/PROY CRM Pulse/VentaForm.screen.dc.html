@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/base.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/styles.css">
+  <script src="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/_ds_bundle.js"></script>
+  <style>
+    .mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+    .stbtn:hover{background:var(--surface-sunken)}
+    @keyframes dialogPop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  </style>
+</helmet>
+<div style="width:100%;height:100%;position:relative;overflow:hidden;background:var(--surface-page);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text-primary)">
+
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+    <aside style="position:absolute;top:0;left:0;width:248px;height:100%;background:var(--surface-card);border-right:1px solid var(--border-default);display:flex;flex-direction:column;z-index:2">
+      <div style="height:56px;display:flex;align-items:center;gap:9px;padding:0 20px;border-bottom:1px solid var(--border-subtle)">
+        <span style="display:inline-flex;color:var(--brand)">{{ icMark }}</span>
+        <span style="font-weight:800;font-size:19px;letter-spacing:-0.02em">Pulse<span style="color:var(--brand)">.</span></span>
+      </div>
+      <nav style="display:flex;flex-direction:column;gap:2px;padding:14px 12px;flex:1">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:6px 12px 8px">Trabajo</div>
+        <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icHoy }}<span>Hoy</span></div>
+        <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;background:var(--brand-subtle);color:var(--brand)">{{ icClientes }}<span>Clientes</span></div>
+        <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icVentas }}<span>Ventas</span></div>
+        <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icEquipo }}<span>Equipo</span></div>
+      </nav>
+      <div style="border-top:1px solid var(--border-subtle);padding:12px;display:flex;align-items:center;gap:10px">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="34px,34px" name="Elena Vargas" size="sm"></x-import>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Elena Vargas</div>
+          <div style="font-size:11px;color:var(--text-muted)">Dueña</div>
+        </div>
+        <span style="color:var(--text-muted);display:inline-flex">{{ icLogout }}</span>
+      </div>
+    </aside>
+  </sc-if>
+
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:1;padding:16px;opacity:.55">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="width:52px;height:52px;border-radius:50%;background:var(--indigo-500)"></div>
+        <div style="flex:1"><div style="height:14px;width:150px;background:var(--slate-300);border-radius:4px"></div><div style="height:11px;width:110px;background:var(--slate-200);border-radius:4px;margin-top:8px"></div></div>
+      </div>
+      <div style="height:120px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;margin-bottom:14px"></div>
+      <div style="height:160px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px"></div>
+    </div>
+  </sc-if>
+
+  <div style="{{ wrapStyle }}">
+    <div style="{{ panelStyle }}">
+
+      <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;justify-content:center;padding:10px 0 2px;flex:none"><div style="width:38px;height:4px;border-radius:999px;background:var(--border-strong)"></div></div>
+      </sc-if>
+
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border-subtle);flex:none">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:16px;font-weight:800;letter-spacing:-0.02em">Registrar venta</div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-top:1px">{{ clienteNombre }}</div>
+        </div>
+        <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.IconButton" hint-size="34px,34px" aria-label="Cerrar" variant="ghost" size="sm">{{ icClose }}</x-import>
+        </sc-if>
+      </div>
+
+      <div style="flex:1;min-height:0;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:18px">
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">¿Qué se vendió?</div>
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,42px" placeholder="Ej. Curso de ventas, licencia anual…" default-value="{{ que }}"></x-import>
+        </div>
+
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">Importe</div>
+          <div style="display:flex;align-items:center;gap:8px;height:60px;padding:0 16px;background:var(--surface-card);border:1px solid {{ importeBorder }};border-radius:8px;box-shadow:var(--shadow-xs)">
+            <span class="mono" style="font-size:26px;font-weight:700;color:var(--text-muted)">$</span>
+            <span class="mono" style="font-size:26px;font-weight:700;color:{{ importeColor }};flex:1">{{ importeDisplay }}</span>
+          </div>
+          <sc-if value="{{ importeError }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12px;color:#DC2626;margin-top:6px">Indica el importe</div>
+          </sc-if>
+        </div>
+
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:8px">Cantidad</div>
+            <div style="display:flex;align-items:center;gap:2px;border:1px solid var(--border-strong);border-radius:8px;overflow:hidden;width:fit-content">
+              <button class="stbtn" aria-label="Menos" style="width:44px;height:44px;border:none;background:transparent;color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer">{{ icMinus }}</button>
+              <span class="mono" style="min-width:44px;text-align:center;font-size:16px;font-weight:700">{{ cant }}</span>
+              <button class="stbtn" aria-label="Más" style="width:44px;height:44px;border:none;background:transparent;color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer">{{ icPlus }}</button>
+            </div>
+          </div>
+          <div style="flex:1;min-width:150px">
+            <div style="font-size:13px;font-weight:600;margin-bottom:8px">Fecha</div>
+            <button style="display:flex;align-items:center;gap:10px;width:100%;height:44px;padding:0 12px;background:var(--surface-card);border:1px solid var(--border-strong);border-radius:6px;box-shadow:var(--shadow-xs);cursor:pointer;color:var(--text-primary)">
+              <span style="color:var(--text-muted);display:inline-flex">{{ icCalendar }}</span>
+              <span class="mono" style="flex:1;text-align:left;font-size:13px;font-weight:600">Hoy</span>
+              <span style="color:var(--text-muted);display:inline-flex">{{ icChevDown }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">Estado de la venta</div>
+          <div style="display:flex;gap:4px;background:var(--surface-sunken);border-radius:8px;padding:4px">
+            <sc-for list="{{ estados }}" as="e" hint-placeholder-count="3">
+              <button style="{{ e.style }}">{{ e.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--success-bg);border:1px solid var(--success-border);border-radius:8px;padding:14px 16px">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-secondary)">Total</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:1px">Importe × cantidad</div>
+          </div>
+          <span class="mono" style="font-size:22px;font-weight:800;color:#059669">{{ totalStr }}</span>
+        </div>
+      </div>
+
+      <div style="{{ footerStyle }}">
+        <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,40px" variant="secondary">Cancelar</x-import>
+        </sc-if>
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,44px" variant="primary" full-width="{{ saveFull }}">Registrar venta</x-import>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1000,&quot;height&quot;:660},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;'desktop' | 'mobile'&quot;},&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;vacio&quot;,&quot;datos&quot;,&quot;error&quot;],&quot;default&quot;:&quot;vacio&quot;,&quot;tsType&quot;:&quot;'vacio' | 'datos' | 'error'&quot;}}">
+class Component extends DCLogic {
+  ic(name, size, sw) {
+    size = size || 18; sw = sw || 2;
+    const P = (d) => ['path', { d }];
+    const M = {
+      mark: [P('M3 12h4l2-7 4 14 2-7h6')],
+      hoy: [['rect', { x: 3, y: 4, width: 18, height: 18, rx: 2 }], P('M16 2v4M8 2v4M3 10h18'), P('M8 15h.01M12 15h4')],
+      clientes: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75')],
+      ventas: [['rect', { x: 3, y: 3, width: 5, height: 18, rx: 1 }], ['rect', { x: 10, y: 3, width: 5, height: 12, rx: 1 }], ['rect', { x: 17, y: 3, width: 4, height: 8, rx: 1 }]],
+      equipo: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('m16 11 2 2 4-4')],
+      close: [P('M18 6 6 18M6 6l12 12')],
+      minus: [P('M5 12h14')],
+      plus: [P('M12 5v14M5 12h14')],
+      calendar: [['rect', { x: 3, y: 4, width: 18, height: 18, rx: 2 }], P('M16 2v4M8 2v4M3 10h18')],
+      chevronDown: [P('m6 9 6 6 6-6')],
+      logout: [P('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9')],
+    };
+    const parts = (M[name] || []).map((c, i) => React.createElement(c[0], Object.assign({ key: i }, c[1])));
+    return React.createElement('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round' }, parts);
+  }
+
+  fmt(n) {
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  renderVals() {
+    const mode = this.props.mode || 'desktop';
+    const scenario = this.props.scenario || 'vacio';
+    const isDesktop = mode === 'desktop';
+    const isMobile = mode === 'mobile';
+    const conDatos = scenario === 'datos';
+    const isError = scenario === 'error';
+
+    const que = conDatos ? 'Curso de ventas' : '';
+    const importe = conDatos ? 1200.50 : 0;
+    const cant = conDatos ? 2 : 1;
+    const estadoActivo = conDatos ? 'Ganada' : 'Abierta';
+    const total = importe * cant;
+
+    const estadoColors = { 'Abierta': '#F59E0B', 'Ganada': '#059669', 'Perdida': '#DC2626' };
+    const segStyle = (label) => {
+      const on = estadoActivo === label;
+      const c = estadoColors[label];
+      return 'flex:1;min-height:40px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;' + (on ? 'background:' + c + ';color:#fff;box-shadow:var(--shadow-xs)' : 'background:transparent;color:var(--text-secondary)');
+    };
+    const estados = ['Abierta', 'Ganada', 'Perdida'].map((l) => ({ label: l, style: segStyle(l) }));
+
+    const wrapStyle = isDesktop
+      ? { position: 'absolute', top: 0, left: '248px', right: 0, bottom: 0, background: 'rgba(15,23,42,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', zIndex: 5 }
+      : { position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.45)', display: 'flex', alignItems: 'flex-end', zIndex: 5 };
+    const panelStyle = isDesktop
+      ? { background: 'var(--surface-card)', width: '100%', maxWidth: '520px', maxHeight: '90%', borderRadius: '12px', boxShadow: 'var(--shadow-xl)', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'dialogPop 180ms cubic-bezier(0.2,0,0,1)' }
+      : { background: 'var(--surface-card)', width: '100%', maxHeight: '92%', borderRadius: '16px 16px 0 0', boxShadow: 'var(--shadow-xl)', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'sheetUp 240ms cubic-bezier(0.2,0,0,1)' };
+    const footerStyle = (isDesktop ? 'display:flex;justify-content:flex-end;gap:10px;' : 'display:flex;') + 'padding:14px 18px;border-top:1px solid var(--border-subtle);background:var(--surface-page);flex:none';
+
+    return {
+      isDesktop, isMobile,
+      clienteNombre: 'Laura Fernández',
+      que, cant, estados, saveFull: isMobile,
+      importeDisplay: conDatos ? '1,200.50' : '0.00',
+      importeColor: conDatos ? 'var(--text-primary)' : 'var(--text-muted)',
+      importeBorder: isError ? '#DC2626' : 'var(--border-strong)',
+      importeError: isError,
+      totalStr: this.fmt(total),
+      wrapStyle, panelStyle, footerStyle,
+      icMark: this.ic('mark', 22, 2.4),
+      icHoy: this.ic('hoy', 18), icClientes: this.ic('clientes', 18), icVentas: this.ic('ventas', 18), icEquipo: this.ic('equipo', 18),
+      icClose: this.ic('close', 18), icMinus: this.ic('minus', 18), icPlus: this.ic('plus', 18),
+      icCalendar: this.ic('calendar', 16), icChevDown: this.ic('chevronDown', 16), icLogout: this.ic('logout', 18),
+    };
+  }
+}
+</script>
+</body>
+</html>

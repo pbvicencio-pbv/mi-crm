@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/base.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/styles.css">
+  <script src="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/_ds_bundle.js"></script>
+  <style>
+    .mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  </style>
+</helmet>
+<div style="width:100%;height:100%;display:flex;background:var(--surface-page);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text-primary);overflow:hidden">
+
+  <sc-if value="{{ split }}" hint-placeholder-val="{{ true }}">
+    <div style="width:44%;max-width:520px;min-width:300px;background-color:#4F46E5;background-image:radial-gradient(120% 90% at 18% 12%, rgba(255,255,255,.16), rgba(255,255,255,0) 60%);color:#fff;display:flex;flex-direction:column;justify-content:space-between;padding:40px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="display:inline-flex">{{ icMark }}</span>
+        <span style="font-weight:800;font-size:22px;letter-spacing:-0.02em">Pulse<span style="opacity:.7">.</span></span>
+      </div>
+      <div>
+        <div style="font-size:30px;font-weight:800;letter-spacing:-0.02em;line-height:1.15;text-wrap:balance">Tu pipeline, siempre al pulso.</div>
+        <div style="font-size:15px;line-height:1.5;color:rgba(255,255,255,.78);margin-top:14px;max-width:340px">Gestiona contactos, mueve tratos y cierra más rápido — todo en un espacio de trabajo tranquilo.</div>
+      </div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6)">Pulse CRM · Espacio de ventas</div>
+    </div>
+  </sc-if>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;{{ rightPaneStyle }}">
+    <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+      <div style="background-color:#4F46E5;background-image:radial-gradient(120% 120% at 15% 0%, rgba(255,255,255,.16), rgba(255,255,255,0) 55%);color:#fff;padding:26px 20px 22px">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
+          <span style="display:inline-flex">{{ icMarkSm }}</span>
+          <span style="font-weight:800;font-size:19px;letter-spacing:-0.02em">Pulse<span style="opacity:.7">.</span></span>
+        </div>
+        <div style="font-size:20px;font-weight:800;letter-spacing:-0.02em;line-height:1.2">Tu pipeline, siempre al pulso.</div>
+      </div>
+    </sc-if>
+
+    <div style="{{ formWrapStyle }}">
+      <div style="{{ cardStyle }}">
+        <div style="margin-bottom:22px">
+          <div style="font-size:24px;font-weight:800;letter-spacing:-0.02em">Bienvenido de nuevo</div>
+          <div style="font-size:14px;color:var(--text-secondary);margin-top:6px">Inicia sesión en tu espacio de trabajo.</div>
+        </div>
+
+        <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:9px;background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:6px;padding:10px 12px;margin-bottom:16px">
+            <span style="color:var(--danger-solid);display:inline-flex;flex:none">{{ icAlert }}</span>
+            <span style="font-size:13px;font-weight:600;color:#DC2626">Correo o contraseña incorrectos</span>
+          </div>
+        </sc-if>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,64px" label="Correo" type="email" placeholder="nombre@empresa.mx" prefix="{{ icMail }}" default-value="ricardo.salas@pulse.mx" error="{{ emailError }}"></x-import>
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,64px" label="Contraseña" type="{{ pwType }}" placeholder="Tu contraseña" default-value="contraseña-demo" suffix="{{ eyeToggle }}" error="{{ pwError }}"></x-import>
+          <div style="margin-top:4px">
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="100%,44px" variant="primary" size="lg" full-width="{{ true }}" disabled="{{ isLoading }}" onClick="{{ submit }}" icon-left="{{ spinner }}">{{ btnLabel }}</x-import>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:900,&quot;height&quot;:560},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;split&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;split&quot;,&quot;tsType&quot;:&quot;'split' | 'mobile'&quot;},&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;normal&quot;,&quot;error&quot;,&quot;loading&quot;],&quot;default&quot;:&quot;normal&quot;,&quot;tsType&quot;:&quot;'normal' | 'error' | 'loading'&quot;}}">
+class Component extends DCLogic {
+  state = { showPw: false, submitting: false };
+
+  submit() {
+    if (typeof this.props.onEntrar !== 'function') return;
+    if (this.state.submitting) return;
+    this.setState({ submitting: true });
+    setTimeout(() => { if (typeof this.props.onEntrar === 'function') this.props.onEntrar(); }, 850);
+  }
+
+  ic(name, size, sw) {
+    size = size || 18; sw = sw || 2;
+    const P = (d) => ['path', { d }];
+    const M = {
+      mark: [P('M3 12h4l2-7 4 14 2-7h6')],
+      mail: [['rect', { x: 2, y: 4, width: 20, height: 16, rx: 2 }], P('m22 7-10 6L2 7')],
+      eye: [P('M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z'), ['circle', { cx: 12, cy: 12, r: 3 }]],
+      eyeOff: [P('M9.9 4.24A9.12 9.12 0 0 1 12 4c6.5 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19M6.61 6.61A18.5 18.5 0 0 0 2 12s3.5 7 10 7a9.12 9.12 0 0 0 3.06-.53'), P('M14.12 14.12A3 3 0 1 1 9.88 9.88M1 1l22 22')],
+      alert: [['circle', { cx: 12, cy: 12, r: 10 }], P('M12 8v4M12 16h.01')],
+      spinner: [P('M21 12a9 9 0 1 1-6.22-8.56')],
+    };
+    const parts = (M[name] || []).map((c, i) => React.createElement(c[0], Object.assign({ key: i }, c[1])));
+    return React.createElement('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round' }, parts);
+  }
+
+  renderVals() {
+    const mode = this.props.mode || 'split';
+    const scenario = this.props.scenario || 'normal';
+    const split = mode === 'split';
+    const mobile = mode === 'mobile';
+    const isError = scenario === 'error';
+    const isLoading = scenario === 'loading' || this.state.submitting;
+    const showPw = this.state.showPw;
+
+    const eyeToggle = React.createElement('button', {
+      type: 'button',
+      'aria-label': showPw ? 'Ocultar contraseña' : 'Mostrar contraseña',
+      onClick: () => this.setState((s) => ({ showPw: !s.showPw })),
+      style: { border: 'none', background: 'none', padding: 0, margin: 0, cursor: 'pointer', color: 'var(--text-muted)', display: 'inline-flex' },
+    }, this.ic(showPw ? 'eyeOff' : 'eye', 16));
+
+    const spinner = isLoading
+      ? React.createElement('span', { style: { display: 'inline-flex', animation: 'spin .7s linear infinite' } }, this.ic('spinner', 17))
+      : null;
+
+    // right pane layout: split centers form; mobile stacks brand strip + form
+    const rightPaneStyle = split
+      ? 'justify-content:center;align-items:center;padding:40px'
+      : (mobile ? '' : 'justify-content:center;align-items:center;padding:32px');
+
+    const formWrapStyle = mobile
+      ? 'flex:1;display:flex;justify-content:center;align-items:flex-start;padding:20px'
+      : 'width:100%;display:flex;justify-content:center';
+
+    const cardStyle = mobile
+      ? 'width:100%;max-width:420px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:22px;animation:fadeIn 180ms ease-out'
+      : 'width:100%;max-width:420px;animation:fadeIn 180ms ease-out';
+
+    return {
+      split, mobile, isError, isLoading,
+      icMark: this.ic('mark', 26, 2.4),
+      icMarkSm: this.ic('mark', 22, 2.4),
+      icMail: this.ic('mail', 16),
+      icAlert: this.ic('alert', 16),
+      eyeToggle, spinner,
+      submit: () => this.submit(),
+      pwType: showPw ? 'text' : 'password',
+      emailError: isError ? ' ' : '',
+      pwError: isError ? ' ' : '',
+      btnLabel: isLoading ? 'Entrando…' : 'Entrar',
+      rightPaneStyle, formWrapStyle, cardStyle,
+    };
+  }
+}
+</script>
+</body>
+</html>

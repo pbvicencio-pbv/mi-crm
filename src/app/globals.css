@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base mobile-first del CRM Pulse.
+   Página gris muy claro (slate-50), texto slate-900, tipografía UI Plus Jakarta Sans. */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-[#F8FAFC] text-[#0F172A] font-sans antialiased;
+  }
+
+  /* Cifras, fechas e IDs en JetBrains Mono con cifras tabulares. */
+  .mono {
+    @apply font-mono;
+    font-variant-numeric: tabular-nums;
+  }
+}

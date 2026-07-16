@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/base.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/styles.css">
+  <script src="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/_ds_bundle.js"></script>
+  <style>
+    .mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+    .pls-field.telmono input{font-family:"JetBrains Mono",ui-monospace,monospace !important;font-variant-numeric:tabular-nums}
+    .navi{opacity:.9}
+    .chipbtn:hover{border-color:var(--border-strong)}
+    @keyframes dialogPop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+  </style>
+</helmet>
+<div style="width:100%;height:100%;position:relative;overflow:hidden;background:var(--surface-page);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text-primary)">
+
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+    <aside style="position:absolute;top:0;left:0;width:248px;height:100%;background:var(--surface-card);border-right:1px solid var(--border-default);display:flex;flex-direction:column;z-index:2">
+      <div style="height:56px;display:flex;align-items:center;gap:9px;padding:0 20px;border-bottom:1px solid var(--border-subtle)">
+        <span style="display:inline-flex;color:var(--brand)">{{ icMark }}</span>
+        <span style="font-weight:800;font-size:19px;letter-spacing:-0.02em">Pulse<span style="color:var(--brand)">.</span></span>
+      </div>
+      <nav style="display:flex;flex-direction:column;gap:2px;padding:14px 12px;flex:1">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:6px 12px 8px">Trabajo</div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icHoy }}<span>Hoy</span></div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;background:var(--brand-subtle);color:var(--brand)">{{ icClientes }}<span>Clientes</span></div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icVentas }}<span>Ventas</span></div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icEquipo }}<span>Equipo</span></div>
+      </nav>
+      <div style="border-top:1px solid var(--border-subtle);padding:12px;display:flex;align-items:center;gap:10px">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="34px,34px" name="Elena Vargas" size="sm"></x-import>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Elena Vargas</div>
+          <div style="font-size:11px;color:var(--text-muted)">Dueña</div>
+        </div>
+        <span style="color:var(--text-muted);display:inline-flex">{{ icLogout }}</span>
+      </div>
+    </aside>
+  </sc-if>
+
+  <div style="{{ wrapStyle }}">
+    <div style="{{ panelStyle }}">
+
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border-subtle);background:var(--surface-card);flex:none">
+        <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+          <button style="border:none;background:none;padding:8px 4px;margin-left:-4px;font-size:14px;font-weight:600;color:var(--text-secondary);cursor:pointer">Cancelar</button>
+        </sc-if>
+        <div style="flex:1;font-size:16px;font-weight:800;letter-spacing:-0.02em;{{ titleAlign }}">{{ title }}</div>
+        <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.IconButton" hint-size="34px,34px" aria-label="Cerrar" variant="ghost" size="sm">{{ icClose }}</x-import>
+        </sc-if>
+      </div>
+
+      <div style="flex:1;min-height:0;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:16px">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,64px" label="Nombre" required="{{ true }}" placeholder="Nombre y apellidos" default-value="{{ v.nombre }}" error="{{ nombreError }}"></x-import>
+
+        <div style="{{ rowStyle }}">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" class-name="telmono" hint-size="100%,64px" label="Teléfono" placeholder="+52 55 0000 0000" default-value="{{ v.tel }}"></x-import>
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,64px" label="Email" type="email" placeholder="nombre@empresa.mx" default-value="{{ v.email }}"></x-import>
+        </div>
+
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,64px" label="Empresa (opcional)" placeholder="Nombre de la empresa" default-value="{{ v.empresa }}"></x-import>
+
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">Red / canal</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ canales }}" as="ch" hint-placeholder-count="4">
+              <button class="chipbtn" style="{{ ch.style }}"><span style="width:8px;height:8px;border-radius:50%;background:{{ ch.dot }};flex:none"></span>{{ ch.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="100%,64px" label="Origen (opcional)" options="{{ origenOptions }}" placeholder="Selecciona un origen" default-value="{{ v.origen }}"></x-import>
+
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Textarea" hint-size="100%,96px" label="Notas" placeholder="Añade una nota sobre este cliente" default-value="{{ v.notas }}"></x-import>
+      </div>
+
+      <div style="{{ footerStyle }}">
+        <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,40px" variant="secondary">Cancelar</x-import>
+        </sc-if>
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,44px" variant="primary" full-width="{{ saveFull }}">{{ saveLabel }}</x-import>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1000,&quot;height&quot;:640},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;'desktop' | 'mobile'&quot;},&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;alta&quot;,&quot;edicion&quot;,&quot;error&quot;],&quot;default&quot;:&quot;alta&quot;,&quot;tsType&quot;:&quot;'alta' | 'edicion' | 'error'&quot;}}">
+class Component extends DCLogic {
+  ic(name, size, sw) {
+    size = size || 18; sw = sw || 2;
+    const P = (d) => ['path', { d }];
+    const M = {
+      mark: [P('M3 12h4l2-7 4 14 2-7h6')],
+      hoy: [['rect', { x: 3, y: 4, width: 18, height: 18, rx: 2 }], P('M16 2v4M8 2v4M3 10h18'), P('M8 15h.01M12 15h4')],
+      clientes: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75')],
+      ventas: [['rect', { x: 3, y: 3, width: 5, height: 18, rx: 1 }], ['rect', { x: 10, y: 3, width: 5, height: 12, rx: 1 }], ['rect', { x: 17, y: 3, width: 4, height: 8, rx: 1 }]],
+      equipo: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('m16 11 2 2 4-4')],
+      close: [P('M18 6 6 18M6 6l12 12')],
+      logout: [P('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9')],
+    };
+    const parts = (M[name] || []).map((c, i) => React.createElement(c[0], Object.assign({ key: i }, c[1])));
+    return React.createElement('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round' }, parts);
+  }
+
+  renderVals() {
+    const mode = this.props.mode || 'desktop';
+    const scenario = this.props.scenario || 'alta';
+    const isDesktop = mode === 'desktop';
+    const isMobile = mode === 'mobile';
+    const isEdicion = scenario === 'edicion';
+    const isError = scenario === 'error';
+
+    const v = isEdicion
+      ? { nombre: 'Laura Fernández', tel: '+52 55 1234 5678', email: 'laura.fernandez@innovatech.mx', empresa: 'Innovatech Soluciones', origen: 'Recomendación', notas: 'Interesada en el plan anual. Decisión antes de fin de mes.' }
+      : { nombre: '', tel: '', email: '', empresa: '', origen: '', notas: '' };
+
+    const chip = (label, color, sel) => {
+      const base = 'display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:7px 13px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color 120ms;';
+      return {
+        label, dot: color,
+        style: base + (sel
+          ? 'border:1.5px solid ' + color + ';color:' + color + ';background:' + color + '14;'
+          : 'border:1px solid var(--border-strong);color:var(--text-secondary);background:transparent;'),
+      };
+    };
+    const canales = [
+      chip('WhatsApp', '#25D366', isEdicion),
+      chip('Instagram', '#C13584', false),
+      chip('Teléfono', '#64748B', false),
+      chip('Email', '#3B82F6', false),
+    ];
+
+    // presentation
+    const wrapStyle = isDesktop
+      ? { position: 'absolute', top: 0, left: '248px', right: 0, bottom: 0, background: 'rgba(15,23,42,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', zIndex: 5 }
+      : { position: 'absolute', inset: 0, background: 'var(--surface-card)', zIndex: 5 };
+    const panelStyle = isDesktop
+      ? { background: 'var(--surface-card)', width: '100%', maxWidth: '560px', maxHeight: '90%', borderRadius: '12px', boxShadow: 'var(--shadow-xl)', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'dialogPop 180ms cubic-bezier(0.2,0,0,1)' }
+      : { background: 'var(--surface-card)', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' };
+    const footerStyle = (isDesktop
+      ? 'display:flex;justify-content:flex-end;gap:10px;'
+      : 'display:flex;') + 'padding:14px 18px;border-top:1px solid var(--border-subtle);background:var(--surface-page);flex:none';
+
+    return {
+      isDesktop, isMobile,
+      v, canales, origenOptions: ['Recomendación', 'Campaña', 'Sitio web', 'Evento', 'Otro'],
+      title: isEdicion ? 'Editar cliente' : 'Nuevo cliente',
+      titleAlign: isMobile ? '' : '',
+      saveLabel: isEdicion ? 'Guardar cambios' : 'Guardar cliente',
+      saveFull: isMobile,
+      nombreError: isError ? 'El nombre es obligatorio' : '',
+      wrapStyle, panelStyle, footerStyle,
+      rowStyle: isDesktop ? 'display:grid;grid-template-columns:1fr 1fr;gap:12px' : 'display:flex;flex-direction:column;gap:16px',
+      icMark: this.ic('mark', 22, 2.4),
+      icHoy: this.ic('hoy', 18), icClientes: this.ic('clientes', 18), icVentas: this.ic('ventas', 18), icEquipo: this.ic('equipo', 18),
+      icClose: this.ic('close', 18), icLogout: this.ic('logout', 18),
+    };
+  }
+}
+</script>
+</body>
+</html>

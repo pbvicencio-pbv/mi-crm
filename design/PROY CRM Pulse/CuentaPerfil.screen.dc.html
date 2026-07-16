@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/base.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/styles.css">
+  <script src="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/_ds_bundle.js"></script>
+  <style>
+    .mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+    .arow:hover{background:var(--surface-hover)}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+    .sk{background:var(--surface-sunken);border-radius:6px;animation:pulse 1.2s ease-in-out infinite}
+  </style>
+</helmet>
+<div style="width:100%;height:100%;position:relative;overflow:hidden;background:var(--surface-page);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text-primary)">
+
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+    <aside style="position:absolute;top:0;left:0;width:248px;height:100%;background:var(--surface-card);border-right:1px solid var(--border-default);display:flex;flex-direction:column;z-index:2">
+      <div style="height:56px;display:flex;align-items:center;gap:9px;padding:0 20px;border-bottom:1px solid var(--border-subtle)">
+        <span style="display:inline-flex;color:var(--brand)">{{ icMark }}</span>
+        <span style="font-weight:800;font-size:19px;letter-spacing:-0.02em">Pulse<span style="color:var(--brand)">.</span></span>
+      </div>
+      <nav style="display:flex;flex-direction:column;gap:2px;padding:14px 12px;flex:1">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:6px 12px 8px">Trabajo</div>
+        <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icHoy }}<span>Hoy</span></div>
+        <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icClientes }}<span>Clientes</span></div>
+        <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icVentas }}<span>Ventas</span></div>
+        <sc-if value="{{ esDuena }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icEquipo }}<span>Equipo</span></div>
+        </sc-if>
+      </nav>
+      <div style="border-top:1px solid var(--border-subtle);padding:12px;display:flex;align-items:center;gap:10px;background:var(--brand-subtle)">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="34px,34px" name="{{ nombre }}" size="sm"></x-import>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nombre }}</div>
+          <div style="font-size:11px;color:var(--brand)">Mi cuenta</div>
+        </div>
+      </div>
+    </aside>
+    <header style="position:absolute;top:0;left:248px;right:0;height:56px;background:var(--surface-card);border-bottom:1px solid var(--border-default);display:flex;align-items:center;padding:0 24px;z-index:2">
+      <div style="font-size:17px;font-weight:800;letter-spacing:-0.02em">Mi cuenta</div>
+    </header>
+  </sc-if>
+
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <header style="position:absolute;top:0;left:0;right:0;height:56px;background:var(--surface-card);border-bottom:1px solid var(--border-default);display:flex;align-items:center;gap:4px;padding:0 8px;z-index:2">
+      <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.IconButton" hint-size="36px,36px" aria-label="Atrás" variant="ghost" size="sm">{{ icBack }}</x-import>
+      <div style="font-size:16px;font-weight:800;letter-spacing:-0.02em">Mi cuenta</div>
+    </header>
+  </sc-if>
+
+  <div style="{{ contentStyle }}">
+    <div style="{{ innerStyle }}">
+
+      <sc-if value="{{ isCargando }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:18px;display:flex;align-items:center;gap:14px">
+            <div class="sk" style="width:56px;height:56px;border-radius:50%"></div>
+            <div style="flex:1"><div class="sk" style="height:16px;width:60%"></div><div class="sk" style="height:12px;width:80%;margin-top:8px"></div></div>
+          </div>
+          <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:14px 16px;display:flex;flex-direction:column;gap:14px">
+            <div class="sk" style="height:14px;width:45%"></div>
+            <div class="sk" style="height:14px;width:55%"></div>
+            <div class="sk" style="height:14px;width:40%"></div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:48px 28px;display:flex;flex-direction:column;align-items:center;text-align:center">
+          <div style="width:52px;height:52px;border-radius:50%;background:var(--danger-bg);color:#DC2626;display:flex;align-items:center;justify-content:center;margin-bottom:16px">{{ icAlert }}</div>
+          <div style="font-size:17px;font-weight:800;letter-spacing:-0.02em">No se pudo cargar tu cuenta</div>
+          <div style="font-size:14px;color:var(--text-secondary);margin-top:6px;max-width:320px;line-height:1.5">Revisa tu conexión e inténtalo de nuevo.</div>
+          <div style="margin-top:18px"><x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,40px" variant="secondary" icon-left="{{ icRefresh }}">Reintentar</x-import></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isOk }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:18px;display:flex;align-items:center;gap:14px">
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="56px,56px" name="{{ nombre }}" size="xl"></x-import>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:19px;font-weight:800;letter-spacing:-0.02em">{{ nombre }}</div>
+              <div class="mono" style="font-size:13px;color:var(--text-secondary);margin-top:1px">{{ email }}</div>
+            </div>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,22px" tone="brand" dot="{{ true }}">{{ rolLabel }}</x-import>
+          </div>
+
+          <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);overflow:hidden">
+            <button class="arow" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:none;background:none;padding:14px 16px;border-bottom:1px solid var(--border-subtle);cursor:pointer">
+              <span style="color:var(--text-secondary);display:inline-flex">{{ icEdit }}</span>
+              <span style="flex:1;font-size:14px;font-weight:600">Editar datos</span>
+              <span style="color:var(--text-muted);display:inline-flex">{{ icChevron }}</span>
+            </button>
+            <button class="arow" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:none;background:none;padding:14px 16px;cursor:pointer">
+              <span style="color:var(--text-secondary);display:inline-flex">{{ icLock }}</span>
+              <span style="flex:1;font-size:14px;font-weight:600">Cambiar contraseña</span>
+              <span style="color:var(--text-muted);display:inline-flex">{{ icChevron }}</span>
+            </button>
+          </div>
+
+          <sc-if value="{{ esDuena }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin:2px 0 8px 2px">Administración</div>
+              <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);overflow:hidden">
+                <button class="arow" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:none;background:none;padding:14px 16px;cursor:pointer">
+                  <span style="color:var(--brand);display:inline-flex">{{ icUsers }}</span>
+                  <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">Usuarios</div><div style="font-size:12px;color:var(--text-muted)">Gestiona el acceso de tu equipo</div></div>
+                  <span style="color:var(--text-muted);display:inline-flex">{{ icChevron }}</span>
+                </button>
+              </div>
+            </div>
+          </sc-if>
+
+          <button class="arow" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:1px solid var(--danger-border);background:var(--danger-bg);border-radius:8px;padding:13px;cursor:pointer;color:#DC2626;font-size:14px;font-weight:700;margin-top:4px">{{ icLogout }}<span>Cerrar sesión</span></button>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:700,&quot;height&quot;:620},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;'desktop' | 'mobile'&quot;},&quot;rol&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;duena&quot;,&quot;vendedor&quot;],&quot;default&quot;:&quot;duena&quot;,&quot;tsType&quot;:&quot;'duena' | 'vendedor'&quot;},&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ok&quot;,&quot;cargando&quot;,&quot;error&quot;],&quot;default&quot;:&quot;ok&quot;,&quot;tsType&quot;:&quot;'ok' | 'cargando' | 'error'&quot;}}">
+class Component extends DCLogic {
+  ic(name, size, sw) {
+    size = size || 18; sw = sw || 2;
+    const P = (d) => ['path', { d }];
+    const M = {
+      mark: [P('M3 12h4l2-7 4 14 2-7h6')],
+      hoy: [['rect', { x: 3, y: 4, width: 18, height: 18, rx: 2 }], P('M16 2v4M8 2v4M3 10h18'), P('M8 15h.01M12 15h4')],
+      clientes: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75')],
+      ventas: [['rect', { x: 3, y: 3, width: 5, height: 18, rx: 1 }], ['rect', { x: 10, y: 3, width: 5, height: 12, rx: 1 }], ['rect', { x: 17, y: 3, width: 4, height: 8, rx: 1 }]],
+      equipo: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('m16 11 2 2 4-4')],
+      users: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75')],
+      back: [P('m15 18-6-6 6-6')],
+      chevron: [P('m9 18 6-6-6-6')],
+      edit: [P('M12 20h9'), P('M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z')],
+      lock: [['rect', { x: 3, y: 11, width: 18, height: 11, rx: 2 }], P('M7 11V7a5 5 0 0 1 10 0v4')],
+      alert: [P('M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'), P('M12 9v4M12 17h.01')],
+      refresh: [P('M23 4v6h-6M1 20v-6h6'), P('M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15')],
+      logout: [P('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9')],
+    };
+    const parts = (M[name] || []).map((c, i) => React.createElement(c[0], Object.assign({ key: i }, c[1])));
+    return React.createElement('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round' }, parts);
+  }
+
+  renderVals() {
+    const mode = this.props.mode || 'desktop';
+    const rol = this.props.rol || 'duena';
+    const scenario = this.props.scenario || 'ok';
+    const isDesktop = mode === 'desktop';
+    const isMobile = mode === 'mobile';
+    const esDuena = rol === 'duena';
+
+    const contentStyle = { position: 'absolute', top: '56px', right: 0, bottom: 0, left: isDesktop ? '248px' : 0, overflowY: 'auto' };
+    const innerStyle = { maxWidth: '640px', margin: '0 auto', padding: isMobile ? '18px 16px' : '24px 32px' };
+
+    return {
+      isDesktop, isMobile, esDuena,
+      isOk: scenario === 'ok', isCargando: scenario === 'cargando', isError: scenario === 'error',
+      nombre: esDuena ? 'Elena Vargas' : 'Ricardo Salas',
+      email: esDuena ? 'elena.vargas@pulse.mx' : 'ricardo.salas@pulse.mx',
+      rolLabel: esDuena ? 'Dueña' : 'Vendedor',
+      contentStyle, innerStyle,
+      icMark: this.ic('mark', 22, 2.4),
+      icHoy: this.ic('hoy', 18), icClientes: this.ic('clientes', 18), icVentas: this.ic('ventas', 18), icEquipo: this.ic('equipo', 18),
+      icBack: this.ic('back', 20), icChevron: this.ic('chevron', 18), icEdit: this.ic('edit', 18), icLock: this.ic('lock', 18),
+      icUsers: this.ic('users', 18), icAlert: this.ic('alert', 24), icRefresh: this.ic('refresh', 16), icLogout: this.ic('logout', 18),
+    };
+  }
+}
+</script>
+</body>
+</html>

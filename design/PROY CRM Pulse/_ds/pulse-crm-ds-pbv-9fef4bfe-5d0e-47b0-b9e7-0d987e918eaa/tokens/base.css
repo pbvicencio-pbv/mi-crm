@@ -1,0 +1,42 @@
+/* ============================================================
+   Pulse CRM — Base element resets & defaults.
+   Kept minimal; sets the typographic baseline.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font: var(--body);
+  color: var(--text-primary);
+  background: var(--surface-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv05' 1, 'ss01' 1;
+}
+
+/* Tabular figures for data-dense contexts */
+.pulse-tnum, table, .tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+h1, h2, h3, h4, h5, h6, p, figure { margin: 0; }
+
+a { color: var(--text-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+code, kbd, pre, .mono { font-family: var(--font-mono); }
+
+::selection { background: var(--indigo-100); }

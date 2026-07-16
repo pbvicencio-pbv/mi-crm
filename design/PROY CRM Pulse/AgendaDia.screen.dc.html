@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/base.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/styles.css">
+  <script src="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/_ds_bundle.js"></script>
+  <style>
+    .mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+    .agcard{transition:box-shadow 140ms cubic-bezier(0.2,0,0,1),border-color 140ms cubic-bezier(0.2,0,0,1)}
+    .agcard:hover{box-shadow:var(--shadow-md);border-color:var(--border-strong)}
+    .chk:hover{border-color:var(--brand);background:var(--brand-subtle);color:var(--brand)}
+    .navi:hover{background:var(--surface-sunken)}
+  </style>
+</helmet>
+<div style="width:100%;height:100%;position:relative;overflow:hidden;background:var(--surface-page);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text-primary)">
+
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+    <aside style="position:absolute;top:0;left:0;width:248px;height:100%;background:var(--surface-card);border-right:1px solid var(--border-default);display:flex;flex-direction:column;z-index:2">
+      <div style="height:56px;display:flex;align-items:center;gap:9px;padding:0 20px;border-bottom:1px solid var(--border-subtle)">
+        <span style="display:inline-flex;color:var(--brand)">{{ icMark }}</span>
+        <span style="font-weight:800;font-size:19px;letter-spacing:-0.02em">Pulse<span style="color:var(--brand)">.</span></span>
+      </div>
+      <nav style="display:flex;flex-direction:column;gap:2px;padding:14px 12px;flex:1">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:6px 12px 8px">Trabajo</div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;background:var(--brand-subtle);color:var(--brand)">{{ icHoy }}<span>Hoy</span></div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icClientes }}<span>Clientes</span></div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icVentas }}<span>Ventas</span></div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icEquipo }}<span>Equipo</span></div>
+        <div style="padding:14px 4px 4px">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="100%,40px" variant="primary" full-width="{{ true }}" icon-left="{{ icPlus }}">Nuevo cliente</x-import>
+        </div>
+      </nav>
+      <div style="border-top:1px solid var(--border-subtle);padding:12px;display:flex;align-items:center;gap:10px">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="34px,34px" name="Elena Vargas" size="sm"></x-import>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Elena Vargas</div>
+          <div style="font-size:11px;color:var(--text-muted)">Dueña</div>
+        </div>
+        <span style="color:var(--text-muted);display:inline-flex">{{ icLogout }}</span>
+      </div>
+    </aside>
+    <header style="position:absolute;top:0;left:248px;right:0;height:56px;background:var(--surface-card);border-bottom:1px solid var(--border-default);display:flex;align-items:center;padding:0 24px;z-index:2">
+      <div style="font-size:17px;font-weight:800;letter-spacing:-0.02em">Hoy</div>
+    </header>
+  </sc-if>
+
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <header style="position:absolute;top:0;left:0;right:0;height:56px;background:var(--surface-card);border-bottom:1px solid var(--border-default);display:flex;align-items:center;justify-content:space-between;padding:0 14px;z-index:2">
+      <div style="font-size:17px;font-weight:800;letter-spacing:-0.02em">Hoy</div>
+      <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="32px,32px" name="Elena Vargas" size="sm"></x-import>
+    </header>
+    <nav style="position:absolute;left:0;right:0;bottom:0;height:64px;background:var(--surface-card);border-top:1px solid var(--border-default);display:flex;align-items:stretch;z-index:2">
+      <div style="flex:1;display:flex">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--brand)">{{ icHoyTab }}<span style="font-size:11px;font-weight:600">Hoy</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text-muted)">{{ icClientesTab }}<span style="font-size:11px;font-weight:600">Clientes</span></div>
+      </div>
+      <div style="width:76px;flex:none;position:relative">
+        <div style="position:absolute;left:50%;top:-16px;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;background:var(--brand);color:#fff;border:3px solid var(--surface-card);box-shadow:0 6px 16px rgba(79,70,229,.4);display:flex;align-items:center;justify-content:center">{{ icPlusLg }}</div>
+      </div>
+      <div style="flex:1;display:flex">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text-muted)">{{ icVentasTab }}<span style="font-size:11px;font-weight:600">Ventas</span></div>
+      </div>
+    </nav>
+  </sc-if>
+
+  <div style="{{ contentStyle }}">
+    <div style="{{ innerStyle }}">
+      <div style="margin-bottom:22px">
+        <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em">Buenos días, Elena</div>
+        <div class="mono" style="font-size:13px;color:var(--text-secondary);margin-top:3px">Hoy, martes 2 jul</div>
+      </div>
+
+      <sc-if value="{{ hasPendientes }}" hint-placeholder-val="{{ true }}">
+        <div style="{{ sectionsWrapStyle }}">
+          <section style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <span style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#DC2626">Vencidos</span>
+              <span class="mono" style="font-size:11px;font-weight:700;color:#DC2626;background:var(--danger-bg);border-radius:999px;padding:1px 7px">{{ countVencidos }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ vencidos }}" as="t" hint-placeholder-count="1">
+                <div class="agcard" role="button" tabindex="0" style="display:flex;align-items:flex-start;gap:12px;background:var(--surface-card);border:1px solid var(--border-default);border-left:3px solid #DC2626;border-radius:8px;box-shadow:var(--shadow-xs);padding:14px;cursor:pointer">
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="40px,40px" name="{{ t.nombre }}" size="md"></x-import>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.nombre }}</div>
+                    <div style="font-size:13px;color:var(--text-secondary);margin-top:1px">{{ t.motivo }}</div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-top:8px;color:#DC2626">{{ icClock }}<span class="mono" style="font-size:12px;font-weight:600">{{ t.fecha }}</span></div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:none">
+                    <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" tone="{{ t.tone }}" dot="{{ true }}">{{ t.estado }}</x-import>
+                    <button class="chk" aria-label="Marcar hecho" style="width:44px;height:44px;border-radius:50%;border:2px solid var(--border-strong);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 140ms cubic-bezier(0.2,0,0,1)">{{ icCheck }}</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+
+          <section style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <span style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-secondary)">Hoy</span>
+              <span class="mono" style="font-size:11px;font-weight:700;color:var(--brand);background:var(--brand-subtle);border-radius:999px;padding:1px 7px">{{ countHoy }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ hoy }}" as="t" hint-placeholder-count="3">
+                <div class="agcard" role="button" tabindex="0" style="display:flex;align-items:flex-start;gap:12px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:14px;cursor:pointer">
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="40px,40px" name="{{ t.nombre }}" size="md"></x-import>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.nombre }}</div>
+                    <div style="font-size:13px;color:var(--text-secondary);margin-top:1px">{{ t.motivo }}</div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-top:8px;color:var(--text-muted)">{{ icClock }}<span class="mono" style="font-size:12px;font-weight:600">{{ t.fecha }}</span></div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:none">
+                    <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" tone="{{ t.tone }}" dot="{{ true }}">{{ t.estado }}</x-import>
+                    <button class="chk" aria-label="Marcar hecho" style="width:44px;height:44px;border-radius:50%;border:2px solid var(--border-strong);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 140ms cubic-bezier(0.2,0,0,1)">{{ icCheck }}</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isVacio }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:48px 28px;display:flex;flex-direction:column;align-items:center;text-align:center">
+          <div style="width:56px;height:56px;border-radius:50%;background:var(--success-bg);color:var(--success-solid);display:flex;align-items:center;justify-content:center;margin-bottom:16px">{{ icCheckBig }}</div>
+          <div style="font-size:18px;font-weight:800;letter-spacing:-0.02em">Todo al día</div>
+          <div style="font-size:14px;color:var(--text-secondary);margin-top:6px;max-width:320px;line-height:1.5">No tienes seguimientos vencidos ni pendientes para hoy. Buen momento para prospectar.</div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1000,&quot;height&quot;:620},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;'desktop' | 'mobile'&quot;},&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;pendientes&quot;,&quot;vacio&quot;],&quot;default&quot;:&quot;pendientes&quot;,&quot;tsType&quot;:&quot;'pendientes' | 'vacio'&quot;}}">
+class Component extends DCLogic {
+  ic(name, size, sw) {
+    size = size || 18; sw = sw || 2;
+    const P = (d) => ['path', { d }];
+    const M = {
+      mark: [P('M3 12h4l2-7 4 14 2-7h6')],
+      hoy: [['rect', { x: 3, y: 4, width: 18, height: 18, rx: 2 }], P('M16 2v4M8 2v4M3 10h18'), P('M8 15h.01M12 15h4')],
+      clientes: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75')],
+      ventas: [['rect', { x: 3, y: 3, width: 5, height: 18, rx: 1 }], ['rect', { x: 10, y: 3, width: 5, height: 12, rx: 1 }], ['rect', { x: 17, y: 3, width: 4, height: 8, rx: 1 }]],
+      equipo: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('m16 11 2 2 4-4')],
+      plus: [P('M12 5v14M5 12h14')],
+      clock: [['circle', { cx: 12, cy: 12, r: 9 }], P('M12 7v5l3 2')],
+      check: [P('M20 6 9 17l-5-5')],
+      logout: [P('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9')],
+    };
+    const parts = (M[name] || []).map((c, i) => React.createElement(c[0], Object.assign({ key: i }, c[1])));
+    return React.createElement('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round' }, parts);
+  }
+
+  renderVals() {
+    const mode = this.props.mode || 'desktop';
+    const scenario = this.props.scenario || 'pendientes';
+    const isDesktop = mode === 'desktop';
+    const isMobile = mode === 'mobile';
+    const hasPendientes = scenario !== 'vacio';
+    const isVacio = scenario === 'vacio';
+
+    const contentStyle = {
+      position: 'absolute', top: '56px', right: 0, bottom: isMobile ? '64px' : 0,
+      left: isDesktop ? '248px' : 0, overflowY: 'auto',
+    };
+    const innerStyle = {
+      maxWidth: isDesktop ? '1000px' : 'none', margin: '0 auto',
+      padding: isMobile ? '18px 16px' : '24px 32px',
+    };
+    const sectionsWrapStyle = isDesktop
+      ? { display: 'flex', gap: '20px', alignItems: 'flex-start' }
+      : { display: 'flex', flexDirection: 'column', gap: '24px' };
+
+    const clock = this.ic('clock', 14);
+    const vencidos = [
+      { nombre: 'Laura Fernández', motivo: 'Llamar sobre la propuesta', fecha: 'Ayer 17:40', tone: 'warning', estado: 'En negociación' },
+    ];
+    const hoy = [
+      { nombre: 'Carlos Méndez', motivo: 'Enviar cotización revisada', fecha: 'Hoy 10:30', tone: 'neutral', estado: 'Nuevo lead' },
+      { nombre: 'Ana Torres', motivo: 'Reunión de seguimiento', fecha: 'Hoy 16:00', tone: 'warning', estado: 'En negociación' },
+      { nombre: 'Miguel Ruiz', motivo: 'Confirmar cierre de contrato', fecha: 'Hoy 18:15', tone: 'success', estado: 'Ganado' },
+    ];
+
+    return {
+      isDesktop, isMobile, hasPendientes, isVacio,
+      contentStyle, innerStyle, sectionsWrapStyle,
+      vencidos, hoy, countVencidos: vencidos.length, countHoy: hoy.length,
+      icClock: clock,
+      icMark: this.ic('mark', 22, 2.4),
+      icHoy: this.ic('hoy', 18), icClientes: this.ic('clientes', 18), icVentas: this.ic('ventas', 18), icEquipo: this.ic('equipo', 18),
+      icHoyTab: this.ic('hoy', 22), icClientesTab: this.ic('clientes', 22), icVentasTab: this.ic('ventas', 22),
+      icPlus: this.ic('plus', 16), icPlusLg: this.ic('plus', 26, 2.4),
+      icCheck: this.ic('check', 20, 2.4), icCheckBig: this.ic('check', 26, 2.4),
+      icLogout: this.ic('logout', 18),
+    };
+  }
+}
+</script>
+</body>
+</html>

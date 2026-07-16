@@ -1,0 +1,10 @@
+/* ============================================================
+   Pulse CRM — Webfonts
+   Plus Jakarta Sans (UI) + JetBrains Mono (data/numeric).
+   Substitution note: no brand font files were provided, so
+   these are loaded from Google Fonts as the working typefaces.
+   Swap the @import for local @font-face rules if brand
+   binaries become available.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap');

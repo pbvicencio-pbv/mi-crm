@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/base.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/styles.css">
+  <script src="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/_ds_bundle.js"></script>
+  <style>
+    .mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+    .clcard{transition:box-shadow 140ms cubic-bezier(0.2,0,0,1),border-color 140ms cubic-bezier(0.2,0,0,1)}
+    .clcard:hover{box-shadow:var(--shadow-md);border-color:var(--border-strong)}
+    .navi:hover{background:var(--surface-sunken)}
+  </style>
+</helmet>
+<div style="width:100%;height:100%;position:relative;overflow:hidden;background:var(--surface-page);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text-primary)">
+
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+    <aside style="position:absolute;top:0;left:0;width:248px;height:100%;background:var(--surface-card);border-right:1px solid var(--border-default);display:flex;flex-direction:column;z-index:2">
+      <div style="height:56px;display:flex;align-items:center;gap:9px;padding:0 20px;border-bottom:1px solid var(--border-subtle)">
+        <span style="display:inline-flex;color:var(--brand)">{{ icMark }}</span>
+        <span style="font-weight:800;font-size:19px;letter-spacing:-0.02em">Pulse<span style="color:var(--brand)">.</span></span>
+      </div>
+      <nav style="display:flex;flex-direction:column;gap:2px;padding:14px 12px;flex:1">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:6px 12px 8px">Trabajo</div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icHoy }}<span>Hoy</span></div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;background:var(--brand-subtle);color:var(--brand)">{{ icClientes }}<span>Clientes</span></div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icVentas }}<span>Ventas</span></div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icEquipo }}<span>Equipo</span></div>
+        <div style="padding:14px 4px 4px">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="100%,40px" variant="primary" full-width="{{ true }}" icon-left="{{ icPlus }}">Nuevo cliente</x-import>
+        </div>
+      </nav>
+      <div style="border-top:1px solid var(--border-subtle);padding:12px;display:flex;align-items:center;gap:10px">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="34px,34px" name="Elena Vargas" size="sm"></x-import>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Elena Vargas</div>
+          <div style="font-size:11px;color:var(--text-muted)">Dueña</div>
+        </div>
+        <span style="color:var(--text-muted);display:inline-flex">{{ icLogout }}</span>
+      </div>
+    </aside>
+    <header style="position:absolute;top:0;left:248px;right:0;height:56px;background:var(--surface-card);border-bottom:1px solid var(--border-default);display:flex;align-items:center;padding:0 24px;z-index:3">
+      <div style="font-size:17px;font-weight:800;letter-spacing:-0.02em">Clientes</div>
+    </header>
+  </sc-if>
+
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <header style="position:absolute;top:0;left:0;right:0;height:56px;background:var(--surface-card);border-bottom:1px solid var(--border-default);display:flex;align-items:center;justify-content:space-between;padding:0 14px;z-index:3">
+      <div style="font-size:17px;font-weight:800;letter-spacing:-0.02em">Clientes</div>
+      <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="32px,32px" name="Elena Vargas" size="sm"></x-import>
+    </header>
+    <div style="position:absolute;right:18px;bottom:80px;z-index:4">
+      <button aria-label="Nuevo cliente" style="width:56px;height:56px;border-radius:50%;background:var(--brand);color:#fff;border:none;box-shadow:0 6px 16px rgba(79,70,229,.4);display:flex;align-items:center;justify-content:center;cursor:pointer">{{ icPlusLg }}</button>
+    </div>
+    <nav style="position:absolute;left:0;right:0;bottom:0;height:64px;background:var(--surface-card);border-top:1px solid var(--border-default);display:flex;align-items:stretch;z-index:3">
+      <div style="flex:1;display:flex">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text-muted)">{{ icHoyTab }}<span style="font-size:11px;font-weight:600">Hoy</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--brand)">{{ icClientesTab }}<span style="font-size:11px;font-weight:600">Clientes</span></div>
+      </div>
+      <div style="width:76px;flex:none;position:relative">
+        <div style="position:absolute;left:50%;top:-16px;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;background:var(--brand);color:#fff;border:3px solid var(--surface-card);box-shadow:0 6px 16px rgba(79,70,229,.4);display:flex;align-items:center;justify-content:center">{{ icPlusLg }}</div>
+      </div>
+      <div style="flex:1;display:flex">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text-muted)">{{ icVentasTab }}<span style="font-size:11px;font-weight:600">Ventas</span></div>
+      </div>
+    </nav>
+  </sc-if>
+
+  <div style="{{ contentStyle }}">
+    <div style="position:sticky;top:0;z-index:1;background:var(--surface-page);{{ searchWrapStyle }}">
+      <div style="{{ innerXStyle }}">
+        <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;background:var(--surface-card);border:1px solid var(--border-strong);border-radius:6px;box-shadow:var(--shadow-xs)">
+          <span style="color:var(--text-muted);display:inline-flex;flex:none">{{ icSearch }}</span>
+          <span style="flex:1;font-size:14px;color:{{ queryColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ queryText }}</span>
+          <sc-if value="{{ showClear }}" hint-placeholder-val="{{ false }}">
+            <button aria-label="Limpiar búsqueda" style="border:none;background:none;padding:4px;margin:-4px;cursor:pointer;color:var(--text-muted);display:inline-flex;flex:none">{{ icClose }}</button>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+
+    <div style="{{ innerStyle }}">
+      <sc-if value="{{ isVacio }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:48px 28px;display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:4px">
+          <div style="width:52px;height:52px;border-radius:50%;background:var(--surface-sunken);color:var(--text-muted);display:flex;align-items:center;justify-content:center;margin-bottom:16px">{{ icClientesBig }}</div>
+          <div style="font-size:18px;font-weight:800;letter-spacing:-0.02em">Aún no tienes clientes</div>
+          <div style="font-size:14px;color:var(--text-secondary);margin-top:6px;max-width:320px;line-height:1.5">Añade tu primer cliente para empezar a registrar seguimientos y ventas.</div>
+          <div style="margin-top:18px">
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,40px" variant="primary" icon-left="{{ icPlus }}">Añadir el primer cliente</x-import>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ hasList }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:baseline;gap:6px;margin:2px 0 12px">
+          <span class="mono" style="font-size:13px;font-weight:700;color:var(--text-secondary)">{{ totalNum }}</span>
+          <span style="font-size:13px;color:var(--text-muted)">{{ totalLabel }}</span>
+        </div>
+        <div style="{{ gridStyle }}">
+          <sc-for list="{{ clientes }}" as="c" hint-placeholder-count="6">
+            <div class="clcard" role="button" tabindex="0" style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:12px;min-height:44px">
+              <div style="display:flex;align-items:center;gap:11px">
+                <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="40px,40px" name="{{ c.nombre }}" size="md"></x-import>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.nombreEl }}</div>
+                  <div class="{{ c.lineaClass }}" style="font-size:12px;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.linea }}</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" variant="outline" tone="neutral">{{ c.canal }}</x-import>
+                <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" tone="{{ c.tone }}" dot="{{ true }}">{{ c.estado }}</x-import>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1000,&quot;height&quot;:620},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;'desktop' | 'mobile'&quot;},&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;normal&quot;,&quot;busqueda&quot;,&quot;vacio&quot;],&quot;default&quot;:&quot;normal&quot;,&quot;tsType&quot;:&quot;'normal' | 'busqueda' | 'vacio'&quot;}}">
+class Component extends DCLogic {
+  ic(name, size, sw) {
+    size = size || 18; sw = sw || 2;
+    const P = (d) => ['path', { d }];
+    const M = {
+      mark: [P('M3 12h4l2-7 4 14 2-7h6')],
+      hoy: [['rect', { x: 3, y: 4, width: 18, height: 18, rx: 2 }], P('M16 2v4M8 2v4M3 10h18'), P('M8 15h.01M12 15h4')],
+      clientes: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75')],
+      ventas: [['rect', { x: 3, y: 3, width: 5, height: 18, rx: 1 }], ['rect', { x: 10, y: 3, width: 5, height: 12, rx: 1 }], ['rect', { x: 17, y: 3, width: 4, height: 8, rx: 1 }]],
+      equipo: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('m16 11 2 2 4-4')],
+      plus: [P('M12 5v14M5 12h14')],
+      search: [['circle', { cx: 11, cy: 11, r: 7 }], P('m21 21-4.3-4.3')],
+      close: [P('M18 6 6 18M6 6l12 12')],
+      logout: [P('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9')],
+    };
+    const parts = (M[name] || []).map((c, i) => React.createElement(c[0], Object.assign({ key: i }, c[1])));
+    return React.createElement('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round' }, parts);
+  }
+
+  highlight(name, q) {
+    if (!q) return name;
+    const i = name.toLowerCase().indexOf(q.toLowerCase());
+    if (i < 0) return name;
+    const pre = name.slice(0, i), mid = name.slice(i, i + q.length), post = name.slice(i + q.length);
+    return React.createElement('span', null,
+      pre,
+      React.createElement('span', { style: { background: 'var(--brand-subtle)', color: 'var(--brand-hover)', borderRadius: '3px', padding: '0 1px', fontWeight: 800 } }, mid),
+      post,
+    );
+  }
+
+  renderVals() {
+    const mode = this.props.mode || 'desktop';
+    const scenario = this.props.scenario || 'normal';
+    const isDesktop = mode === 'desktop';
+    const isMobile = mode === 'mobile';
+    const isVacio = scenario === 'vacio';
+    const isBusqueda = scenario === 'busqueda';
+    const query = isBusqueda ? 'ra' : '';
+
+    const master = [
+      { nombre: 'Laura Fernández', linea: '+52 55 1234 5678', mono: true, canal: 'WhatsApp', estado: 'En negociación', tone: 'warning' },
+      { nombre: 'Carlos Méndez', linea: 'Último contacto hace 3 d', mono: false, canal: 'Referido', estado: 'Nuevo lead', tone: 'neutral' },
+      { nombre: 'Ana Torres', linea: '+52 33 3456 7890', mono: true, canal: 'Instagram', estado: 'Ganado', tone: 'success' },
+      { nombre: 'Miguel Ángel Ruiz', linea: '+52 664 456 7890', mono: true, canal: 'Sitio web', estado: 'Ganado', tone: 'success' },
+      { nombre: 'Sofía Ramírez', linea: '+52 55 5678 9012', mono: true, canal: 'WhatsApp', estado: 'En negociación', tone: 'warning' },
+      { nombre: 'Diego Herrera', linea: 'Último contacto hace 1 sem', mono: false, canal: 'Llamada', estado: 'Nuevo lead', tone: 'neutral' },
+      { nombre: 'Valentina Cruz', linea: '+52 442 789 0123', mono: true, canal: 'Instagram', estado: 'Perdido', tone: 'danger' },
+      { nombre: 'Jorge Domínguez', linea: '+52 477 890 1234', mono: true, canal: 'Referido', estado: 'En negociación', tone: 'warning' },
+    ];
+
+    let list = master;
+    if (isVacio) list = [];
+    else if (isBusqueda) list = master.filter((c) => c.nombre.toLowerCase().includes(query));
+
+    const clientes = list.map((c) => ({
+      nombre: c.nombre,
+      nombreEl: isBusqueda ? this.highlight(c.nombre, query) : c.nombre,
+      linea: c.linea,
+      lineaClass: c.mono ? 'mono' : '',
+      canal: c.canal, estado: c.estado, tone: c.tone,
+    }));
+
+    const contentStyle = {
+      position: 'absolute', top: '56px', right: 0, bottom: isMobile ? '64px' : 0,
+      left: isDesktop ? '248px' : 0, overflowY: 'auto',
+    };
+    const padX = isMobile ? '16px' : '32px';
+    const searchWrapStyle = { padding: (isMobile ? '14px' : '18px') + ' 0 12px' };
+    const innerXStyle = { maxWidth: isDesktop ? '1000px' : 'none', margin: '0 auto', padding: '0 ' + padX };
+    const innerStyle = { maxWidth: isDesktop ? '1000px' : 'none', margin: '0 auto', padding: '0 ' + padX + ' ' + (isMobile ? '24px' : '32px') };
+    const gridStyle = isDesktop
+      ? { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '14px' }
+      : { display: 'flex', flexDirection: 'column', gap: '12px' };
+
+    return {
+      isDesktop, isMobile, isVacio, hasList: !isVacio,
+      clientes, showClear: isBusqueda,
+      queryText: isBusqueda ? query : 'Buscar por nombre o teléfono',
+      queryColor: isBusqueda ? 'var(--text-primary)' : 'var(--text-muted)',
+      totalNum: isBusqueda ? String(clientes.length) : String(master.length),
+      totalLabel: isBusqueda ? 'resultados' : 'clientes',
+      contentStyle, searchWrapStyle, innerXStyle, innerStyle, gridStyle,
+      icMark: this.ic('mark', 22, 2.4),
+      icHoy: this.ic('hoy', 18), icClientes: this.ic('clientes', 18), icVentas: this.ic('ventas', 18), icEquipo: this.ic('equipo', 18),
+      icHoyTab: this.ic('hoy', 22), icClientesTab: this.ic('clientes', 22), icVentasTab: this.ic('ventas', 22),
+      icPlus: this.ic('plus', 16), icPlusLg: this.ic('plus', 26, 2.4),
+      icSearch: this.ic('search', 16), icClose: this.ic('close', 16),
+      icClientesBig: this.ic('clientes', 24), icLogout: this.ic('logout', 18),
+    };
+  }
+}
+</script>
+</body>
+</html>

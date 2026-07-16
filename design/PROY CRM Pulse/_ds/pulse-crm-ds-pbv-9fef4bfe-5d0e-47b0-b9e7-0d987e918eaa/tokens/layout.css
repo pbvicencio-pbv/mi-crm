@@ -1,0 +1,55 @@
+/* ============================================================
+   Pulse CRM — Spacing, radii, shadows, layout tokens
+   4px base grid.
+   ============================================================ */
+
+:root {
+  /* Spacing scale (4px base) */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Radii — subtle, 6px default */
+  --radius-none: 0;
+  --radius-sm:  4px;
+  --radius-md:  6px;   /* inputs, buttons, badges */
+  --radius-lg:  8px;   /* cards */
+  --radius-xl:  12px;  /* modals, large panels */
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* Borders */
+  --border-width: 1px;
+
+  /* Shadows — cool-tinted, soft. Layered elevation. */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 8px -2px rgba(15, 23, 42, 0.10), 0 2px 4px -2px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 12px 20px -4px rgba(15, 23, 42, 0.12), 0 4px 8px -4px rgba(15, 23, 42, 0.06);
+  --shadow-xl: 0 24px 40px -8px rgba(15, 23, 42, 0.18), 0 8px 16px -8px rgba(15, 23, 42, 0.08);
+
+  /* Focus ring width reference used by components */
+  --focus-ring-width: 3px;
+
+  /* Layout constants */
+  --sidebar-width: 248px;
+  --topbar-height: 56px;
+  --content-max: 1200px;
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1); /* @kind other */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --duration-fast: 120ms; /* @kind other */
+  --duration-base: 180ms; /* @kind other */
+  --duration-slow: 260ms; /* @kind other */
+}

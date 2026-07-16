@@ -1,0 +1,50 @@
+/* ============================================================
+   Pulse CRM — Typography tokens
+   Plus Jakarta Sans for UI, JetBrains Mono for data/numeric.
+   ============================================================ */
+
+:root {
+  /* Families */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Weights */
+  --fw-regular:  400; /* @kind font */
+  --fw-medium:   500; /* @kind font */
+  --fw-semibold: 600; /* @kind font */
+  --fw-bold:     700; /* @kind font */
+  --fw-extrabold: 800; /* @kind font */
+
+  /* Type scale (px) — CRM UI runs tight; body is 14. */
+  --text-xs:   12px;
+  --text-sm:   13px;
+  --text-base: 14px;   /* default body */
+  --text-md:   15px;
+  --text-lg:   16px;
+  --text-xl:   18px;
+  --text-2xl:  22px;
+  --text-3xl:  28px;
+  --text-4xl:  36px;
+  --text-5xl:  48px;
+
+  /* Line heights */
+  --leading-tight:  1.2;
+  --leading-snug:   1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* Letter spacing */
+  --tracking-tight:  -0.02em;
+  --tracking-snug:   -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.04em;
+
+  /* ---- Semantic text roles ---- */
+  --display:   var(--fw-extrabold) var(--text-4xl)/var(--leading-tight) var(--font-sans);
+  --heading:   var(--fw-bold) var(--text-2xl)/var(--leading-snug) var(--font-sans);
+  --title:     var(--fw-semibold) var(--text-lg)/var(--leading-snug) var(--font-sans);
+  --body:      var(--fw-regular) var(--text-base)/var(--leading-normal) var(--font-sans);
+  --label:     var(--fw-medium) var(--text-sm)/var(--leading-snug) var(--font-sans);
+  --caption:   var(--fw-medium) var(--text-xs)/var(--leading-snug) var(--font-sans);
+  --overline:  var(--fw-semibold) var(--text-xs)/1 var(--font-sans);  /* + uppercase + tracking-wide */
+}

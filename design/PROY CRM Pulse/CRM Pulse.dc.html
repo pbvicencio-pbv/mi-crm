@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/base.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/styles.css">
+  <script src="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/_ds_bundle.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{background:var(--surface-page);font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--text-primary);-webkit-font-smoothing:antialiased}
+    a{color:var(--text-link);text-decoration:none}
+    a:hover{color:var(--brand-hover)}
+    .mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+    button{font-family:inherit}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes slideInRight{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    @keyframes dialogPop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .navbtn:hover{background:var(--surface-sunken)}
+    .rowbtn:hover{background:var(--surface-hover)}
+    .agcard{transition:box-shadow 140ms cubic-bezier(0.2,0,0,1),border-color 140ms cubic-bezier(0.2,0,0,1)}
+    .agcard:hover{box-shadow:var(--shadow-md);border-color:var(--border-strong)}
+    .chk:hover{border-color:var(--brand);background:var(--brand-subtle)}
+    .vopt:hover{background:var(--surface-hover)}
+    @keyframes skpulse{0%,100%{opacity:1}50%{opacity:.5}}
+    .sk{background:var(--surface-sunken);border-radius:6px;animation:skpulse 1.2s ease-in-out infinite}
+  </style>
+</helmet>
+<div style="min-height:100vh;position:relative">
+
+  <sc-if value="{{ showLogin }}" hint-placeholder-val="{{ true }}">
+    <div style="position:fixed;inset:0;z-index:100">
+      <dc-import name="LoginScreen" mode="{{ loginMode }}" on-entrar="{{ login }}" hint-size="100%,100%"></dc-import>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ authed }}" hint-placeholder-val="{{ false }}">
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ false }}">
+    <aside style="position:fixed;top:0;left:0;width:248px;height:100vh;background:var(--surface-card);border-right:1px solid var(--border-default);display:flex;flex-direction:column;z-index:40">
+      <div style="height:56px;display:flex;align-items:center;gap:9px;padding:0 20px;border-bottom:1px solid var(--border-subtle)">
+        <span style="display:inline-flex;color:var(--brand)">{{ icMark }}</span>
+        <span style="font-weight:800;font-size:19px;letter-spacing:-0.02em">Pulse<span style="color:var(--brand)">.</span></span>
+      </div>
+      <nav style="display:flex;flex-direction:column;gap:2px;padding:14px 12px;flex:1">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:6px 12px 8px">Trabajo</div>
+        <button class="navbtn" onClick="{{ goHoy }}" style="{{ navHoyStyle }}">{{ icNavHoy }}<span>Hoy</span><span class="mono" style="{{ navHoyBadge }}">{{ countHoy }}</span></button>
+        <button class="navbtn" onClick="{{ goClientes }}" style="{{ navCliStyle }}">{{ icNavClientes }}<span>Clientes</span><span class="mono" style="margin-left:auto;font-size:12px;color:var(--text-muted)">{{ totalClientes }}</span></button>
+        <button class="navbtn" onClick="{{ goVentas }}" style="{{ navVentasStyle }}">{{ icNavVentas }}<span>Ventas</span></button>
+        <sc-if value="{{ roleDuena }}" hint-placeholder-val="{{ true }}">
+          <button class="navbtn" onClick="{{ goEquipo }}" style="{{ navEquipoStyle }}">{{ icNavEquipo }}<span>Equipo</span></button>
+        </sc-if>
+        <div style="padding:14px 4px 4px">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="100%,40px" variant="primary" full-width="{{ true }}" onClick="{{ openNuevo }}" icon-left="{{ icPlus }}">Nuevo cliente</x-import>
+        </div>
+      </nav>
+      <button class="navbtn" onClick="{{ toggleAccount }}" style="border:none;border-top:1px solid var(--border-subtle);background:none;width:100%;text-align:left;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="34px,34px" name="{{ account.nombre }}" size="sm"></x-import>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ account.nombre }}</div>
+          <div style="font-size:11px;color:var(--text-muted)">{{ account.rol }}</div>
+        </div>
+        <span style="color:var(--text-muted);display:inline-flex">{{ icChevUp }}</span>
+      </button>
+    </aside>
+  </sc-if>
+
+  <header style="{{ topbarStyle }}">
+    <div style="display:flex;align-items:center;gap:6px;min-width:0">
+      <sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.IconButton" hint-size="36px,36px" aria-label="Atrás" variant="ghost" size="sm" onClick="{{ back }}">{{ icBack }}</x-import>
+      </sc-if>
+      <div style="min-width:0">
+        <div style="font-size:17px;font-weight:800;letter-spacing:-0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ title }}</div>
+        <sc-if value="{{ subtitle }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:var(--text-muted);white-space:nowrap">{{ subtitle }}</div></sc-if>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <sc-if value="{{ showFicha }}" hint-placeholder-val="{{ false }}">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.IconButton" hint-size="36px,36px" aria-label="Editar cliente" variant="ghost" size="sm" onClick="{{ openEditar }}">{{ icMore }}</x-import>
+      </sc-if>
+      <sc-if value="{{ showClientesDesktop }}" hint-placeholder-val="{{ false }}">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,36px" variant="primary" size="sm" onClick="{{ openNuevo }}" icon-left="{{ icPlus }}">Nuevo cliente</x-import>
+      </sc-if>
+      <sc-if value="{{ showAccountAvatar }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ toggleAccount }}" aria-label="Mi cuenta" style="border:none;background:none;padding:2px;cursor:pointer;display:inline-flex;border-radius:999px">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="34px,34px" name="{{ account.nombre }}" size="sm"></x-import>
+        </button>
+      </sc-if>
+    </div>
+  </header>
+
+  <main style="{{ mainStyle }}">
+    <div style="{{ innerStyle }}">
+
+      <sc-if value="{{ showHoy }}" hint-placeholder-val="{{ true }}">
+        <div style="animation:fadeIn 180ms cubic-bezier(0.2,0,0,1);display:flex;flex-direction:column;gap:22px">
+          <div>
+            <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em">{{ greeting }}</div>
+            <div class="mono" style="font-size:13px;color:var(--text-secondary);margin-top:3px">{{ fechaHoy }}</div>
+          </div>
+
+          <sc-if value="{{ allDone }}" hint-placeholder-val="{{ false }}">
+            <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:48px 28px;display:flex;flex-direction:column;align-items:center;text-align:center">
+              <div style="width:56px;height:56px;border-radius:50%;background:var(--success-bg);color:var(--success-solid);display:flex;align-items:center;justify-content:center;margin-bottom:16px">{{ icCheckBig }}</div>
+              <div style="font-size:18px;font-weight:800;letter-spacing:-0.02em">Todo al día</div>
+              <div style="font-size:14px;color:var(--text-secondary);margin-top:6px;max-width:340px;line-height:1.5">No tienes seguimientos vencidos ni pendientes para hoy. Buen momento para prospectar.</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ hasPendientes }}" hint-placeholder-val="{{ true }}">
+            <div style="{{ sectionsWrapStyle }}">
+              <sc-if value="{{ hasVencidas }}" hint-placeholder-val="{{ true }}">
+                <section style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#DC2626">Vencidos</span><span class="mono" style="font-size:11px;font-weight:700;color:#DC2626;background:var(--danger-bg);border-radius:999px;padding:1px 7px">{{ countVencidas }}</span></div>
+                  <div style="display:flex;flex-direction:column;gap:12px">
+                    <sc-for list="{{ tasksVencidas }}" as="t" hint-placeholder-count="1">
+                      <div class="agcard" role="button" tabindex="0" onClick="{{ t.open }}" style="{{ t.cardStyle }}">
+                        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="40px,40px" name="{{ t.nombre }}" size="md"></x-import>
+                        <div style="flex:1;min-width:0">
+                          <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.nombre }}</div>
+                          <div style="font-size:13px;color:var(--text-secondary);margin-top:1px;{{ t.titleDeco }}">{{ t.motivo }}</div>
+                          <div style="display:flex;align-items:center;gap:6px;margin-top:8px;color:{{ t.dateColor }}">{{ icClock }}<span class="mono" style="font-size:12px;font-weight:600">{{ t.hora }}</span></div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:none">
+                          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" tone="{{ t.tone }}" dot="{{ true }}">{{ t.estado }}</x-import>
+                          <button class="chk" onClick="{{ t.toggle }}" aria-label="Marcar hecho" style="{{ t.checkStyle }}">{{ t.checkIcon }}</button>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </section>
+              </sc-if>
+
+              <section style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-secondary)">Hoy</span><span class="mono" style="font-size:11px;font-weight:700;color:var(--brand);background:var(--brand-subtle);border-radius:999px;padding:1px 7px">{{ countHoy }}</span></div>
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <sc-for list="{{ tasksHoy }}" as="t" hint-placeholder-count="3">
+                    <div class="agcard" role="button" tabindex="0" onClick="{{ t.open }}" style="{{ t.cardStyle }}">
+                      <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="40px,40px" name="{{ t.nombre }}" size="md"></x-import>
+                      <div style="flex:1;min-width:0">
+                        <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.nombre }}</div>
+                        <div style="font-size:13px;color:var(--text-secondary);margin-top:1px;{{ t.titleDeco }}">{{ t.motivo }}</div>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:8px;color:{{ t.dateColor }}">{{ icClock }}<span class="mono" style="font-size:12px;font-weight:600">{{ t.hora }}</span></div>
+                      </div>
+                      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:none">
+                        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" tone="{{ t.tone }}" dot="{{ true }}">{{ t.estado }}</x-import>
+                        <button class="chk" onClick="{{ t.toggle }}" aria-label="Marcar hecho" style="{{ t.checkStyle }}">{{ t.checkIcon }}</button>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </section>
+            </div>
+
+            <sc-if value="{{ hasProximas }}" hint-placeholder-val="{{ true }}">
+              <section>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-secondary)">Próximas</span></div>
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <sc-for list="{{ tasksProximas }}" as="t" hint-placeholder-count="2">
+                    <div class="agcard" role="button" tabindex="0" onClick="{{ t.open }}" style="{{ t.cardStyle }}">
+                      <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="40px,40px" name="{{ t.nombre }}" size="md"></x-import>
+                      <div style="flex:1;min-width:0">
+                        <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.nombre }}</div>
+                        <div style="font-size:13px;color:var(--text-secondary);margin-top:1px;{{ t.titleDeco }}">{{ t.motivo }}</div>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:8px;color:{{ t.dateColor }}">{{ icClock }}<span class="mono" style="font-size:12px;font-weight:600">{{ t.hora }}</span></div>
+                      </div>
+                      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:none">
+                        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" tone="{{ t.tone }}" dot="{{ true }}">{{ t.estado }}</x-import>
+                        <button class="chk" onClick="{{ t.toggle }}" aria-label="Marcar hecho" style="{{ t.checkStyle }}">{{ t.checkIcon }}</button>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </section>
+            </sc-if>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showClientes }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeIn 180ms cubic-bezier(0.2,0,0,1);display:flex;flex-direction:column;gap:16px">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,40px" placeholder="Buscar por nombre o empresa" value="{{ search }}" onChange="{{ setSearch }}" prefix="{{ icSearch }}"></x-import>
+          <div style="font-size:12px;color:var(--text-muted)"><span class="mono" style="font-weight:600;color:var(--text-secondary)">{{ resultCount }}</span> clientes</div>
+          <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);overflow:visible">
+            <sc-for list="{{ filteredClients }}" as="c" hint-placeholder-count="6">
+              <div style="position:relative;display:flex;align-items:center;border-bottom:1px solid var(--border-subtle)">
+                <button class="rowbtn" onClick="{{ c.open }}" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-align:left;background:none;border:none;padding:12px 4px 12px 14px;cursor:pointer">
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="40px,40px" name="{{ c.nombre }}" size="md"></x-import>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.nombre }}</div>
+                    <div style="font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.empresa }}</div>
+                  </div>
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" tone="{{ c.tone }}" dot="{{ true }}">{{ c.estado }}</x-import>
+                </button>
+                <button onClick="{{ c.onMenu }}" aria-label="Acciones" style="width:40px;height:44px;flex:none;border:none;background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted)">{{ icMore }}</button>
+                <sc-if value="{{ c.menuOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:46px;right:10px;z-index:20;min-width:150px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xl);overflow:hidden;animation:fadeIn 120ms ease-out">
+                    <button onClick="{{ c.onEdit }}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:none;background:none;padding:11px 14px;font-size:14px;font-family:inherit;cursor:pointer;color:var(--text-primary)">{{ icEditar }}<span>Editar</span></button>
+                    <button onClick="{{ c.onDelete }}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:none;border-top:1px solid var(--border-subtle);background:none;padding:11px 14px;font-size:14px;font-family:inherit;cursor:pointer;color:#DC2626">{{ icTrash }}<span>Eliminar</span></button>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:36px 20px;text-align:center;color:var(--text-muted);font-size:13px">No hay clientes que coincidan con la búsqueda.</div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showFicha }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:slideInRight 220ms cubic-bezier(0.2,0,0,1)">
+          <div style="{{ fichaColsStyle }}">
+
+            <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+              <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:18px">
+                <div style="display:flex;align-items:center;gap:14px">
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="56px,56px" name="{{ client.nombre }}" size="xl"></x-import>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:19px;font-weight:800;letter-spacing:-0.02em">{{ client.nombre }}</div>
+                    <div style="font-size:13px;color:var(--text-secondary)">{{ client.puesto }} · {{ client.empresa }}</div>
+                  </div>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,22px" tone="{{ client.tone }}" dot="{{ true }}">{{ client.estado }}</x-import>
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,22px" variant="outline" tone="neutral">{{ client.canal }}</x-import>
+                </div>
+                <div style="display:flex;gap:14px;margin-top:18px">
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                    <button aria-label="WhatsApp" style="width:44px;height:44px;border-radius:50%;border:none;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">{{ icWa }}</button>
+                    <span style="font-size:11px;color:var(--text-secondary)">WhatsApp</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                    <button aria-label="Llamar" style="width:44px;height:44px;border-radius:50%;border:none;background:#64748B;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">{{ icCall }}</button>
+                    <span style="font-size:11px;color:var(--text-secondary)">Llamar</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                    <button aria-label="Email" style="width:44px;height:44px;border-radius:50%;border:none;background:#3B82F6;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">{{ icEmail }}</button>
+                    <span style="font-size:11px;color:var(--text-secondary)">Email</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);overflow:hidden">
+                <div style="padding:14px 16px 12px;font-size:14px;font-weight:700">Datos</div>
+                <sc-for list="{{ datosRows }}" as="d" hint-placeholder-count="5">
+                  <div style="display:flex;gap:12px;padding:11px 16px;border-top:1px solid var(--border-subtle)">
+                    <span style="font-size:12px;color:var(--text-muted);width:104px;flex:none">{{ d.label }}</span>
+                    <span class="{{ d.cls }}" style="font-size:13px;flex:1;min-width:0;word-break:break-word">{{ d.valor }}</span>
+                  </div>
+                </sc-for>
+              </div>
+
+              <button onClick="{{ deleteClienteActual }}" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:42px;border:1px solid var(--border-default);border-radius:8px;background:var(--surface-card);color:#DC2626;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer">{{ icTrash }}<span>Eliminar cliente</span></button>
+            </div>
+              <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:16px 18px">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+                  <div style="font-size:14px;font-weight:700">Próximo seguimiento</div>
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,32px" variant="secondary" size="sm" onClick="{{ openSeguimiento }}" icon-left="{{ icCalendar }}">Programar</x-import>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <button class="chk" aria-label="Marcar hecho" style="width:44px;height:44px;border-radius:50%;flex:none;border:2px solid var(--border-strong);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer">{{ icCheckSeg }}</button>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:14px;font-weight:600">{{ proximoMotivo }}</div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-top:4px;color:var(--warning-fg)">{{ icClock }}<span class="mono" style="font-size:12px;font-weight:600">{{ proximoFecha }}</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:16px 18px">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
+                  <div style="font-size:14px;font-weight:700">Interacciones</div>
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,32px" variant="secondary" size="sm" onClick="{{ openInteraccion }}" icon-left="{{ icPlus }}">Anotar</x-import>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:14px">
+                  <sc-for list="{{ clientActivities }}" as="a" hint-placeholder-count="3">
+                    <div style="display:flex;gap:11px">
+                      <span style="width:30px;height:30px;border-radius:8px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:{{ a.iconBg }};color:{{ a.iconFg }}">{{ a.icon }}</span>
+                      <div style="flex:1;min-width:0">
+                        <div style="font-size:13px;color:var(--text-primary)">{{ a.texto }}</div>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:2px"><span class="mono">{{ a.hora }}</span> · {{ a.autor }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:16px 18px">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px">
+                  <div style="font-size:14px;font-weight:700">Ventas</div>
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,32px" variant="secondary" size="sm" onClick="{{ openVenta }}" icon-left="{{ icPlus }}">Registrar</x-import>
+                </div>
+                <sc-for list="{{ fichaVentas }}" as="v" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--border-subtle)">
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:14px;font-weight:600">{{ v.producto }}</div>
+                      <div class="mono" style="font-size:11px;color:var(--text-muted);margin-top:2px">{{ v.fecha }}</div>
+                    </div>
+                    <span class="mono" style="font-size:14px;font-weight:700;color:#059669">{{ v.importe }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showVentas }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeIn 180ms cubic-bezier(0.2,0,0,1);display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;justify-content:flex-end">
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,38px" variant="primary" size="sm" onClick="{{ openVenta }}" icon-left="{{ icPlus }}">Añadir venta</x-import>
+          </div>
+          <div style="display:flex;gap:12px">
+            <div style="flex:1;background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:14px 16px">
+              <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:50%;background:#F59E0B"></span><span style="font-size:12px;color:var(--text-secondary)">En marcha</span></div>
+              <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px"><span class="mono" style="font-size:24px;font-weight:700;color:#F59E0B">{{ ventasMEnMarchaCount }}</span><span class="mono" style="font-size:13px;font-weight:600;color:var(--text-secondary)">{{ ventasMEnMarchaImporte }}</span></div>
+            </div>
+            <div style="flex:1;background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:14px 16px">
+              <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:50%;background:#059669"></span><span style="font-size:12px;color:var(--text-secondary)">Ganado</span></div>
+              <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px"><span class="mono" style="font-size:24px;font-weight:700;color:#059669">{{ ventasMGanadoCount }}</span><span class="mono" style="font-size:13px;font-weight:600;color:var(--text-secondary)">{{ ventasMGanadoImporte }}</span></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <sc-for list="{{ ventasFiltros }}" as="f" hint-placeholder-count="4">
+              <button onClick="{{ f.onClick }}" style="{{ f.style }}">{{ f.label }}</button>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <div style="flex:1;min-width:160px">
+              <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="100%,40px" size="sm" label="Cliente" options="{{ ventClienteOpts }}" value="{{ ventaFiltroCliente }}" onChange="{{ ventaSetCliente }}"></x-import>
+            </div>
+            <div style="flex:1;min-width:160px">
+              <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="100%,40px" size="sm" label="Periodo" options="{{ ventPeriodoOpts }}" value="{{ ventaFiltroPeriodo }}" onChange="{{ ventaSetPeriodo }}"></x-import>
+            </div>
+          </div>
+          <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);overflow:visible">
+            <sc-for list="{{ ventasListado }}" as="v" hint-placeholder-count="6">
+              <div style="position:relative;display:flex;align-items:center;border-bottom:1px solid var(--border-subtle)">
+                <button class="rowbtn" onClick="{{ v.onEdit }}" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-align:left;background:none;border:none;padding:13px 4px 13px 16px;cursor:pointer">
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ v.producto }}</div>
+                    <div style="font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:var(--text-muted)">Cliente:</span> {{ v.cliente }}</div>
+                    <div style="font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px"><span style="color:var(--text-muted)">Vendedor:</span> {{ v.vendedor }} · <span class="mono">{{ v.fecha }}</span></div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none">
+                    <span class="mono" style="font-size:14px;font-weight:700">{{ v.importe }}</span>
+                    <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:{{ v.bg }};color:{{ v.fg }}"><span style="width:6px;height:6px;border-radius:50%;background:{{ v.dot }}"></span>{{ v.estado }}</span>
+                  </div>
+                </button>
+                <button onClick="{{ v.onMenu }}" aria-label="Acciones" style="width:40px;height:44px;flex:none;border:none;background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted)">{{ icMore }}</button>
+                <sc-if value="{{ v.menuOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:46px;right:10px;z-index:20;min-width:150px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xl);overflow:hidden;animation:fadeIn 120ms ease-out">
+                    <button onClick="{{ v.onEdit }}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:none;background:none;padding:11px 14px;font-size:14px;font-family:inherit;cursor:pointer;color:var(--text-primary)">{{ icEditar }}<span>Editar</span></button>
+                    <button onClick="{{ v.onDelete }}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:none;border-top:1px solid var(--border-subtle);background:none;padding:11px 14px;font-size:14px;font-family:inherit;cursor:pointer;color:#DC2626">{{ icTrash }}<span>Eliminar</span></button>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showEquipo }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeIn 180ms cubic-bezier(0.2,0,0,1);display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <div style="font-size:13px;color:var(--text-secondary)"><span class="mono" style="font-weight:600;color:var(--text-primary)">{{ equipoCount }}</span> usuarios</div>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,36px" variant="primary" size="sm" onClick="{{ openUsuario }}" icon-left="{{ icPlus }}">Añadir usuario</x-import>
+          </div>
+          <sc-if value="{{ equipoLoading }}" hint-placeholder-val="{{ true }}">
+            <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:16px;display:flex;flex-direction:column;gap:16px">
+              <div class="sk" style="height:16px;width:60%"></div><div class="sk" style="height:16px;width:50%"></div><div class="sk" style="height:16px;width:55%"></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ equipoVacioView }}" hint-placeholder-val="{{ false }}">
+            <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:44px 24px;text-align:center">
+              <div style="font-size:16px;font-weight:800">Aún no hay usuarios</div>
+              <div style="font-size:14px;color:var(--text-secondary);margin-top:6px">Añade a las personas de tu equipo para darles acceso.</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ equipoListView }}" hint-placeholder-val="{{ true }}">
+            <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);overflow:hidden">
+              <sc-for list="{{ teamRows }}" as="m" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap">
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="40px,40px" name="{{ m.nombre }}" size="md"></x-import>
+                  <div style="flex:1;min-width:120px">
+                    <div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.nombre }}</div>
+                    <div class="mono" style="font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.email }}</div>
+                  </div>
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" tone="{{ m.rolTone }}" dot="{{ true }}">{{ m.rol }}</x-import>
+                  <div style="width:130px"><x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="130px,36px" size="sm" options="{{ m.rolOpts }}" value="{{ m.rol }}" onChange="{{ m.onRol }}"></x-import></div>
+                  <button onClick="{{ m.onEdit }}" title="Editar usuario" aria-label="Editar usuario" style="width:36px;height:36px;flex:none;border:none;border-radius:6px;background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary)">{{ icEditar }}</button>
+                  <button onClick="{{ m.onDelete }}" title="{{ m.delTitle }}" aria-label="Eliminar usuario" style="{{ m.delStyle }}">{{ icTrash }}</button>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showCuenta }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:fadeIn 180ms cubic-bezier(0.2,0,0,1);max-width:640px;margin:0 auto">
+          <sc-if value="{{ cuentaLoading }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:18px;display:flex;align-items:center;gap:14px">
+                <div class="sk" style="width:56px;height:56px;border-radius:50%"></div>
+                <div style="flex:1"><div class="sk" style="height:16px;width:55%"></div><div class="sk" style="height:12px;width:75%;margin-top:8px"></div></div>
+              </div>
+              <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:16px;display:flex;flex-direction:column;gap:16px">
+                <div class="sk" style="height:14px;width:45%"></div><div class="sk" style="height:14px;width:55%"></div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ cuentaOk }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:18px;display:flex;align-items:center;gap:14px">
+                <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="56px,56px" name="{{ account.nombre }}" size="xl"></x-import>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:19px;font-weight:800;letter-spacing:-0.02em">{{ account.nombre }}</div>
+                  <div class="mono" style="font-size:13px;color:var(--text-secondary);margin-top:1px">{{ account.correo }}</div>
+                </div>
+                <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,22px" tone="brand" dot="{{ true }}">{{ account.rol }}</x-import>
+              </div>
+              <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);overflow:hidden">
+                <button class="navbtn" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:none;background:none;padding:14px 16px;border-bottom:1px solid var(--border-subtle);cursor:pointer"><span style="color:var(--text-secondary);display:inline-flex">{{ icEditar }}</span><span style="flex:1;font-size:14px;font-weight:600">Editar datos</span><span style="color:var(--text-muted);display:inline-flex">{{ icChevron }}</span></button>
+                <button class="navbtn" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:none;background:none;padding:14px 16px;cursor:pointer"><span style="color:var(--text-secondary);display:inline-flex">{{ icLock }}</span><span style="flex:1;font-size:14px;font-weight:600">Cambiar contraseña</span><span style="color:var(--text-muted);display:inline-flex">{{ icChevron }}</span></button>
+              </div>
+              <sc-if value="{{ roleDuena }}" hint-placeholder-val="{{ true }}">
+                <div>
+                  <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin:2px 0 8px 2px">Administración</div>
+                  <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);overflow:hidden">
+                    <button class="navbtn" onClick="{{ goEquipo }}" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:none;background:none;padding:14px 16px;cursor:pointer"><span style="color:var(--brand);display:inline-flex">{{ icUsersRow }}</span><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">Usuarios</div><div style="font-size:12px;color:var(--text-muted)">Gestiona el acceso de tu equipo</div></div><span style="color:var(--text-muted);display:inline-flex">{{ icChevron }}</span></button>
+                  </div>
+                </div>
+              </sc-if>
+              <button onClick="{{ logout }}" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:1px solid var(--danger-border);background:var(--danger-bg);border-radius:8px;padding:13px;cursor:pointer;color:#DC2626;font-size:14px;font-weight:700;margin-top:4px">{{ icLogout }}<span>Cerrar sesión</span></button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+    </div>
+  </main>
+
+  <sc-if value="{{ showBottomNav }}" hint-placeholder-val="{{ true }}">
+    <nav style="position:fixed;left:0;right:0;bottom:0;height:64px;background:var(--surface-card);border-top:1px solid var(--border-default);display:flex;align-items:stretch;z-index:50;padding-bottom:env(safe-area-inset-bottom)">
+      <div style="flex:1;display:flex">
+        <button class="tabbtn" onClick="{{ goHoy }}" style="{{ tabHoyStyle }}">{{ icTabHoy }}<span style="font-size:11px;font-weight:600">Hoy</span></button>
+        <button class="tabbtn" onClick="{{ goClientes }}" style="{{ tabCliStyle }}">{{ icTabClientes }}<span style="font-size:11px;font-weight:600">Clientes</span></button>
+      </div>
+      <div style="width:76px;flex:none;position:relative">
+        <button onClick="{{ openNuevo }}" aria-label="Nuevo cliente" style="position:absolute;left:50%;top:-16px;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;background:var(--brand);color:#fff;border:3px solid var(--surface-card);box-shadow:0 6px 16px rgba(79,70,229,.4);display:flex;align-items:center;justify-content:center;cursor:pointer">{{ icPlusLg }}</button>
+      </div>
+      <div style="flex:1;display:flex">
+        <button class="tabbtn" onClick="{{ goVentas }}" style="{{ tabVentasStyle }}">{{ icTabVentas }}<span style="font-size:11px;font-weight:600">Ventas</span></button>
+      </div>
+    </nav>
+  </sc-if>
+
+  <sc-if value="{{ overlayOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeOverlay }}" style="{{ overlayWrapStyle }}">
+      <div onClick="{{ stop }}" style="{{ sheetStyle }}">
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:16px 18px;border-bottom:1px solid var(--border-subtle);position:sticky;top:0;background:var(--surface-card);border-radius:inherit">
+          <div style="flex:1"><div style="font-size:16px;font-weight:800;letter-spacing:-0.02em">{{ overlayTitle }}</div><sc-if value="{{ overlaySubtitle }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--text-secondary);margin-top:1px">{{ overlaySubtitle }}</div></sc-if></div>
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.IconButton" hint-size="34px,34px" aria-label="Cerrar" variant="ghost" size="sm" onClick="{{ closeOverlay }}">{{ icClose }}</x-import>
+        </div>
+
+        <sc-if value="{{ isClienteForm }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:18px;display:flex;flex-direction:column;gap:14px">
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,58px" label="Nombre" required="{{ true }}" placeholder="Nombre y apellidos" value="{{ cfNombre }}" onInput="{{ cfSetNombre }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,58px" label="Empresa" placeholder="Nombre de la empresa" value="{{ cfEmpresa }}" onInput="{{ cfSetEmpresa }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,58px" label="Correo" type="email" placeholder="nombre@empresa.mx" value="{{ cfCorreo }}" onInput="{{ cfSetCorreo }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,58px" label="Teléfono" placeholder="+52 55 0000 0000" value="{{ cfTelefono }}" onInput="{{ cfSetTelefono }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="100%,58px" label="Estado" options="{{ estadoOptions }}" value="{{ cfEstado }}" onChange="{{ cfSetEstado }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Textarea" hint-size="100%,90px" label="Notas" placeholder="Añade una nota sobre este cliente"></x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isInteraccion }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:18px;display:flex;flex-direction:column;gap:18px">
+            <div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px">Tipo</div>
+              <div style="display:flex;gap:4px;background:var(--surface-sunken);border-radius:8px;padding:4px">
+                <sc-for list="{{ interTipos }}" as="t" hint-placeholder-count="3">
+                  <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.icon }}<span>{{ t.label }}</span></button>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px">¿Qué pasó?</div>
+              <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Textarea" hint-size="100%,96px" rows="4" placeholder="Describe brevemente la conversación o el resultado"></x-import>
+            </div>
+            <div style="display:flex;gap:14px;flex-wrap:wrap">
+              <div style="flex:1;min-width:140px">
+                <div style="font-size:13px;font-weight:600;margin-bottom:8px">Fecha</div>
+                <button style="display:flex;align-items:center;gap:10px;width:100%;height:40px;padding:0 12px;background:var(--surface-card);border:1px solid var(--border-strong);border-radius:6px;box-shadow:var(--shadow-xs);cursor:pointer;color:var(--text-primary)">
+                  <span style="color:var(--text-muted);display:inline-flex">{{ icCalendar }}</span>
+                  <span class="mono" style="flex:1;text-align:left;font-size:13px;font-weight:600">Hoy</span>
+                  <span style="color:var(--text-muted);display:inline-flex">{{ icChevDown }}</span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px">Canal</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ interCanales }}" as="ch" hint-placeholder-count="4">
+                  <button onClick="{{ ch.onClick }}" style="{{ ch.style }}"><span style="width:8px;height:8px;border-radius:50%;background:{{ ch.dot }};flex:none"></span>{{ ch.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;background:var(--surface-sunken);border-radius:6px;padding:9px 12px">
+              <span style="color:var(--text-muted);display:inline-flex;flex:none">{{ icInfo }}</span>
+              <span style="font-size:12px;color:var(--text-secondary)">Se registrará como <span style="font-weight:700;color:var(--text-primary)">{{ interDerivado }}</span></span>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isSeguimiento }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:18px;display:flex;flex-direction:column;gap:18px">
+            <div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px">¿Cuándo?</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ segAtajos }}" as="a" hint-placeholder-count="4">
+                  <button onClick="{{ a.onClick }}" style="{{ a.style }}">{{ a.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="border:1px solid var(--border-default);border-radius:8px;padding:14px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                <button onClick="{{ segPrev }}" aria-label="Mes anterior" style="border:none;background:none;padding:4px;cursor:pointer;color:var(--text-muted);display:inline-flex">{{ icBack }}</button>
+                <span style="font-size:13px;font-weight:700">{{ segMesLabel }}</span>
+                <button onClick="{{ segNext }}" aria-label="Mes siguiente" style="border:none;background:none;padding:4px;cursor:pointer;color:var(--text-muted);display:inline-flex">{{ icChevron }}</button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
+                <sc-for list="{{ segDias }}" as="d" hint-placeholder-count="7">
+                  <div style="text-align:center;font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--text-muted);padding:4px 0">{{ d }}</div>
+                </sc-for>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">
+                <sc-for list="{{ segCells }}" as="c" hint-placeholder-count="35">
+                  <button class="mono" onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.num }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px">Motivo</div>
+              <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Textarea" hint-size="100%,80px" rows="3" placeholder="¿De qué tratará el seguimiento?"></x-import>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:9px;background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:6px;padding:10px 12px">
+              <span style="color:#F59E0B;display:inline-flex;flex:none;margin-top:1px">{{ icBell }}</span>
+              <span style="font-size:12px;color:var(--text-secondary);line-height:1.5">Aparecerá en tu <span style="font-weight:700;color:var(--text-primary)">Agenda (Hoy)</span> ese día.</span>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isVenta }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:18px;display:flex;flex-direction:column;gap:18px">
+            <div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px">¿Qué se vendió?</div>
+              <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,42px" placeholder="Ej. Curso de ventas, licencia anual…"></x-import>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px">Cliente</div>
+              <button onClick="{{ toggleDropCliente }}" style="display:flex;align-items:center;gap:8px;width:100%;height:42px;padding:0 12px;background:var(--surface-card);border:1px solid var(--border-strong);border-radius:6px;box-shadow:var(--shadow-xs);cursor:pointer">
+                <span style="flex:1;text-align:left;font-size:14px;color:{{ ventaClienteColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ ventaClienteLabel }}</span>
+                <span style="color:var(--text-muted);display:inline-flex">{{ icChevDown }}</span>
+              </button>
+              <sc-if value="{{ ventaDropCliente }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:6px;border:1px solid var(--border-default);border-radius:6px;box-shadow:var(--shadow-xs);overflow:hidden;max-height:220px;overflow-y:auto">
+                  <sc-for list="{{ clientesOpts }}" as="o" hint-placeholder-count="4">
+                    <button class="vopt" onClick="{{ o.onClick }}" style="display:block;width:100%;text-align:left;padding:10px 12px;border:none;background:none;font-size:13px;color:var(--text-primary);cursor:pointer">{{ o.name }}</button>
+                  </sc-for>
+                  <div style="display:flex;gap:6px;padding:8px;border-top:1px solid var(--border-subtle);background:var(--surface-page)">
+                    <input value="{{ ventaNewCliente }}" onInput="{{ ventaSetNewCliente }}" placeholder="Agregar cliente" style="flex:1;min-width:0;height:36px;padding:0 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface-card);font-size:13px;font-family:inherit;color:var(--text-primary);outline:none" />
+                    <button onClick="{{ addVentaCliente }}" aria-label="Agregar cliente" style="width:36px;height:36px;flex:none;border:none;border-radius:6px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">{{ icPlus }}</button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px">Vendedor</div>
+              <button onClick="{{ toggleDropVendedor }}" style="display:flex;align-items:center;gap:8px;width:100%;height:42px;padding:0 12px;background:var(--surface-card);border:1px solid var(--border-strong);border-radius:6px;box-shadow:var(--shadow-xs);cursor:pointer">
+                <span style="flex:1;text-align:left;font-size:14px;color:{{ ventaVendedorColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ ventaVendedorLabel }}</span>
+                <span style="color:var(--text-muted);display:inline-flex">{{ icChevDown }}</span>
+              </button>
+              <sc-if value="{{ ventaDropVendedor }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:6px;border:1px solid var(--border-default);border-radius:6px;box-shadow:var(--shadow-xs);overflow:hidden;max-height:220px;overflow-y:auto">
+                  <sc-for list="{{ vendedoresOpts }}" as="o" hint-placeholder-count="4">
+                    <button class="vopt" onClick="{{ o.onClick }}" style="display:block;width:100%;text-align:left;padding:10px 12px;border:none;background:none;font-size:13px;color:var(--text-primary);cursor:pointer">{{ o.name }}</button>
+                  </sc-for>
+                  <div style="display:flex;gap:6px;padding:8px;border-top:1px solid var(--border-subtle);background:var(--surface-page)">
+                    <input value="{{ ventaNewVendedor }}" onInput="{{ ventaSetNewVendedor }}" placeholder="Agregar vendedor" style="flex:1;min-width:0;height:36px;padding:0 10px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface-card);font-size:13px;font-family:inherit;color:var(--text-primary);outline:none" />
+                    <button onClick="{{ addVentaVendedor }}" aria-label="Agregar vendedor" style="width:36px;height:36px;flex:none;border:none;border-radius:6px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">{{ icPlus }}</button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px">Importe</div>
+              <div style="display:flex;align-items:center;gap:8px;height:56px;padding:0 16px;background:var(--surface-card);border:1px solid var(--border-strong);border-radius:8px;box-shadow:var(--shadow-xs)">
+                <span class="mono" style="font-size:24px;font-weight:700;color:var(--text-muted)">$</span>
+                <input value="{{ ventaImporte }}" onInput="{{ ventaSetImporte }}" inputmode="decimal" placeholder="0.00" class="mono" style="flex:1;min-width:0;border:none;outline:none;background:transparent;font-size:24px;font-weight:700;color:var(--text-primary)" />
+              </div>
+            </div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap">
+              <div>
+                <div style="font-size:13px;font-weight:600;margin-bottom:8px">Cantidad</div>
+                <div style="display:flex;align-items:center;gap:2px;border:1px solid var(--border-strong);border-radius:8px;overflow:hidden;width:fit-content">
+                  <button onClick="{{ ventaDec }}" aria-label="Menos" style="width:44px;height:44px;border:none;background:transparent;color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer">{{ icMinus }}</button>
+                  <span class="mono" style="min-width:44px;text-align:center;font-size:16px;font-weight:700">{{ ventaCant }}</span>
+                  <button onClick="{{ ventaInc }}" aria-label="Más" style="width:44px;height:44px;border:none;background:transparent;color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer">{{ icPlus }}</button>
+                </div>
+              </div>
+              <div style="flex:1;min-width:150px">
+                <div style="font-size:13px;font-weight:600;margin-bottom:8px">Fecha</div>
+                <button style="display:flex;align-items:center;gap:10px;width:100%;height:44px;padding:0 12px;background:var(--surface-card);border:1px solid var(--border-strong);border-radius:6px;box-shadow:var(--shadow-xs);cursor:pointer;color:var(--text-primary)">
+                  <span style="color:var(--text-muted);display:inline-flex">{{ icCalendar }}</span>
+                  <span class="mono" style="flex:1;text-align:left;font-size:13px;font-weight:600">Hoy</span>
+                  <span style="color:var(--text-muted);display:inline-flex">{{ icChevDown }}</span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px">Estado de la venta</div>
+              <div style="display:flex;gap:4px;background:var(--surface-sunken);border-radius:8px;padding:4px">
+                <sc-for list="{{ ventaEstados }}" as="e" hint-placeholder-count="3">
+                  <button onClick="{{ e.onClick }}" style="{{ e.style }}">{{ e.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--success-bg);border:1px solid var(--success-border);border-radius:8px;padding:14px 16px">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--text-secondary)">Total</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:1px">Importe × cantidad</div>
+              </div>
+              <span class="mono" style="font-size:22px;font-weight:800;color:#059669">{{ ventaTotal }}</span>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isUsuario }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:18px;display:flex;flex-direction:column;gap:14px">
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,58px" label="Nombre" required="{{ true }}" placeholder="Nombre y apellidos" value="{{ usuarioNombre }}" onInput="{{ usuarioSetNombre }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,58px" label="Email" type="email" placeholder="nombre@pulse.mx" value="{{ usuarioEmail }}" onInput="{{ usuarioSetEmail }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="100%,58px" label="Rol" options="{{ usuarioRolOpts }}" value="{{ usuarioRol }}" onChange="{{ usuarioSetRol }}"></x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isConfirmar }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:20px 18px;display:flex;gap:14px;align-items:flex-start">
+            <div style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--danger-bg);color:#DC2626;display:flex;align-items:center;justify-content:center">{{ icTrash }}</div>
+            <div style="flex:1;min-width:0;font-size:14px;line-height:1.5;color:var(--text-secondary)">{{ confirmMsg }}</div>
+          </div>
+        </sc-if>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;padding:14px 18px;border-top:1px solid var(--border-subtle);background:var(--surface-page);position:sticky;bottom:0;border-radius:inherit">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,40px" variant="secondary" onClick="{{ closeOverlay }}">Cancelar</x-import>
+          <sc-if value="{{ isConfirmar }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ doConfirmDelete }}" style="height:40px;padding:0 16px;border:none;border-radius:6px;background:#DC2626;color:#fff;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer">Eliminar</button>
+          </sc-if>
+          <sc-if value="{{ noEsConfirmar }}" hint-placeholder-val="{{ true }}">
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,40px" variant="primary" onClick="{{ overlaySave }}">{{ overlaySaveLabel }}</x-import>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  </sc-if>
+
+</div>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:50%;bottom:78px;transform:translateX(-50%);z-index:60;background:#0F172A;color:#fff;font-size:13px;font-weight:600;padding:10px 18px;border-radius:8px;box-shadow:var(--shadow-xl);animation:fadeIn 160ms ease-out">{{ toast }}</div>
+</sc-if>
+
+<sc-if value="{{ accountOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeAccount }}" style="{{ accountWrapStyle }}">
+    <div onClick="{{ stop }}" style="{{ accountPanelStyle }}">
+      <div style="display:flex;align-items:center;gap:11px;padding:16px;border-bottom:1px solid var(--border-subtle)">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="40px,40px" name="{{ account.nombre }}" size="md"></x-import>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:14px;font-weight:700">{{ account.nombre }}</div>
+          <div class="mono" style="font-size:12px;color:var(--text-muted)">{{ account.correo }}</div>
+        </div>
+      </div>
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border-subtle)">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px">Rol de demostración</div>
+        <div style="display:flex;gap:4px;background:var(--surface-sunken);border-radius:7px;padding:3px">
+          <button onClick="{{ setRoleDuena }}" style="{{ roleDuenaBtn }}">Dueña</button>
+          <button onClick="{{ setRoleVendedor }}" style="{{ roleVendBtn }}">Vendedor</button>
+        </div>
+      </div>
+      <div style="padding:6px 0">
+        <button class="navbtn" onClick="{{ openCuenta }}" style="{{ acctItem }}">{{ icAccount }}<span>Mi cuenta</span></button>
+        <sc-if value="{{ roleDuena }}" hint-placeholder-val="{{ true }}">
+          <button class="navbtn" onClick="{{ goEquipo }}" style="{{ acctItem }}">{{ icNavEquipo }}<span>Equipo</span></button>
+        </sc-if>
+      </div>
+      <div style="padding:6px 0;border-top:1px solid var(--border-subtle)">
+        <button class="navbtn" onClick="{{ logout }}" style="display:flex;align-items:center;gap:11px;width:100%;text-align:left;border:none;background:none;padding:11px 16px;font-size:14px;font-weight:600;color:#DC2626;cursor:pointer">{{ icLogout }}<span>Cerrar sesión</span></button>
+      </div>
+    </div>
+  </div>
+</sc-if></x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    vw: (typeof window !== 'undefined' ? window.innerWidth : 1200),
+    route: 'hoy',
+    clientId: null,
+    fichaTab: 'resumen',
+    overlay: null, // null | 'nuevo' | 'editar' | 'confirmar'
+    rowMenu: null, // 'cli:<id>' | 'vta:<id>'
+    confirmData: null, // { type:'cliente'|'venta', id, nombre }
+    toast: null,
+    cfNombre: '', cfEmpresa: '', cfCorreo: '', cfTelefono: '', cfEstado: 'Lead',
+    authed: false,
+    accountOpen: false,
+    role: 'duena', // 'duena' | 'vendedor'
+    search: '',
+    done: {},
+    tipoInter: 'Llamada',
+    canalInter: '',
+    segAtajo: '',
+    segView: { y: 2026, m: 6 },
+    segSel: null,
+    ventaImporte: '',
+    ventaEditId: null,
+    ventaCant: 1,
+    ventaEstado: 'Abierta',
+    ventaFiltro: 'Todas',
+    ventaDrop: null,
+    ventaCliente: '',
+    ventaVendedor: '',
+    ventaNewCliente: '',
+    ventaNewVendedor: '',
+    ventaExtraCli: [],
+    ventaExtraVen: [],
+    clientes: [
+      { id: 'c1', nombre: 'Laura Fernández', puesto: 'Directora de compras', empresa: 'Innovatech Soluciones', ciudad: 'CDMX', correo: 'laura.fernandez@innovatech.mx', telefono: '+52 55 1234 5678', estado: 'Cualificado', valor: '$284K', propietario: 'Ricardo Salas' },
+      { id: 'c2', nombre: 'Carlos Méndez', puesto: 'Gerente general', empresa: 'Grupo Marfil', ciudad: 'Monterrey', correo: 'carlos.mendez@marfil.com', telefono: '+52 81 2345 6789', estado: 'Lead', valor: '$96K', propietario: 'Ricardo Salas' },
+      { id: 'c3', nombre: 'Ana Torres', puesto: 'Coordinadora de proyectos', empresa: 'Constructora Vega', ciudad: 'Guadalajara', correo: 'ana.torres@cvega.mx', telefono: '+52 33 3456 7890', estado: 'Propuesta', valor: '$412K', propietario: 'Ricardo Salas' },
+      { id: 'c4', nombre: 'Miguel Ángel Ruiz', puesto: 'Director de operaciones', empresa: 'Logística del Norte', ciudad: 'Tijuana', correo: 'ma.ruiz@lognorte.mx', telefono: '+52 664 456 7890', estado: 'Ganado', valor: '$538K', propietario: 'Ricardo Salas' },
+      { id: 'c5', nombre: 'Sofía Ramírez', puesto: 'Administradora', empresa: 'Clínica Santa Fe', ciudad: 'CDMX', correo: 'sofia.ramirez@santafe.mx', telefono: '+52 55 5678 9012', estado: 'Negociación', valor: '$174K', propietario: 'Ricardo Salas' },
+      { id: 'c6', nombre: 'Diego Herrera', puesto: 'Editor', empresa: 'Editorial Aurora', ciudad: 'Puebla', correo: 'diego.herrera@aurora.mx', telefono: '+52 222 678 9012', estado: 'Lead', valor: '$62K', propietario: 'Ricardo Salas' },
+      { id: 'c7', nombre: 'Valentina Cruz', puesto: 'Compras', empresa: 'TecnoRetail', ciudad: 'Querétaro', correo: 'valentina.cruz@tecnoretail.mx', telefono: '+52 442 789 0123', estado: 'Cualificado', valor: '$228K', propietario: 'Ricardo Salas' },
+      { id: 'c8', nombre: 'Jorge Domínguez', puesto: 'Gerente comercial', empresa: 'Alimentos del Valle', ciudad: 'León', correo: 'jorge.dominguez@delvalle.mx', telefono: '+52 477 890 1234', estado: 'Propuesta', valor: '$305K', propietario: 'Ricardo Salas' },
+    ],
+    ventas: [
+      { id: 'v1', producto: 'Curso de ventas', cliente: 'Laura Fernández', vendedor: 'Ricardo Salas', estado: 'Ganada', importe: '$284K', fecha: '02 jul', dias: 9 },
+      { id: 'v2', producto: 'Licencia anual', cliente: 'Grupo Marfil', vendedor: 'Mariana López', estado: 'En marcha', importe: '$96K', fecha: '28 jun', dias: 13 },
+      { id: 'v3', producto: 'Implementación CRM', cliente: 'Constructora Vega', vendedor: 'Ricardo Salas', estado: 'En marcha', importe: '$412K', fecha: '05 jul', dias: 6 },
+      { id: 'v4', producto: 'Soporte premium', cliente: 'Logística del Norte', vendedor: 'Tomás Aguirre', estado: 'Ganada', importe: '$538K', fecha: '30 jun', dias: 11 },
+      { id: 'v5', producto: 'Consultoría', cliente: 'Clínica Santa Fe', vendedor: 'Mariana López', estado: 'En marcha', importe: '$174K', fecha: '08 jul', dias: 3 },
+      { id: 'v6', producto: 'Capacitación', cliente: 'Editorial Aurora', vendedor: 'Tomás Aguirre', estado: 'Perdida', importe: '$62K', fecha: '25 jun', dias: 16 },
+    ],
+    ventaFiltroCliente: 'Todos',
+    ventaFiltroPeriodo: 'Cualquier fecha',
+    cuentaLoading: false,
+    equipo: [
+      { id: 'u1', nombre: 'Elena Vargas', email: 'elena.vargas@pulse.mx', rol: 'Dueña' },
+      { id: 'u2', nombre: 'Ricardo Salas', email: 'ricardo.salas@pulse.mx', rol: 'Vendedor' },
+      { id: 'u3', nombre: 'Mariana López', email: 'mariana.lopez@pulse.mx', rol: 'Vendedor' },
+      { id: 'u4', nombre: 'Tomás Aguirre', email: 'tomas.aguirre@pulse.mx', rol: 'Vendedor' },
+    ],
+    equipoLoading: false,
+    usuarioNombre: '',
+    usuarioEmail: '',
+    usuarioRol: 'Vendedor',
+    usuarioEditId: null,
+  };
+
+  componentDidMount() {
+    this._onResize = () => this.setState({ vw: window.innerWidth });
+    window.addEventListener('resize', this._onResize);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._onResize); }
+
+  // ---- icon helper (Lucide-style, currentColor) ----
+  ic(name, size, sw) {
+    size = size || 18; sw = sw || 2;
+    const P = (d) => ['path', { d }];
+    const M = {
+      hoy: [['rect', { x: 3, y: 4, width: 18, height: 18, rx: 2 }], P('M16 2v4M8 2v4M3 10h18'), P('M8 15h.01M12 15h4')],
+      clientes: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75')],
+      back: [P('m15 18-6-6 6-6')],
+      chevron: [P('m9 18 6-6-6-6')],
+      close: [P('M18 6 6 18M6 6l12 12')],
+      plus: [P('M12 5v14M5 12h14')],
+      search: [['circle', { cx: 11, cy: 11, r: 7 }], P('m21 21-4.3-4.3')],
+      phone: [P('M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z')],
+      mail: [['rect', { x: 2, y: 4, width: 20, height: 16, rx: 2 }], P('m22 7-10 6L2 7')],
+      calendar: [['rect', { x: 3, y: 4, width: 18, height: 18, rx: 2 }], P('M16 2v4M8 2v4M3 10h18')],
+      note: [P('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'), P('M14 2v6h6M9 13h6M9 17h4')],
+      check: [P('M20 6 9 17l-5-5')],
+      more: [['circle', { cx: 12, cy: 12, r: 1 }], ['circle', { cx: 19, cy: 12, r: 1 }], ['circle', { cx: 5, cy: 12, r: 1 }]],
+      building: [['rect', { x: 4, y: 2, width: 16, height: 20, rx: 1 }], P('M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01')],
+      clock: [['circle', { cx: 12, cy: 12, r: 9 }], P('M12 7v5l3 2')],
+      dollar: [P('M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6')],
+      star: [P('m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01z')],
+      logout: [P('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9')],
+      mark: [P('M3 12h4l2-7 4 14 2-7h6')],
+      ventas: [['rect', { x: 3, y: 3, width: 5, height: 18, rx: 1 }], ['rect', { x: 10, y: 3, width: 5, height: 12, rx: 1 }], ['rect', { x: 17, y: 3, width: 4, height: 8, rx: 1 }]],
+      equipo: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('m16 11 2 2 4-4')],
+      account: [['circle', { cx: 12, cy: 7, r: 4 }], P('M6 21v-1a6 6 0 0 1 12 0v1')],
+      chevronUp: [P('m18 15-6-6-6 6')],
+      chat: [P('M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z')],
+      pin: [P('M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z'), ['circle', { cx: 12, cy: 10, r: 3 }]],
+      info: [['circle', { cx: 12, cy: 12, r: 10 }], P('M12 16v-4M12 8h.01')],
+      chevronDown: [P('m6 9 6 6 6-6')],
+      bell: [P('M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9'), P('M10.3 21a1.94 1.94 0 0 0 3.4 0')],
+      minus: [P('M5 12h14')],
+      edit: [P('M12 20h9'), P('M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z')],
+      lock: [['rect', { x: 3, y: 11, width: 18, height: 11, rx: 2 }], P('M7 11V7a5 5 0 0 1 10 0v4')],
+      trash: [P('M3 6h18'), P('M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'), P('M10 11v6M14 11v6')],
+    };
+    const parts = (M[name] || []).map((c, i) => React.createElement(c[0], Object.assign({ key: i }, c[1])));
+    return React.createElement('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round' }, parts);
+  }
+
+  toneFor(estado) {
+    return { 'Lead': 'neutral', 'Cualificado': 'info', 'Propuesta': 'warning', 'Negociación': 'brand', 'Ganado': 'success', 'Perdido': 'danger' }[estado] || 'neutral';
+  }
+
+  clients() {
+    return this.state.clientes;
+  }
+
+  _flashToast() {
+    setTimeout(() => this.setState({ toast: null }), 2600);
+  }
+
+  openClienteEdit(c) {
+    this.setState({ overlay: 'editar', clientId: c.id, rowMenu: null,
+      cfNombre: c.nombre, cfEmpresa: c.empresa, cfCorreo: c.correo, cfTelefono: c.telefono, cfEstado: c.estado });
+  }
+
+  openVentaEdit(v) {
+    const raw = String(v.importe).replace(/[$,\s]/g, '');
+    let num = parseFloat(raw) || 0;
+    if (/K$/i.test(raw)) num = parseFloat(raw) * 1000;
+    else if (/M$/i.test(raw)) num = parseFloat(raw) * 1000000;
+    const estadoForm = v.estado === 'En marcha' ? 'Abierta' : v.estado;
+    this.setState({ overlay: 'venta', ventaEditId: v.id, rowMenu: null,
+      ventaImporte: String(num || ''), ventaCant: 1, ventaEstado: estadoForm, ventaDrop: null,
+      ventaCliente: v.cliente, ventaVendedor: v.vendedor });
+  }
+
+  doConfirmDelete() {
+    this.setState((s) => {
+      const d = s.confirmData;
+      if (!d) return { overlay: null };
+      if (d.type === 'cliente') {
+        return { clientes: s.clientes.filter((x) => x.id !== d.id), overlay: null, confirmData: null,
+          route: s.route === 'ficha' && s.clientId === d.id ? 'clientes' : s.route,
+          toast: 'Cliente eliminado' };
+      }
+      return { ventas: s.ventas.filter((x) => x.id !== d.id), overlay: null, confirmData: null, toast: 'Venta eliminada' };
+    });
+    setTimeout(() => this.setState({ toast: null }), 2600);
+  }
+
+  _oldClients() {
+    return [
+      { id: 'c1', nombre: 'Laura Fernández', puesto: 'Directora de compras', empresa: 'Innovatech Soluciones', ciudad: 'CDMX', correo: 'laura.fernandez@innovatech.mx', telefono: '+52 55 1234 5678', estado: 'Cualificado', valor: '$284K', propietario: 'Ricardo Salas' },
+      { id: 'c2', nombre: 'Carlos Méndez', puesto: 'Gerente general', empresa: 'Grupo Marfil', ciudad: 'Monterrey', correo: 'carlos.mendez@marfil.com', telefono: '+52 81 2345 6789', estado: 'Lead', valor: '$96K', propietario: 'Ricardo Salas' },
+      { id: 'c3', nombre: 'Ana Torres', puesto: 'Coordinadora de proyectos', empresa: 'Constructora Vega', ciudad: 'Guadalajara', correo: 'ana.torres@cvega.mx', telefono: '+52 33 3456 7890', estado: 'Propuesta', valor: '$412K', propietario: 'Ricardo Salas' },
+      { id: 'c4', nombre: 'Miguel Ángel Ruiz', puesto: 'Director de operaciones', empresa: 'Logística del Norte', ciudad: 'Tijuana', correo: 'ma.ruiz@lognorte.mx', telefono: '+52 664 456 7890', estado: 'Ganado', valor: '$538K', propietario: 'Ricardo Salas' },
+      { id: 'c5', nombre: 'Sofía Ramírez', puesto: 'Administradora', empresa: 'Clínica Santa Fe', ciudad: 'CDMX', correo: 'sofia.ramirez@santafe.mx', telefono: '+52 55 5678 9012', estado: 'Negociación', valor: '$174K', propietario: 'Ricardo Salas' },
+      { id: 'c6', nombre: 'Diego Herrera', puesto: 'Editor', empresa: 'Editorial Aurora', ciudad: 'Puebla', correo: 'diego.herrera@aurora.mx', telefono: '+52 222 678 9012', estado: 'Lead', valor: '$62K', propietario: 'Ricardo Salas' },
+      { id: 'c7', nombre: 'Valentina Cruz', puesto: 'Compras', empresa: 'TecnoRetail', ciudad: 'Querétaro', correo: 'valentina.cruz@tecnoretail.mx', telefono: '+52 442 789 0123', estado: 'Cualificado', valor: '$228K', propietario: 'Ricardo Salas' },
+      { id: 'c8', nombre: 'Jorge Domínguez', puesto: 'Gerente comercial', empresa: 'Alimentos del Valle', ciudad: 'León', correo: 'jorge.dominguez@delvalle.mx', telefono: '+52 477 890 1234', estado: 'Propuesta', valor: '$305K', propietario: 'Ricardo Salas' },
+    ];
+  }
+
+  taskVisual(tipo) {
+    const map = {
+      llamada: { bg: 'var(--brand-subtle)', fg: 'var(--brand)', icon: 'phone' },
+      correo: { bg: 'var(--info-bg)', fg: 'var(--info-fg)', icon: 'mail' },
+      reunion: { bg: 'var(--success-bg)', fg: 'var(--success-fg)', icon: 'calendar' },
+      nota: { bg: 'var(--surface-sunken)', fg: 'var(--text-secondary)', icon: 'note' },
+    };
+    return map[tipo] || map.nota;
+  }
+
+  tasks() {
+    return [
+      { id: 't1', grupo: 'vencidas', clientId: 'c1', nombre: 'Laura Fernández', motivo: 'Llamar sobre la propuesta', hora: 'Ayer 17:40' },
+      { id: 't2', grupo: 'hoy', clientId: 'c2', nombre: 'Carlos Méndez', motivo: 'Enviar cotización revisada', hora: 'Hoy 10:30' },
+      { id: 't3', grupo: 'hoy', clientId: 'c3', nombre: 'Ana Torres', motivo: 'Reunión de seguimiento', hora: 'Hoy 16:00' },
+      { id: 't4', grupo: 'hoy', clientId: 'c4', nombre: 'Miguel Ángel Ruiz', motivo: 'Confirmar cierre de contrato', hora: 'Hoy 18:15' },
+      { id: 't5', grupo: 'proximas', clientId: 'c6', nombre: 'Diego Herrera', motivo: 'Seguimiento por correo', hora: 'Mañana' },
+      { id: 't6', grupo: 'proximas', clientId: 'c7', nombre: 'Valentina Cruz', motivo: 'Preparar demo de producto', hora: 'Jue' },
+    ];
+  }
+
+  buildTask(t) {
+    const done = !!this.state.done[t.id];
+    const cli = this.clients().find((c) => c.id === t.clientId);
+    const estado = cli ? cli.estado : '';
+    const isVencida = t.grupo === 'vencidas';
+    return {
+      id: t.id, nombre: t.nombre, motivo: t.motivo, hora: t.hora, estado, tone: this.toneFor(estado), done,
+      titleDeco: done ? 'text-decoration:line-through;color:var(--text-muted)' : '',
+      dateColor: isVencida && !done ? '#DC2626' : 'var(--text-muted)',
+      cardStyle: 'display:flex;align-items:flex-start;gap:12px;background:var(--surface-card);border:1px solid var(--border-default);' + (isVencida ? 'border-left:3px solid #DC2626;' : '') + 'border-radius:8px;box-shadow:var(--shadow-xs);padding:14px;cursor:pointer',
+      checkIcon: this.ic('check', 20, 2.4),
+      checkStyle: 'width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid ' + (done ? 'var(--brand)' : 'var(--border-strong)') + ';background:' + (done ? 'var(--brand)' : 'transparent') + ';color:' + (done ? '#fff' : 'var(--text-muted)') + ';padding:0;transition:all 140ms cubic-bezier(0.2,0,0,1)',
+      toggle: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.setState((s) => ({ done: Object.assign({}, s.done, { [t.id]: !s.done[t.id] }) })); },
+      open: () => this.setState({ route: 'ficha', clientId: t.clientId, fichaTab: 'resumen' }),
+    };
+  }
+
+  renderVals() {
+    const vw = this.state.vw;
+    const isDesktop = vw >= 1024;
+    const isMobile = vw < 768;
+    const route = this.state.route;
+    const clients = this.clients();
+    const client = clients.find((c) => c.id === this.state.clientId) || null;
+
+    const roleDuena = this.state.role === 'duena';
+    const account = roleDuena
+      ? { nombre: 'Elena Vargas', rol: 'Dueña', correo: 'elena.vargas@pulse.mx' }
+      : { nombre: 'Ricardo Salas', rol: 'Vendedor', correo: 'ricardo.salas@pulse.mx' };
+
+    const showHoy = route === 'hoy';
+    const showClientes = route === 'clientes';
+    const showFicha = route === 'ficha' && !!client;
+    const showVentas = route === 'ventas';
+    const showEquipo = route === 'equipo' && roleDuena;
+    const showCuenta = route === 'cuenta';
+
+    // layout styles
+    const topbarStyle = {
+      display: this.state.authed ? 'flex' : 'none',
+      position: 'fixed', top: 0, left: isDesktop ? '248px' : '0', right: 0, height: '56px', zIndex: 30,
+      background: 'var(--surface-card)', borderBottom: '1px solid var(--border-default)',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', padding: '0 12px',
+    };
+    const mainStyle = {
+      display: this.state.authed ? 'block' : 'none',
+      paddingTop: '56px', paddingLeft: isDesktop ? '248px' : '0',
+      paddingBottom: isDesktop ? '40px' : '84px', minHeight: '100vh',
+    };
+    const innerStyle = { maxWidth: '1000px', margin: '0 auto', padding: isMobile ? '16px' : '24px 32px' };
+
+    // nav (desktop sidebar) item styles
+    const navBase = 'display:flex;align-items:center;gap:11px;width:100%;text-align:left;border:none;background:none;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;';
+    const navActive = (on) => navBase + (on ? 'background:var(--brand-subtle);color:var(--brand)' : 'color:var(--text-secondary)');
+    const navHoyStyle = navActive(showHoy);
+    const navCliStyle = navActive(showClientes);
+    const navVentasStyle = navActive(showVentas);
+    const navEquipoStyle = navActive(showEquipo);
+    const navHoyBadge = 'margin-left:auto;font-size:11px;font-weight:700;background:var(--brand);color:#fff;border-radius:999px;padding:1px 7px';
+
+    // bottom tab styles
+    const tabBase = 'flex:1;border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;';
+    const tabHoyStyle = tabBase + 'color:' + (showHoy ? 'var(--brand)' : 'var(--text-muted)');
+    const tabCliStyle = tabBase + 'color:' + (showClientes ? 'var(--brand)' : 'var(--text-muted)');
+    const tabVentasStyle = tabBase + 'color:' + (showVentas ? 'var(--brand)' : 'var(--text-muted)');
+
+    // tasks
+    const all = this.tasks();
+    const tasksVencidas = all.filter((t) => t.grupo === 'vencidas').map((t) => this.buildTask(t));
+    const tasksHoy = all.filter((t) => t.grupo === 'hoy').map((t) => this.buildTask(t));
+    const tasksProximas = all.filter((t) => t.grupo === 'proximas').map((t) => this.buildTask(t));
+
+    // clientes list
+    const q = this.state.search.trim().toLowerCase();
+    const filtered = clients.filter((c) => !q || c.nombre.toLowerCase().includes(q) || c.empresa.toLowerCase().includes(q));
+    const filteredClients = filtered.map((c) => ({
+      id: c.id, nombre: c.nombre, empresa: c.empresa, estado: c.estado, tone: this.toneFor(c.estado),
+      open: () => this.setState({ route: 'ficha', clientId: c.id, fichaTab: 'resumen' }),
+      menuOpen: this.state.rowMenu === 'cli:' + c.id,
+      onMenu: (e) => { e.stopPropagation(); this.setState((s) => ({ rowMenu: s.rowMenu === 'cli:' + c.id ? null : 'cli:' + c.id })); },
+      onEdit: (e) => { e.stopPropagation(); this.openClienteEdit(c); },
+      onDelete: (e) => { e.stopPropagation(); this.setState({ rowMenu: null, overlay: 'confirmar', confirmData: { type: 'cliente', id: c.id, nombre: c.nombre } }); },
+    }));
+
+    // ficha data
+    const fichaTab = this.state.fichaTab;
+    const clientView = client ? Object.assign({}, client, { tone: this.toneFor(client.estado), canal: 'WhatsApp' }) : {};
+    const av = (bg, fg, ic) => ({ iconBg: bg, iconFg: fg, icon: this.ic(ic, 15) });
+    const clientActivities = [
+      Object.assign({ texto: 'Confirmó interés en el plan anual.', hora: 'Hoy · 09:12', autor: 'Ricardo Salas' }, av('var(--brand-subtle)', 'var(--brand)', 'phone')),
+      Object.assign({ texto: 'Envié la propuesta comercial v2.', hora: 'Ayer · 17:40', autor: 'Ricardo Salas' }, av('var(--info-bg)', 'var(--info-fg)', 'mail')),
+      Object.assign({ texto: 'Reunión inicial de descubrimiento.', hora: 'Lun · 11:00', autor: 'Elena Vargas' }, av('var(--success-bg)', 'var(--success-fg)', 'calendar')),
+    ];
+    const cv = clientView;
+    const datosRows = client ? [
+      { label: 'Correo', valor: cv.correo, cls: '' },
+      { label: 'Teléfono', valor: cv.telefono, cls: 'mono' },
+      { label: 'Empresa', valor: cv.empresa + ' · ' + cv.ciudad, cls: '' },
+      { label: 'Valor', valor: cv.valor, cls: 'mono' },
+      { label: 'Propietario', valor: cv.propietario, cls: '' },
+    ] : [];
+    const fichaVentas = [
+      { producto: 'Plan Pro anual', importe: (client ? cv.valor : '$0'), fecha: '02 jul 2026' },
+      { producto: 'Implementación inicial', importe: '$48K', fecha: '12 jun 2026' },
+    ];
+    const fichaColsStyle = isDesktop
+      ? { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '18px', alignItems: 'start' }
+      : { display: 'flex', flexDirection: 'column', gap: '16px' };
+
+    // overlay
+    const overlay = this.state.overlay;
+    const overlayOpen = !!overlay;
+    const isSheet = isMobile;
+    const overlayWrapStyle = {
+      position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', zIndex: 70,
+      display: 'flex', justifyContent: 'center', alignItems: isSheet ? 'flex-end' : 'center',
+      animation: 'fadeIn 160ms ease-out', padding: isSheet ? '0' : '24px',
+    };
+    const sheetStyle = {
+      background: 'var(--surface-card)', width: isSheet ? '100%' : '480px', maxWidth: '100%',
+      maxHeight: isSheet ? '92vh' : '88vh', overflowY: 'auto',
+      borderRadius: isSheet ? '16px 16px 0 0' : '12px', boxShadow: 'var(--shadow-xl)',
+      animation: (isSheet ? 'sheetUp 240ms' : 'dialogPop 180ms') + ' cubic-bezier(0.2,0,0,1)',
+    };
+    const editValues = overlay === 'editar' && client
+      ? { nombre: client.nombre, empresa: client.empresa, correo: client.correo, telefono: client.telefono, estado: client.estado }
+      : { nombre: '', empresa: '', correo: '', telefono: '', estado: 'Lead' };
+
+    const isInteraccion = overlay === 'interaccion';
+    const isClienteForm = overlay === 'nuevo' || overlay === 'editar';
+    const tipoInter = this.state.tipoInter;
+    const canalInter = this.state.canalInter;
+    const segStyle = (on) => 'flex:1;display:flex;align-items:center;justify-content:center;gap:7px;min-height:40px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;' + (on ? 'background:var(--brand);color:#fff;box-shadow:var(--shadow-xs)' : 'background:transparent;color:var(--text-secondary)');
+    const interTipos = [
+      { label: 'Llamada', icon: this.ic('phone', 16), style: segStyle(tipoInter === 'Llamada'), onClick: () => this.setState({ tipoInter: 'Llamada' }) },
+      { label: 'Mensaje', icon: this.ic('chat', 16), style: segStyle(tipoInter === 'Mensaje'), onClick: () => this.setState({ tipoInter: 'Mensaje' }) },
+      { label: 'Visita', icon: this.ic('pin', 16), style: segStyle(tipoInter === 'Visita'), onClick: () => this.setState({ tipoInter: 'Visita' }) },
+    ];
+    const interChip = (label, color, sel, on) => ({ label, dot: color, onClick: on, style: 'display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:7px 13px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;' + (sel ? 'border:1.5px solid ' + color + ';color:' + color + ';background:' + color + '14;' : 'border:1px solid var(--border-strong);color:var(--text-secondary);background:transparent;') });
+    const interCanales = [
+      interChip('WhatsApp', '#25D366', canalInter === 'WhatsApp', () => this.setState({ canalInter: 'WhatsApp' })),
+      interChip('Email', '#3B82F6', canalInter === 'Email', () => this.setState({ canalInter: 'Email' })),
+      interChip('Teléfono', '#64748B', canalInter === 'Teléfono', () => this.setState({ canalInter: 'Teléfono' })),
+      interChip('Instagram', '#C13584', canalInter === 'Instagram', () => this.setState({ canalInter: 'Instagram' })),
+    ];
+    const interDerivado = tipoInter === 'Visita' ? 'En persona' : (tipoInter === 'Llamada' ? 'Llamada' : (canalInter || 'Mensaje'));
+
+    const isSeguimiento = overlay === 'seguimiento';
+    const segAtajo = this.state.segAtajo;
+    const segView = this.state.segView || { y: 2026, m: 6 };
+    const segSel = this.state.segSel || null;
+    const segChipStyle = (on) => 'display:inline-flex;align-items:center;min-height:36px;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color 120ms;' + (on ? 'border:1px solid var(--brand);background:var(--brand);color:#fff;' : 'border:1px solid var(--border-strong);background:transparent;color:var(--text-secondary);');
+    const pickAtajo = (label) => {
+      if (label === 'Elegir fecha') { this.setState({ segAtajo: 'Elegir fecha' }); return; }
+      const map = { 'Mañana': 1, 'En 3 días': 3, 'En 1 semana': 7 };
+      const dt = new Date(2026, 6, 11 + map[label]);
+      this.setState({ segAtajo: label, segSel: { y: dt.getFullYear(), m: dt.getMonth(), d: dt.getDate() }, segView: { y: dt.getFullYear(), m: dt.getMonth() } });
+    };
+    const segAtajos = ['Mañana', 'En 3 días', 'En 1 semana', 'Elegir fecha'].map((l) => ({ label: l, style: segChipStyle(segAtajo === l), onClick: () => pickAtajo(l) }));
+    const segMonthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const segMesLabel = segMonthNames[segView.m] + ' ' + segView.y;
+    const segFirst = new Date(segView.y, segView.m, 1);
+    const segOffset = (segFirst.getDay() + 6) % 7;
+    const segDim = new Date(segView.y, segView.m + 1, 0).getDate();
+    const segCellBase = 'height:34px;display:flex;align-items:center;justify-content:center;font-size:13px;border-radius:6px;border:none;background:transparent;';
+    const segCells = [];
+    for (let i = 0; i < segOffset; i++) segCells.push({ num: '', style: segCellBase, onClick: null });
+    for (let d = 1; d <= segDim; d++) {
+      const isSel = segSel && segSel.y === segView.y && segSel.m === segView.m && segSel.d === d;
+      const isToday = segView.y === 2026 && segView.m === 6 && d === 11;
+      let s = segCellBase + 'cursor:pointer;color:var(--text-primary);';
+      if (isSel) s = segCellBase + 'cursor:pointer;background:var(--brand);color:#fff;font-weight:700;';
+      else if (isToday) s = segCellBase + 'cursor:pointer;background:var(--brand-subtle);color:var(--brand);font-weight:700;';
+      const dd = d;
+      segCells.push({ num: String(d), style: s, onClick: () => this.setState({ segSel: { y: segView.y, m: segView.m, d: dd }, segAtajo: 'Elegir fecha' }) });
+    }
+    const segPrev = () => this.setState((st) => { const v = st.segView || { y: 2026, m: 6 }; let m = v.m - 1, y = v.y; if (m < 0) { m = 11; y--; } return { segView: { y: y, m: m } }; });
+    const segNext = () => this.setState((st) => { const v = st.segView || { y: 2026, m: 6 }; let m = v.m + 1, y = v.y; if (m > 11) { m = 0; y++; } return { segView: { y: y, m: m } }; });
+
+    const isVenta = overlay === 'venta';
+    const vNum = parseFloat(this.state.ventaImporte) || 0;
+    const vCant = this.state.ventaCant;
+    const vEstado = this.state.ventaEstado;
+    const ventaTotal = '$' + (vNum * vCant).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const vDrop = this.state.ventaDrop;
+    const cliOpts = this.clients().map((c) => c.nombre).concat(this.state.ventaExtraCli);
+    const venOpts = ['Ricardo Salas', 'Mariana López', 'Tomás Aguirre', 'Elena Vargas'].concat(this.state.ventaExtraVen);
+    const clientesOpts = cliOpts.map((n) => ({ name: n, onClick: () => this.setState({ ventaCliente: n, ventaDrop: null }) }));
+    const vendedoresOpts = venOpts.map((n) => ({ name: n, onClick: () => this.setState({ ventaVendedor: n, ventaDrop: null }) }));
+    const vColors = { 'Abierta': '#F59E0B', 'Ganada': '#059669', 'Perdida': '#DC2626' };
+    const ventaEstados = ['Abierta', 'Ganada', 'Perdida'].map((l) => ({ label: l, onClick: () => this.setState({ ventaEstado: l }), style: 'flex:1;min-height:40px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;' + (vEstado === l ? 'background:' + vColors[l] + ';color:#fff;box-shadow:var(--shadow-xs)' : 'background:transparent;color:var(--text-secondary)') }));
+
+    // ventas — pipeline por etapa
+    const stageDefs = [
+      { nombre: 'Lead', count: 5, monto: 420, montoStr: '$420K', color: 'var(--slate-400)' },
+      { nombre: 'Cualificado', count: 8, monto: 1200, montoStr: '$1.2M', color: 'var(--info-solid)' },
+      { nombre: 'Propuesta', count: 4, monto: 980, montoStr: '$980K', color: 'var(--warning-solid)' },
+      { nombre: 'Negociación', count: 3, monto: 610, montoStr: '$610K', color: 'var(--brand)' },
+      { nombre: 'Ganado', count: 6, monto: 1800, montoStr: '$1.8M', color: 'var(--success-solid)' },
+    ];
+    const stageMax = Math.max.apply(null, stageDefs.map((s) => s.monto));
+    const ventasStages = stageDefs.map((s) => ({ nombre: s.nombre, count: s.count, montoStr: s.montoStr, color: s.color, barPct: Math.round((s.monto / stageMax) * 100) + '%' }));
+
+    // ventas — listado con filtros
+    const ventaFiltro = this.state.ventaFiltro;
+    const ventEst = {
+      'En marcha': { bg: 'var(--warning-bg)', fg: 'var(--warning-fg)', dot: '#F59E0B' },
+      'Ganada': { bg: 'var(--success-bg)', fg: 'var(--success-fg)', dot: '#059669' },
+      'Perdida': { bg: 'var(--danger-bg)', fg: 'var(--danger-fg)', dot: '#DC2626' },
+    };
+    const ventMaster = this.state.ventas;
+    const ventFiltMap = { 'Todas': null, 'En marcha': 'En marcha', 'Ganadas': 'Ganada', 'Perdidas': 'Perdida' };
+    const ventWant = ventFiltMap[ventaFiltro];
+    const ventCli = this.state.ventaFiltroCliente;
+    const ventPer = this.state.ventaFiltroPeriodo;
+    const ventPerMap = { 'Cualquier fecha': 9999, 'Últimos 7 días': 7, 'Últimos 30 días': 30, 'Este trimestre': 90 };
+    const ventThr = ventPerMap[ventPer];
+    const ventClienteOpts = ['Todos'].concat(ventMaster.map((v) => v.cliente).filter((n, i, a) => a.indexOf(n) === i));
+    const ventPeriodoOpts = ['Cualquier fecha', 'Últimos 7 días', 'Últimos 30 días', 'Este trimestre'];
+    const rowMenu = this.state.rowMenu;
+    const ventasListado = ventMaster.filter((v) => (!ventWant || v.estado === ventWant) && (ventCli === 'Todos' || v.cliente === ventCli) && v.dias <= ventThr).map((v) => Object.assign({}, v, ventEst[v.estado], {
+      menuOpen: rowMenu === 'vta:' + v.id,
+      onMenu: (e) => { e.stopPropagation(); this.setState((s) => ({ rowMenu: s.rowMenu === 'vta:' + v.id ? null : 'vta:' + v.id })); },
+      onEdit: (e) => { e.stopPropagation(); this.openVentaEdit(v); },
+      onDelete: (e) => { e.stopPropagation(); this.setState({ rowMenu: null, overlay: 'confirmar', confirmData: { type: 'venta', id: v.id, nombre: v.producto } }); },
+    }));
+    const ventasFiltros = ['Todas', 'En marcha', 'Ganadas', 'Perdidas'].map((l) => ({ label: l, onClick: () => this.setState({ ventaFiltro: l }), style: 'min-height:34px;padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color 120ms;' + (ventaFiltro === l ? 'border:1px solid var(--brand);background:var(--brand);color:#fff;' : 'border:1px solid var(--border-default);background:var(--surface-card);color:var(--text-secondary);') }));
+
+    // equipo (solo dueña) — usuarios
+    const equipoList = this.state.equipo;
+    const duenaCount = equipoList.filter((u) => u.rol === 'Dueña').length;
+    const teamRows = equipoList.map((u) => {
+      const esSelf = u.nombre === account.nombre;
+      const bloqueaDuena = u.rol === 'Dueña' && duenaCount <= 1;
+      const puedeEliminar = !esSelf && !bloqueaDuena;
+      return {
+        id: u.id, nombre: u.nombre, email: u.email, rol: u.rol,
+        rolTone: u.rol === 'Dueña' ? 'brand' : 'neutral', rolOpts: ['Vendedor', 'Dueña'],
+        delTitle: esSelf ? 'No puedes eliminarte a ti misma' : (bloqueaDuena ? 'Debe haber al menos una dueña' : 'Eliminar usuario'),
+        delStyle: 'width:36px;height:36px;flex:none;border:none;border-radius:6px;background:none;display:flex;align-items:center;justify-content:center;cursor:' + (puedeEliminar ? 'pointer' : 'not-allowed') + ';color:' + (puedeEliminar ? '#DC2626' : 'var(--border-strong)'),
+        onDelete: puedeEliminar ? (() => this.setState((s) => ({ equipo: s.equipo.filter((x) => x.id !== u.id) }))) : (() => {}),
+        onRol: (e) => { const nv = e.target.value; this.setState((s) => { const cur = s.equipo.find((x) => x.id === u.id); const dc = s.equipo.filter((x) => x.rol === 'Dueña').length; if (nv === 'Vendedor' && cur.rol === 'Dueña' && dc <= 1) return {}; return { equipo: s.equipo.map((x) => x.id === u.id ? Object.assign({}, x, { rol: nv }) : x) }; }); },
+        onEdit: () => this.setState({ overlay: 'usuario', usuarioEditId: u.id, usuarioNombre: u.nombre, usuarioEmail: u.email, usuarioRol: u.rol }),
+      };
+    });
+    const isUsuario = overlay === 'usuario';
+    const equipoLoading = this.state.equipoLoading;
+    const equipoVacioView = showEquipo && !equipoLoading && equipoList.length === 0;
+    const equipoListView = showEquipo && !equipoLoading && equipoList.length > 0;
+
+    // account menu
+    const accountOpen = this.state.accountOpen;
+    const accountWrapStyle = {
+      position: 'fixed', inset: 0, zIndex: 80,
+      background: isMobile ? 'rgba(15,23,42,0.45)' : 'transparent',
+      display: 'flex', justifyContent: isMobile ? 'center' : 'flex-start',
+      alignItems: 'flex-end',
+      animation: isMobile ? 'fadeIn 160ms ease-out' : 'none',
+    };
+    const accountPanelStyle = isMobile
+      ? { background: 'var(--surface-card)', width: '100%', borderRadius: '16px 16px 0 0', boxShadow: 'var(--shadow-xl)', animation: 'sheetUp 240ms cubic-bezier(0.2,0,0,1)', overflow: 'hidden' }
+      : { background: 'var(--surface-card)', width: '236px', margin: '0 0 68px 12px', border: '1px solid var(--border-default)', borderRadius: '10px', boxShadow: 'var(--shadow-xl)', animation: 'dialogPop 160ms cubic-bezier(0.2,0,0,1)', overflow: 'hidden' };
+    const roleSegBase = 'flex:1;border:none;padding:6px 8px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;';
+    const roleDuenaBtn = roleSegBase + (roleDuena ? 'background:var(--surface-card);color:var(--brand);box-shadow:var(--shadow-xs)' : 'background:none;color:var(--text-secondary)');
+    const roleVendBtn = roleSegBase + (!roleDuena ? 'background:var(--surface-card);color:var(--brand);box-shadow:var(--shadow-xs)' : 'background:none;color:var(--text-secondary)');
+    const acctItem = 'display:flex;align-items:center;gap:11px;width:100%;text-align:left;border:none;background:none;padding:11px 16px;font-size:14px;font-weight:600;color:var(--text-primary);cursor:pointer;';
+
+    let title = 'Hoy', subtitle = 'Martes, 11 de julio';
+    if (showClientes) { title = 'Clientes'; subtitle = ''; }
+    if (showVentas) { title = 'Ventas'; subtitle = ''; }
+    if (showEquipo) { title = 'Equipo'; subtitle = ''; }
+    if (showCuenta) { title = 'Mi cuenta'; subtitle = ''; }
+    if (showFicha) { title = client.nombre; subtitle = client.empresa; }
+
+    return {
+      isDesktop, isMobile,
+      authed: this.state.authed, showLogin: !this.state.authed,
+      loginMode: vw < 768 ? 'mobile' : 'split',
+      login: () => this.setState({ authed: true, route: 'hoy', accountOpen: false }),
+      topbarStyle, mainStyle, innerStyle,
+      showHoy, showClientes, showFicha, showVentas, showEquipo,
+      showCuenta, cuentaLoading: this.state.cuentaLoading, cuentaOk: showCuenta && !this.state.cuentaLoading,
+      icEditar: this.ic('edit', 18), icLock: this.ic('lock', 18), icUsersRow: this.ic('equipo', 18),
+      title, subtitle, canBack: showFicha,
+      showBottomNav: this.state.authed && !isDesktop,
+      showClientesDesktop: showClientes && isDesktop,
+      showAccountAvatar: !isDesktop,
+      roleDuena,
+      totalClientes: clients.length, resultCount: filtered.length, noResults: filtered.length === 0,
+
+      // ventas / equipo
+      ventasStages, teamRows,
+      equipoLoading, equipoVacioView, equipoListView, equipoCount: equipoList.length,
+      openUsuario: () => this.setState({ overlay: 'usuario', usuarioEditId: null, usuarioNombre: '', usuarioEmail: '', usuarioRol: 'Vendedor' }),
+      addUsuario: () => this.setState((s) => { const n = s.usuarioNombre.trim(); if (!n) return {}; if (s.usuarioEditId) { const cur = s.equipo.find((x) => x.id === s.usuarioEditId); const dc = s.equipo.filter((x) => x.rol === 'Dueña').length; const rol = (cur.rol === 'Dueña' && s.usuarioRol === 'Vendedor' && dc <= 1) ? 'Dueña' : s.usuarioRol; return { equipo: s.equipo.map((x) => x.id === s.usuarioEditId ? Object.assign({}, x, { nombre: n, email: s.usuarioEmail.trim(), rol: rol }) : x), overlay: null, usuarioEditId: null }; } return { equipo: s.equipo.concat([{ id: 'u' + Date.now(), nombre: n, email: s.usuarioEmail.trim(), rol: s.usuarioRol }]), overlay: null }; }),
+      usuarioSetNombre: (e) => this.setState({ usuarioNombre: e.target.value }),
+      usuarioSetEmail: (e) => this.setState({ usuarioEmail: e.target.value }),
+      usuarioSetRol: (e) => this.setState({ usuarioRol: e.target.value }),
+      usuarioNombre: this.state.usuarioNombre, usuarioEmail: this.state.usuarioEmail, usuarioRol: this.state.usuarioRol,
+      usuarioRolOpts: ['Vendedor', 'Dueña'],
+      icTrash: this.ic('trash', 18),
+      ventasListado, ventasFiltros, ventasHasList: ventasListado.length > 0,
+      ventClienteOpts, ventPeriodoOpts, ventaFiltroCliente: ventCli, ventaFiltroPeriodo: ventPer,
+      ventaSetCliente: (e) => this.setState({ ventaFiltroCliente: e.target.value }),
+      ventaSetPeriodo: (e) => this.setState({ ventaFiltroPeriodo: e.target.value }),
+      ventasMEnMarchaCount: '3', ventasMEnMarchaImporte: '$682K', ventasMGanadoCount: '2', ventasMGanadoImporte: '$822K',
+
+      // account
+      account, accountOpen, accountWrapStyle, accountPanelStyle,
+      roleDuenaBtn, roleVendBtn, acctItem,
+
+      // nav styles
+      navHoyStyle, navCliStyle, navVentasStyle, navEquipoStyle, navHoyBadge,
+      tabHoyStyle, tabCliStyle, tabVentasStyle,
+
+      // icons
+      icMark: this.ic('mark', 22, 2.4),
+      icNavHoy: this.ic('hoy', 18), icNavClientes: this.ic('clientes', 18),
+      icNavVentas: this.ic('ventas', 18), icNavEquipo: this.ic('equipo', 18),
+      icAccount: this.ic('account', 18), icChevUp: this.ic('chevronUp', 16),
+      icTabHoy: this.ic('hoy', 22), icTabClientes: this.ic('clientes', 22), icTabVentas: this.ic('ventas', 22),
+      icBack: this.ic('back', 20), icChevron: this.ic('chevron', 18), icClose: this.ic('close', 18),
+      icPlus: this.ic('plus', 16), icPlusLg: this.ic('plus', 26, 2.4), icSearch: this.ic('search', 16),
+      icMore: this.ic('more', 20), icPhone: this.ic('phone', 15), icMail: this.ic('mail', 15),
+      icBuilding: this.ic('building', 15), icDollar: this.ic('dollar', 15), icStar: this.ic('star', 15),
+      icLogout: this.ic('logout', 18),
+
+      // handlers
+      goHoy: () => this.setState({ route: 'hoy', accountOpen: false }),
+      goClientes: () => this.setState({ route: 'clientes', accountOpen: false }),
+      goVentas: () => this.setState({ route: 'ventas', accountOpen: false }),
+      goEquipo: () => { this.setState({ route: 'equipo', accountOpen: false, equipoLoading: true }); setTimeout(() => this.setState({ equipoLoading: false }), 600); },
+      back: () => this.setState({ route: 'clientes' }),
+      toggleAccount: () => this.setState((s) => ({ accountOpen: !s.accountOpen })),
+      closeAccount: () => this.setState({ accountOpen: false }),
+      setRoleDuena: () => this.setState({ role: 'duena' }),
+      setRoleVendedor: () => this.setState((s) => ({ role: 'vendedor', route: s.route === 'equipo' ? 'hoy' : s.route })),
+      logout: () => this.setState({ authed: false, accountOpen: false, route: 'hoy' }),
+      openNuevo: () => this.setState({ overlay: 'nuevo', accountOpen: false, clientId: null, cfNombre: '', cfEmpresa: '', cfCorreo: '', cfTelefono: '', cfEstado: 'Lead' }),
+      openEditar: () => { if (client) this.openClienteEdit(client); },
+      closeOverlay: () => this.setState({ overlay: null }),
+      stop: (e) => { e.stopPropagation(); },
+      setSearch: (e) => this.setState({ search: e.target.value }),
+      setTab: (v) => this.setState({ fichaTab: v }),
+
+      // hoy
+      tasksVencidas, tasksHoy, tasksProximas,
+      hasVencidas: tasksVencidas.length > 0, hasProximas: tasksProximas.length > 0,
+      allDone: all.every((t) => this.state.done[t.id]),
+      hasPendientes: !all.every((t) => this.state.done[t.id]),
+      countVencidas: tasksVencidas.length, countHoy: tasksHoy.length, countProximas: tasksProximas.length,
+      greeting: 'Buenos días, ' + account.nombre.split(' ')[0],
+      fechaHoy: 'Hoy, martes 11 jul',
+      sectionsWrapStyle: isDesktop ? { display: 'flex', gap: '20px', alignItems: 'flex-start' } : { display: 'flex', flexDirection: 'column', gap: '24px' },
+      icClock: this.ic('clock', 14), icCheckBig: this.ic('check', 26, 2.4),
+
+      // clientes
+      search: this.state.search, filteredClients,
+
+      // ficha 360
+      client: clientView, fichaColsStyle, datosRows, fichaVentas, clientActivities,
+      proximoMotivo: 'Llamar para cierre de contrato', proximoFecha: 'Mañana 10:00',
+      icCall: this.ic('phone', 20), icEmail: this.ic('mail', 20), icWa: this.ic('chat', 20),
+      icCheckSeg: this.ic('check', 20, 2.4), icCalendar: this.ic('calendar', 16),
+      icChevDown: this.ic('chevronDown', 16), icInfo: this.ic('info', 15),
+      openInteraccion: () => this.setState({ overlay: 'interaccion', tipoInter: 'Llamada', canalInter: '' }),
+      openSeguimiento: () => this.setState({ overlay: 'seguimiento', segAtajo: '', segView: { y: 2026, m: 6 }, segSel: null }),
+      openCuenta: () => { this.setState({ route: 'cuenta', accountOpen: false, cuentaLoading: true }); setTimeout(() => this.setState({ cuentaLoading: false }), 600); },
+      openVenta: () => this.setState({ overlay: 'venta', ventaEditId: null, ventaImporte: '', ventaCant: 1, ventaEstado: 'Abierta', ventaDrop: null, ventaCliente: (client ? client.nombre : ''), ventaVendedor: account.nombre, ventaNewCliente: '', ventaNewVendedor: '' }),
+      ventaSetImporte: (e) => this.setState({ ventaImporte: e.target.value.replace(/[^0-9.]/g, '') }),
+      ventaInc: () => this.setState((s) => ({ ventaCant: s.ventaCant + 1 })),
+      ventaDec: () => this.setState((s) => ({ ventaCant: Math.max(1, s.ventaCant - 1) })),
+      toggleDropCliente: () => this.setState((s) => ({ ventaDrop: s.ventaDrop === 'cliente' ? null : 'cliente' })),
+      toggleDropVendedor: () => this.setState((s) => ({ ventaDrop: s.ventaDrop === 'vendedor' ? null : 'vendedor' })),
+      ventaSetNewCliente: (e) => this.setState({ ventaNewCliente: e.target.value }),
+      ventaSetNewVendedor: (e) => this.setState({ ventaNewVendedor: e.target.value }),
+      addVentaCliente: () => this.setState((s) => { const n = s.ventaNewCliente.trim(); if (!n) return {}; return { ventaExtraCli: s.ventaExtraCli.concat(n), ventaCliente: n, ventaNewCliente: '', ventaDrop: null }; }),
+      addVentaVendedor: () => this.setState((s) => { const n = s.ventaNewVendedor.trim(); if (!n) return {}; return { ventaExtraVen: s.ventaExtraVen.concat(n), ventaVendedor: n, ventaNewVendedor: '', ventaDrop: null }; }),
+
+      // overlay
+      overlayOpen, overlayWrapStyle, sheetStyle, editValues,
+      cfNombre: this.state.cfNombre, cfEmpresa: this.state.cfEmpresa, cfCorreo: this.state.cfCorreo, cfTelefono: this.state.cfTelefono, cfEstado: this.state.cfEstado,
+      cfSetNombre: (e) => this.setState({ cfNombre: e.target.value }),
+      cfSetEmpresa: (e) => this.setState({ cfEmpresa: e.target.value }),
+      cfSetCorreo: (e) => this.setState({ cfCorreo: e.target.value }),
+      cfSetTelefono: (e) => this.setState({ cfTelefono: e.target.value }),
+      cfSetEstado: (e) => this.setState({ cfEstado: e.target.value }),
+      toast: this.state.toast,
+      isConfirmar: overlay === 'confirmar',
+      confirmNombre: this.state.confirmData ? this.state.confirmData.nombre : '',
+      confirmTitle: this.state.confirmData && this.state.confirmData.type === 'venta' ? 'Eliminar venta' : 'Eliminar cliente',
+      confirmMsg: this.state.confirmData ? ('\u00bfSeguro que quieres eliminar \u201c' + this.state.confirmData.nombre + '\u201d? Esta acci\u00f3n no se puede deshacer.') : '',
+      doConfirmDelete: () => this.doConfirmDelete(),
+      deleteClienteActual: () => { if (client) this.setState({ overlay: 'confirmar', confirmData: { type: 'cliente', id: client.id, nombre: client.nombre } }); },
+      rowMenuOpen: !!this.state.rowMenu,
+      closeRowMenu: () => this.setState({ rowMenu: null }),
+      overlaySave: () => {
+        const ov = this.state.overlay;
+        if (ov === 'usuario') {
+          this.setState((s) => { const n = s.usuarioNombre.trim(); if (!n) return {}; if (s.usuarioEditId) { const cur = s.equipo.find((x) => x.id === s.usuarioEditId); const dc = s.equipo.filter((x) => x.rol === 'Due\u00f1a').length; const rol = (cur.rol === 'Due\u00f1a' && s.usuarioRol === 'Vendedor' && dc <= 1) ? 'Due\u00f1a' : s.usuarioRol; return { equipo: s.equipo.map((x) => x.id === s.usuarioEditId ? Object.assign({}, x, { nombre: n, email: s.usuarioEmail.trim(), rol: rol }) : x), overlay: null, usuarioEditId: null }; } return { equipo: s.equipo.concat([{ id: 'u' + Date.now(), nombre: n, email: s.usuarioEmail.trim(), rol: s.usuarioRol }]), overlay: null }; });
+          return;
+        }
+        if (ov === 'venta') {
+          this.setState((s) => { if (!s.ventaCliente) return {}; const num = parseFloat(s.ventaImporte) || 0; const total = num * s.ventaCant; const importe = '$' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); const estado = s.ventaEstado === 'Abierta' ? 'En marcha' : s.ventaEstado; if (s.ventaEditId) { return { ventas: s.ventas.map((x) => x.id === s.ventaEditId ? Object.assign({}, x, { cliente: s.ventaCliente, vendedor: s.ventaVendedor || '\u2014', estado: estado, importe: importe }) : x), overlay: null, ventaEditId: null, toast: 'Venta actualizada' }; } return { ventas: s.ventas.concat([{ id: 'v' + Date.now(), producto: 'Venta', cliente: s.ventaCliente, vendedor: s.ventaVendedor || '\u2014', estado: estado, importe: importe, fecha: 'hoy', dias: 0 }]), overlay: null, toast: 'Venta registrada' }; });
+          this._flashToast();
+          return;
+        }
+        if (ov === 'nuevo' || ov === 'editar') {
+          const owner = account.nombre;
+          this.setState((s) => { const nombre = s.cfNombre.trim(); if (!nombre) return {}; if (ov === 'editar') { return { clientes: s.clientes.map((x) => x.id === s.clientId ? Object.assign({}, x, { nombre: nombre, empresa: s.cfEmpresa, correo: s.cfCorreo, telefono: s.cfTelefono, estado: s.cfEstado }) : x), overlay: null, toast: 'Cliente actualizado' }; } return { clientes: s.clientes.concat([{ id: 'c' + Date.now(), nombre: nombre, puesto: '', empresa: s.cfEmpresa, ciudad: '', correo: s.cfCorreo, telefono: s.cfTelefono, estado: s.cfEstado || 'Lead', valor: '\u2014', propietario: owner }]), overlay: null, route: 'clientes', toast: 'Cliente creado' }; });
+          this._flashToast();
+          return;
+        }
+        this.setState({ overlay: null });
+      },
+      isInteraccion, isClienteForm, interTipos, interCanales, interDerivado,
+      isSeguimiento, segAtajos, segCells, segMesLabel, segPrev, segNext, segDias: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
+      isVenta, ventaImporte: this.state.ventaImporte, ventaCant: vCant, ventaEstados, ventaTotal,
+      isUsuario, noEsUsuario: !isUsuario, noEsConfirmar: overlay !== 'confirmar',
+      ventaDropCliente: vDrop === 'cliente', ventaDropVendedor: vDrop === 'vendedor', clientesOpts, vendedoresOpts,
+      ventaClienteLabel: this.state.ventaCliente || 'Selecciona un cliente', ventaClienteColor: this.state.ventaCliente ? 'var(--text-primary)' : 'var(--text-muted)',
+      ventaVendedorLabel: this.state.ventaVendedor || 'Selecciona un vendedor', ventaVendedorColor: this.state.ventaVendedor ? 'var(--text-primary)' : 'var(--text-muted)',
+      ventaNewCliente: this.state.ventaNewCliente, ventaNewVendedor: this.state.ventaNewVendedor,
+      icBell: this.ic('bell', 16), icMinus: this.ic('minus', 18),
+      overlaySubtitle: (isInteraccion || isSeguimiento || isVenta) && client ? client.nombre : '',
+      estadoOptions: ['Lead', 'Cualificado', 'Propuesta', 'Negociación', 'Ganado', 'Perdido'],
+      overlayTitle: overlay === 'confirmar' ? (this.state.confirmData && this.state.confirmData.type === 'venta' ? 'Eliminar venta' : 'Eliminar cliente') : (isUsuario ? (this.state.usuarioEditId ? 'Editar usuario' : 'Añadir usuario') : (isVenta ? (this.state.ventaEditId ? 'Editar venta' : 'Registrar venta') : (isSeguimiento ? 'Programar seguimiento' : (isInteraccion ? 'Registrar interacción' : (overlay === 'editar' ? 'Editar cliente' : 'Nuevo cliente'))))),
+      overlaySaveLabel: isUsuario ? (this.state.usuarioEditId ? 'Guardar cambios' : 'Añadir usuario') : (isVenta ? (this.state.ventaEditId ? 'Guardar cambios' : 'Registrar venta') : (isSeguimiento ? 'Agendar seguimiento' : (isInteraccion ? 'Guardar interacción' : (overlay === 'editar' ? 'Guardar cambios' : 'Crear cliente')))),
+    };
+  }
+}
+</script>
+</body>
+</html>

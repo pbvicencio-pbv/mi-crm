@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/base.css">
+  <style>
+    doc-page:not(:defined){visibility:hidden}
+    doc-page{ --ink:#0F172A; --ink-2:#334155; --muted:#64748B; --line:#E2E8F0; --line-soft:#F1F5F9; --page:#F8FAFC; --brand:#4F46E5; --brand-sub:#EEF2FF; }
+    doc-page h1,doc-page h2,doc-page h3{ font-family:'Plus Jakarta Sans',system-ui,sans-serif; color:var(--ink); letter-spacing:-0.02em; line-height:1.15; }
+    doc-page p,doc-page li,doc-page td,doc-page th{ font-family:'Plus Jakarta Sans',system-ui,sans-serif; color:var(--ink-2); font-size:14px; line-height:1.6; }
+    doc-page code,doc-page .mono{ font-family:'JetBrains Mono',ui-monospace,monospace; font-size:12.5px; }
+    doc-page .kept{ break-inside:avoid; }
+    doc-page table{ border-collapse:collapse; width:100%; }
+    doc-page thead th{ background:var(--page); }
+  </style>
+</helmet>
+<x-import component-from-global-scope="doc-page" from="./doc-page.js" size="letter" margin="0.7in" hint-size="816px,1056px">
+
+  <div slot="header" style="display:flex;align-items:center;justify-content:space-between;padding:8px 2px;border-bottom:1px solid var(--line);font-family:'Plus Jakarta Sans',sans-serif;">
+    <span style="font-weight:800;font-size:13px;color:var(--ink);letter-spacing:-0.01em;">Pulse<span style="color:var(--brand);">.</span> CRM</span>
+    <span style="font-size:11px;color:var(--muted);letter-spacing:0.04em;text-transform:uppercase;">Guía del App Shell · Referencia de diseño</span>
+  </div>
+
+  <div slot="footer" style="display:flex;align-items:center;justify-content:space-between;padding:6px 2px;border-top:1px solid var(--line);font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:var(--muted);">
+    <span>CRM Pulse — documento interno</span>
+    <span>v1 · Jul 2026</span>
+  </div>
+
+  <p style="text-transform:uppercase;letter-spacing:0.12em;font-size:11px;font-weight:700;color:var(--brand);margin:0 0 6px;">Referencia para diseñadores y desarrolladores</p>
+  <h1 style="font-size:34px;font-weight:800;margin:0 0 10px;">Guía del App Shell</h1>
+  <p style="font-size:16px;color:var(--ink-2);margin:0 0 4px;max-width:60ch;">Cómo está organizada la navegación de CRM Pulse: sus pantallas, cómo se entra a cada una, la capa de overlays y el modelo de roles. Es la referencia para ubicarte antes de tocar cualquier flujo.</p>
+
+  <hr style="border:none;border-top:1px solid var(--line);margin:22px 0;">
+
+  <h2 style="font-size:20px;font-weight:800;margin:0 0 10px;">1. Arquitectura en una frase</h2>
+  <p style="margin:0 0 12px;">CRM Pulse es una <strong>aplicación de una sola página (SPA)</strong>. No hay URLs ni rutas de navegador: todo lo gobierna un único contenedor (<code>CRM Pulse.dc.html</code>) a través de dos ejes de estado independientes.</p>
+  <div class="kept" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 6px;">
+    <div style="border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;">
+      <div class="mono" style="color:var(--brand);font-weight:700;">route</div>
+      <p style="margin:6px 0 0;font-size:13px;">Qué <strong>pantalla</strong> se muestra. Solo una activa a la vez. Cambiar de pantalla = cambiar este valor.</p>
+    </div>
+    <div style="border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;">
+      <div class="mono" style="color:var(--brand);font-weight:700;">overlay</div>
+      <p style="margin:6px 0 0;font-size:13px;">Qué <strong>modal/formulario</strong> flota por encima. Es independiente de <code>route</code>: cualquier pantalla puede abrir un overlay sin perder su sitio.</p>
+    </div>
+  </div>
+  <p style="margin:12px 0 0;font-size:13px;color:var(--muted);">Antes de todo hay una puerta: si <code>authed</code> es falso, se muestra <code>LoginScreen</code> a pantalla completa y nada más existe.</p>
+
+  <hr style="border:none;border-top:1px solid var(--line);margin:22px 0;">
+
+  <h2 style="font-size:20px;font-weight:800;margin:0 0 14px;">2. Mapa de navegación</h2>
+  <div class="kept" style="border:1px solid var(--line);border-radius:10px;padding:22px;background:var(--page);">
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:16px;">
+      <div style="background:var(--ink);color:#fff;font-weight:700;font-size:13px;padding:8px 16px;border-radius:8px;">Login</div>
+      <div style="font-size:11px;color:var(--muted);" class="mono">authed = true ↓ aterriza en “hoy”</div>
+    </div>
+
+    <div style="text-align:center;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Navegación principal (sidebar / bottom nav)</div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:18px;">
+      <span class="mono" style="background:var(--brand);color:#fff;font-weight:700;padding:7px 14px;border-radius:999px;font-size:12px;">hoy</span>
+      <span class="mono" style="background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:600;padding:7px 14px;border-radius:999px;font-size:12px;">clientes</span>
+      <span class="mono" style="background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:600;padding:7px 14px;border-radius:999px;font-size:12px;">ventas</span>
+      <span class="mono" style="background:#fff;border:1px dashed var(--brand);color:var(--brand);font-weight:600;padding:7px 14px;border-radius:999px;font-size:12px;">equipo · solo dueña</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div style="border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fff;">
+        <div style="font-size:12px;color:var(--ink-2);"><span class="mono" style="color:var(--brand);font-weight:700;">clientes</span> / <span class="mono" style="color:var(--brand);font-weight:700;">hoy</span> → <span class="mono" style="color:var(--brand);font-weight:700;">ficha</span></div>
+        <p style="margin:6px 0 0;font-size:12px;">Tocar una fila de cliente o una tarea de agenda fija <code>clientId</code> y abre la Ficha 360. <span class="mono">back</span> regresa a <code>clientes</code>.</p>
+      </div>
+      <div style="border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fff;">
+        <div style="font-size:12px;color:var(--ink-2);">Menú de cuenta (topbar) → <span class="mono" style="color:var(--brand);font-weight:700;">cuenta</span></div>
+        <p style="margin:6px 0 0;font-size:12px;">Desde el avatar: <span class="mono">openCuenta</span> abre Mi cuenta; <span class="mono">logout</span> vuelve al Login.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr style="border:none;border-top:1px solid var(--line);margin:22px 0;">
+
+  <h2 style="font-size:20px;font-weight:800;margin:0 0 6px;">3. Pantallas</h2>
+  <p style="margin:0 0 14px;">Seis pantallas de primer nivel conmutadas por <code>route</code>. Cada una se muestra cuando su bandera <span class="mono">show*</span> es verdadera.</p>
+
+  <table style="margin:0 0 6px;">
+    <thead>
+      <tr style="text-align:left;">
+        <th style="padding:9px 10px;border-bottom:2px solid var(--line);font-size:12px;">route</th>
+        <th style="padding:9px 10px;border-bottom:2px solid var(--line);font-size:12px;">Pantalla</th>
+        <th style="padding:9px 10px;border-bottom:2px solid var(--line);font-size:12px;">Propósito</th>
+        <th style="padding:9px 10px;border-bottom:2px solid var(--line);font-size:12px;">Se entra desde</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);"><code>hoy</code></td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);font-weight:600;color:var(--ink);">Agenda Hoy</td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);">Aterrizaje tras login; tareas y seguimientos del día.</td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);">Login · nav</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);"><code>clientes</code></td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);font-weight:600;color:var(--ink);">Clientes (lista)</td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);">Buscar, filtrar y entrar a cada cliente.</td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);">nav · back de Ficha</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);"><code>ficha</code></td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);font-weight:600;color:var(--ink);">Ficha Cliente 360</td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);">Detalle del cliente por pestañas. Requiere <code>clientId</code>.</td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);">fila de Clientes · tarea de Hoy</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);"><code>ventas</code></td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);font-weight:600;color:var(--ink);">Ventas (lista)</td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);">Registro y estado de las ventas.</td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);">nav</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);"><code>equipo</code></td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);font-weight:600;color:var(--ink);">Equipo / Usuarios</td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);">Gestión del equipo. <strong>Solo rol dueña.</strong> Tiene estado de carga (~600ms).</td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);">nav (si dueña)</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);"><code>cuenta</code></td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);font-weight:600;color:var(--ink);">Mi cuenta</td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);">Perfil y preferencias. Tiene estado de carga (~600ms).</td>
+        <td style="padding:9px 10px;border-bottom:1px solid var(--line-soft);">menú de cuenta</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr style="border:none;border-top:1px solid var(--line);margin:22px 0;">
+
+  <h2 style="font-size:20px;font-weight:800;margin:0 0 6px;">4. Overlays</h2>
+  <p style="margin:0 0 14px;">La capa <code>overlay</code> flota sobre la pantalla activa sin cambiar <code>route</code>. Al cerrarse, el usuario queda donde estaba.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="kept" style="border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fff;">
+      <div class="mono" style="color:var(--brand);font-weight:700;font-size:12px;">nuevo · editar</div>
+      <p style="margin:5px 0 0;font-size:12.5px;">Cliente Form — alta y edición de cliente.</p>
+    </div>
+    <div class="kept" style="border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fff;">
+      <div class="mono" style="color:var(--brand);font-weight:700;font-size:12px;">venta</div>
+      <p style="margin:5px 0 0;font-size:12.5px;">Venta Form — importe, cantidad, estado, cliente.</p>
+    </div>
+    <div class="kept" style="border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fff;">
+      <div class="mono" style="color:var(--brand);font-weight:700;font-size:12px;">interaccion</div>
+      <p style="margin:5px 0 0;font-size:12.5px;">Registrar interacción (tipo, canal) desde la Ficha.</p>
+    </div>
+    <div class="kept" style="border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fff;">
+      <div class="mono" style="color:var(--brand);font-weight:700;font-size:12px;">seguimiento</div>
+      <p style="margin:5px 0 0;font-size:12.5px;">Agendar seguimiento con selector de fecha y atajos.</p>
+    </div>
+    <div class="kept" style="border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fff;grid-column:1 / -1;">
+      <div class="mono" style="color:#DC2626;font-weight:700;font-size:12px;">confirmData</div>
+      <p style="margin:5px 0 0;font-size:12.5px;">Diálogo de confirmación para eliminar (cliente o venta). Copy: “Esta acción no se puede deshacer.”</p>
+    </div>
+  </div>
+
+  <hr style="border:none;border-top:1px solid var(--line);margin:22px 0;">
+
+  <h2 style="font-size:20px;font-weight:800;margin:0 0 10px;">5. Roles y permisos</h2>
+  <p style="margin:0 0 12px;">Hay dos roles: <strong>dueña</strong> y <strong>vendedor</strong>. El rol condiciona qué se ve y adónde se puede estar.</p>
+  <ul style="margin:0 0 4px;padding-left:20px;">
+    <li style="margin-bottom:7px;">La pantalla <code>equipo</code> está protegida: <span class="mono">showEquipo = route === 'equipo' &amp;&amp; roleDuena</span>. Un vendedor nunca la ve en el nav.</li>
+    <li style="margin-bottom:7px;">Guard de degradación: si estás en <code>equipo</code> y cambias a vendedor, el shell te expulsa a <code>hoy</code> para no dejarte en una pantalla sin permiso.</li>
+    <li style="margin-bottom:0;">Guard de integridad: si eliminas el cliente cuya Ficha estás viendo, <code>route</code> cae automáticamente de <code>ficha</code> a <code>clientes</code>.</li>
+  </ul>
+
+  <hr style="border:none;border-top:1px solid var(--line);margin:22px 0;">
+
+  <h2 style="font-size:20px;font-weight:800;margin:0 0 10px;">6. Chrome y responsive</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div class="kept" style="border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;">
+      <div style="font-weight:700;color:var(--ink);font-size:13px;margin-bottom:5px;">Desktop (≥ 1024px)</div>
+      <p style="margin:0;font-size:12.5px;">Sidebar fija de 248px + topbar de 56px. El chrome no hace scroll; el contenido sí. Ancho de contenido acotado y centrado.</p>
+    </div>
+    <div class="kept" style="border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;">
+      <div style="font-weight:700;color:var(--ink);font-size:13px;margin-bottom:5px;">Móvil (&lt; 768px)</div>
+      <p style="margin:0;font-size:12.5px;">Bottom nav en lugar de sidebar. Login en modo <code>mobile</code>; en desktop, modo <code>split</code>.</p>
+    </div>
+  </div>
+  <p style="margin:12px 0 0;font-size:13px;">El topbar aloja el menú de cuenta (<span class="mono">toggleAccount</span>), el switch de rol y los accesos a Mi cuenta / cerrar sesión.</p>
+
+  <hr style="border:none;border-top:1px solid var(--line);margin:22px 0;">
+
+  <h2 style="font-size:20px;font-weight:800;margin:0 0 10px;">7. Sistema de diseño</h2>
+  <p style="margin:0 0 10px;">Todo se construye sobre <strong>Pulse CRM DS PBV</strong>. No se inventan colores, tipografías ni componentes fuera de él.</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:7px;">Color de marca único: indigo <code>#4F46E5</code> para acciones primarias, nav activo, foco y enlaces. Neutros en escala slate; fondos planos (página <code>#F8FAFC</code>, tarjetas blancas).</li>
+    <li style="margin-bottom:7px;">Tipografía: <strong>Plus Jakarta Sans</strong> para UI; <strong>JetBrains Mono</strong> con <code>tabular-nums</code> para cifras, montos, fechas e identificadores.</li>
+    <li style="margin-bottom:7px;">Voz: sentence case, botones-verbo (“Nueva venta”, “Guardar”), números al frente, sin emoji.</li>
+    <li style="margin-bottom:0;">Íconos: set tipo Lucide, trazo 2px, <code>currentColor</code>.</li>
+  </ul>
+
+  <hr style="border:none;border-top:1px solid var(--line);margin:22px 0;">
+
+  <h2 style="font-size:20px;font-weight:800;margin:0 0 10px;">Apéndice · Archivos clave</h2>
+  <table>
+    <thead>
+      <tr style="text-align:left;">
+        <th style="padding:8px 10px;border-bottom:2px solid var(--line);font-size:12px;">Archivo</th>
+        <th style="padding:8px 10px;border-bottom:2px solid var(--line);font-size:12px;">Rol</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:8px 10px;border-bottom:1px solid var(--line-soft);" class="mono">CRM Pulse.dc.html</td><td style="padding:8px 10px;border-bottom:1px solid var(--line-soft);font-size:13px;">Shell: estado, rutas, guards y overlays.</td></tr>
+      <tr><td style="padding:8px 10px;border-bottom:1px solid var(--line-soft);" class="mono">LoginScreen.dc.html</td><td style="padding:8px 10px;border-bottom:1px solid var(--line-soft);font-size:13px;">Puerta de acceso.</td></tr>
+      <tr><td style="padding:8px 10px;border-bottom:1px solid var(--line-soft);" class="mono">Agenda Hoy · Clientes Lista · Ficha Cliente · Venta Form …</td><td style="padding:8px 10px;border-bottom:1px solid var(--line-soft);font-size:13px;">Pantallas y formularios montados por el shell.</td></tr>
+      <tr><td style="padding:8px 10px;border-bottom:1px solid var(--line-soft);" class="mono">_ds/pulse-crm-ds-pbv-…/</td><td style="padding:8px 10px;border-bottom:1px solid var(--line-soft);font-size:13px;">Design system: tokens, estilos y componentes.</td></tr>
+    </tbody>
+  </table>
+
+</x-import>
+</x-dc>
+</body>
+</html>

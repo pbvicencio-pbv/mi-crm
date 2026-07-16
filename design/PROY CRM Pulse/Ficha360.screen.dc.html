@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/layout.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/tokens/base.css">
+  <link rel="stylesheet" href="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/styles.css">
+  <script src="_ds/pulse-crm-ds-pbv-9fef4bfe-5d0e-47b0-b9e7-0d987e918eaa/_ds_bundle.js"></script>
+  <style>
+    .mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+    .navi:hover{background:var(--surface-sunken)}
+    .cbtn:hover{filter:brightness(0.94)}
+    .chk:hover{border-color:var(--brand);background:var(--brand-subtle)}
+  </style>
+</helmet>
+<div style="width:100%;height:100%;position:relative;overflow:hidden;background:var(--surface-page);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text-primary)">
+
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+    <aside style="position:absolute;top:0;left:0;width:248px;height:100%;background:var(--surface-card);border-right:1px solid var(--border-default);display:flex;flex-direction:column;z-index:2">
+      <div style="height:56px;display:flex;align-items:center;gap:9px;padding:0 20px;border-bottom:1px solid var(--border-subtle)">
+        <span style="display:inline-flex;color:var(--brand)">{{ icMark }}</span>
+        <span style="font-weight:800;font-size:19px;letter-spacing:-0.02em">Pulse<span style="color:var(--brand)">.</span></span>
+      </div>
+      <nav style="display:flex;flex-direction:column;gap:2px;padding:14px 12px;flex:1">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);padding:6px 12px 8px">Trabajo</div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icHoy }}<span>Hoy</span></div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;background:var(--brand-subtle);color:var(--brand)">{{ icClientes }}<span>Clientes</span></div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icVentas }}<span>Ventas</span></div>
+        <div class="navi" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text-secondary)">{{ icEquipo }}<span>Equipo</span></div>
+        <div style="padding:14px 4px 4px">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="100%,40px" variant="primary" full-width="{{ true }}" icon-left="{{ icPlus }}">Nuevo cliente</x-import>
+        </div>
+      </nav>
+      <div style="border-top:1px solid var(--border-subtle);padding:12px;display:flex;align-items:center;gap:10px">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="34px,34px" name="Elena Vargas" size="sm"></x-import>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Elena Vargas</div>
+          <div style="font-size:11px;color:var(--text-muted)">Dueña</div>
+        </div>
+        <span style="color:var(--text-muted);display:inline-flex">{{ icLogout }}</span>
+      </div>
+    </aside>
+    <header style="position:absolute;top:0;left:248px;right:0;height:56px;background:var(--surface-card);border-bottom:1px solid var(--border-default);display:flex;align-items:center;justify-content:space-between;padding:0 16px 0 8px;z-index:3">
+      <div style="display:flex;align-items:center;gap:4px;min-width:0">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.IconButton" hint-size="36px,36px" aria-label="Atrás" variant="ghost" size="sm">{{ icBack }}</x-import>
+        <div style="font-size:16px;font-weight:800;letter-spacing:-0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nombre }}</div>
+      </div>
+      <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,36px" variant="secondary" size="sm" icon-left="{{ icEdit }}">Editar</x-import>
+    </header>
+  </sc-if>
+
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <header style="position:absolute;top:0;left:0;right:0;height:56px;background:var(--surface-card);border-bottom:1px solid var(--border-default);display:flex;align-items:center;justify-content:space-between;padding:0 8px;z-index:3">
+      <div style="display:flex;align-items:center;gap:2px;min-width:0">
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.IconButton" hint-size="36px,36px" aria-label="Atrás" variant="ghost" size="sm">{{ icBack }}</x-import>
+        <div style="font-size:16px;font-weight:800;letter-spacing:-0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Cliente</div>
+      </div>
+      <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.IconButton" hint-size="36px,36px" aria-label="Editar" variant="ghost" size="sm">{{ icEdit }}</x-import>
+    </header>
+    <nav style="position:absolute;left:0;right:0;bottom:0;height:64px;background:var(--surface-card);border-top:1px solid var(--border-default);display:flex;align-items:stretch;z-index:3">
+      <div style="flex:1;display:flex">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text-muted)">{{ icHoyTab }}<span style="font-size:11px;font-weight:600">Hoy</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--brand)">{{ icClientesTab }}<span style="font-size:11px;font-weight:600">Clientes</span></div>
+      </div>
+      <div style="width:76px;flex:none;position:relative">
+        <div style="position:absolute;left:50%;top:-16px;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;background:var(--brand);color:#fff;border:3px solid var(--surface-card);box-shadow:0 6px 16px rgba(79,70,229,.4);display:flex;align-items:center;justify-content:center">{{ icPlusLg }}</div>
+      </div>
+      <div style="flex:1;display:flex">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text-muted)">{{ icVentasTab }}<span style="font-size:11px;font-weight:600">Ventas</span></div>
+      </div>
+    </nav>
+  </sc-if>
+
+  <div style="{{ contentStyle }}">
+    <div style="{{ innerStyle }}">
+      <div style="{{ colsStyle }}">
+
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+          <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:18px">
+            <div style="display:flex;align-items:center;gap:14px">
+              <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Avatar" hint-size="56px,56px" name="{{ nombre }}" size="xl"></x-import>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:19px;font-weight:800;letter-spacing:-0.02em">{{ nombre }}</div>
+                <div style="font-size:13px;color:var(--text-secondary);margin-top:1px">{{ subtitulo }}</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
+              <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,22px" tone="{{ estadoTone }}" dot="{{ true }}">{{ estado }}</x-import>
+              <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,22px" variant="outline" tone="neutral">{{ canal }}</x-import>
+            </div>
+            <div style="display:flex;gap:14px;margin-top:18px">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                <button class="cbtn" aria-label="WhatsApp" style="width:44px;height:44px;border-radius:50%;border:none;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:filter 120ms">{{ icChat }}</button>
+                <span style="font-size:11px;color:var(--text-secondary)">WhatsApp</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                <button class="cbtn" aria-label="Llamar" style="width:44px;height:44px;border-radius:50%;border:none;background:#64748B;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:filter 120ms">{{ icPhone }}</button>
+                <span style="font-size:11px;color:var(--text-secondary)">Llamar</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                <button class="cbtn" aria-label="Email" style="width:44px;height:44px;border-radius:50%;border:none;background:#3B82F6;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:filter 120ms">{{ icMail }}</button>
+                <span style="font-size:11px;color:var(--text-secondary)">Email</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);overflow:hidden">
+            <div style="padding:14px 16px 12px;font-size:14px;font-weight:700">Datos</div>
+            <sc-for list="{{ datos }}" as="d" hint-placeholder-count="5">
+              <div style="display:flex;gap:12px;padding:11px 16px;border-top:1px solid var(--border-subtle)">
+                <span style="font-size:12px;color:var(--text-muted);width:104px;flex:none">{{ d.label }}</span>
+                <span class="{{ d.cls }}" style="font-size:13px;flex:1;min-width:0;word-break:break-word">{{ d.valor }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+          <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:16px 18px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+              <div style="font-size:14px;font-weight:700">Próximo seguimiento</div>
+            </div>
+            <sc-if value="{{ tieneSeguimiento }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:12px">
+                <button class="chk" aria-label="Marcar hecho" style="width:44px;height:44px;border-radius:50%;flex:none;border:2px solid var(--border-strong);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 140ms cubic-bezier(0.2,0,0,1)">{{ icCheck }}</button>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:14px;font-weight:600">{{ segMotivo }}</div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-top:4px;color:var(--warning-fg)">{{ icClock }}<span class="mono" style="font-size:12px;font-weight:600">{{ segFecha }}</span></div>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ vacia }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Sin seguimiento programado.</div>
+              <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,40px" variant="primary" size="sm" icon-left="{{ icPlus }}">Programar seguimiento</x-import>
+            </sc-if>
+          </div>
+
+          <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:16px 18px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:{{ interMb }}">
+              <div style="font-size:14px;font-weight:700">Interacciones</div>
+              <sc-if value="{{ tieneInteracciones }}" hint-placeholder-val="{{ true }}">
+                <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,32px" variant="secondary" size="sm" icon-left="{{ icPlus }}">Anotar</x-import>
+              </sc-if>
+            </div>
+            <sc-if value="{{ tieneInteracciones }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <sc-for list="{{ interacciones }}" as="i" hint-placeholder-count="3">
+                  <div style="display:flex;gap:11px">
+                    <span style="width:30px;height:30px;border-radius:8px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:{{ i.bg }};color:{{ i.fg }}">{{ i.icon }}</span>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:13px;color:var(--text-primary)">{{ i.nota }}</div>
+                      <div style="font-size:11px;color:var(--text-muted);margin-top:2px"><span class="mono">{{ i.fecha }}</span> · {{ i.autor }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ vacia }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Aún no hay interacciones registradas.</div>
+              <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,40px" variant="primary" size="sm" icon-left="{{ icPlus }}">Anotar interacción</x-import>
+            </sc-if>
+          </div>
+
+          <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:16px 18px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:{{ ventasMb }}">
+              <div style="font-size:14px;font-weight:700">Ventas</div>
+              <sc-if value="{{ tieneVentas }}" hint-placeholder-val="{{ true }}">
+                <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,32px" variant="secondary" size="sm" icon-left="{{ icPlus }}">Registrar</x-import>
+              </sc-if>
+            </div>
+            <sc-if value="{{ tieneVentas }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <sc-for list="{{ ventas }}" as="v" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--border-subtle)">
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:14px;font-weight:600">{{ v.producto }}</div>
+                      <div class="mono" style="font-size:11px;color:var(--text-muted);margin-top:2px">{{ v.fecha }}</div>
+                    </div>
+                    <span class="mono" style="font-size:14px;font-weight:700;color:#059669">{{ v.importe }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ vacia }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Aún no hay ventas registradas.</div>
+              <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Button" hint-size="auto,40px" variant="primary" size="sm" icon-left="{{ icPlus }}">Registrar venta</x-import>
+            </sc-if>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1100,&quot;height&quot;:680},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;'desktop' | 'mobile'&quot;},&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;llena&quot;,&quot;vacia&quot;],&quot;default&quot;:&quot;llena&quot;,&quot;tsType&quot;:&quot;'llena' | 'vacia'&quot;}}">
+class Component extends DCLogic {
+  ic(name, size, sw) {
+    size = size || 18; sw = sw || 2;
+    const P = (d) => ['path', { d }];
+    const M = {
+      mark: [P('M3 12h4l2-7 4 14 2-7h6')],
+      hoy: [['rect', { x: 3, y: 4, width: 18, height: 18, rx: 2 }], P('M16 2v4M8 2v4M3 10h18'), P('M8 15h.01M12 15h4')],
+      clientes: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75')],
+      ventas: [['rect', { x: 3, y: 3, width: 5, height: 18, rx: 1 }], ['rect', { x: 10, y: 3, width: 5, height: 12, rx: 1 }], ['rect', { x: 17, y: 3, width: 4, height: 8, rx: 1 }]],
+      equipo: [P('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'), ['circle', { cx: 9, cy: 7, r: 4 }], P('m16 11 2 2 4-4')],
+      plus: [P('M12 5v14M5 12h14')],
+      back: [P('m15 18-6-6 6-6')],
+      edit: [P('M12 20h9'), P('M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z')],
+      chat: [P('M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z')],
+      phone: [P('M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z')],
+      mail: [['rect', { x: 2, y: 4, width: 20, height: 16, rx: 2 }], P('m22 7-10 6L2 7')],
+      note: [P('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'), P('M14 2v6h6M9 13h6M9 17h4')],
+      calendar: [['rect', { x: 3, y: 4, width: 18, height: 18, rx: 2 }], P('M16 2v4M8 2v4M3 10h18')],
+      check: [P('M20 6 9 17l-5-5')],
+      clock: [['circle', { cx: 12, cy: 12, r: 9 }], P('M12 7v5l3 2')],
+      logout: [P('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9')],
+    };
+    const parts = (M[name] || []).map((c, i) => React.createElement(c[0], Object.assign({ key: i }, c[1])));
+    return React.createElement('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round' }, parts);
+  }
+
+  iv(tipo) {
+    const m = {
+      llamada: { bg: 'var(--brand-subtle)', fg: 'var(--brand)', icon: 'phone' },
+      correo: { bg: 'var(--info-bg)', fg: 'var(--info-fg)', icon: 'mail' },
+      reunion: { bg: 'var(--success-bg)', fg: 'var(--success-fg)', icon: 'calendar' },
+      nota: { bg: 'var(--surface-sunken)', fg: 'var(--text-secondary)', icon: 'note' },
+    };
+    return m[tipo] || m.nota;
+  }
+
+  renderVals() {
+    const mode = this.props.mode || 'desktop';
+    const scenario = this.props.scenario || 'llena';
+    const isDesktop = mode === 'desktop';
+    const isMobile = mode === 'mobile';
+    const llena = scenario !== 'vacia';
+    const vacia = scenario === 'vacia';
+
+    const contentStyle = {
+      position: 'absolute', top: '56px', right: 0, bottom: isMobile ? '64px' : 0,
+      left: isDesktop ? '248px' : 0, overflowY: 'auto',
+    };
+    const innerStyle = { maxWidth: isDesktop ? '1100px' : 'none', margin: '0 auto', padding: isMobile ? '16px' : '24px 32px' };
+    const colsStyle = isDesktop
+      ? { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '18px', alignItems: 'start' }
+      : { display: 'flex', flexDirection: 'column', gap: '16px' };
+
+    const nombre = llena ? 'Laura Fernández' : 'Daniel Ortega';
+    const subtitulo = llena ? 'Directora de compras · Innovatech' : 'Prospecto · Instagram';
+    const estado = llena ? 'En negociación' : 'Nuevo lead';
+    const estadoTone = llena ? 'warning' : 'neutral';
+    const canal = llena ? 'WhatsApp' : 'Instagram';
+
+    const datos = llena ? [
+      { label: 'Teléfono', valor: '+52 55 1234 5678', cls: 'mono' },
+      { label: 'Correo', valor: 'laura.fernandez@innovatech.mx', cls: '' },
+      { label: 'Empresa', valor: 'Innovatech Soluciones', cls: '' },
+      { label: 'Ciudad', valor: 'CDMX', cls: '' },
+      { label: 'Cliente desde', valor: '12 mar 2026', cls: 'mono' },
+      { label: 'Propietario', valor: 'Ricardo Salas', cls: '' },
+    ] : [
+      { label: 'Teléfono', valor: '+52 55 9087 1122', cls: 'mono' },
+      { label: 'Correo', valor: 'daniel.ortega@correo.mx', cls: '' },
+      { label: 'Empresa', valor: '—', cls: '' },
+      { label: 'Ciudad', valor: '—', cls: '' },
+      { label: 'Cliente desde', valor: '11 jul 2026', cls: 'mono' },
+      { label: 'Propietario', valor: 'Ricardo Salas', cls: '' },
+    ];
+
+    const interacciones = llena ? [
+      Object.assign({ nota: 'Confirmó interés en el plan anual.', fecha: 'Hoy 09:12', autor: 'Ricardo Salas' }, this._iv('llamada')),
+      Object.assign({ nota: 'Envié la propuesta comercial v2.', fecha: 'Ayer 17:40', autor: 'Ricardo Salas' }, this._iv('correo')),
+      Object.assign({ nota: 'Prefiere que le llamen por la tarde.', fecha: 'Lun 11:00', autor: 'Elena Vargas' }, this._iv('nota')),
+    ] : [];
+
+    const ventas = llena ? [
+      { producto: 'Plan Pro anual', importe: '$284K', fecha: '02 jul 2026' },
+      { producto: 'Implementación inicial', importe: '$48K', fecha: '12 jun 2026' },
+    ] : [];
+
+    return {
+      isDesktop, isMobile, llena, vacia,
+      contentStyle, innerStyle, colsStyle,
+      nombre, subtitulo, estado, estadoTone, canal,
+      datos, interacciones, ventas,
+      tieneSeguimiento: llena, tieneInteracciones: llena, tieneVentas: llena,
+      segMotivo: 'Llamar para cierre de contrato', segFecha: 'Mañana 10:00',
+      interMb: llena ? '14px' : '10px', ventasMb: llena ? '4px' : '10px',
+      icMark: this.ic('mark', 22, 2.4),
+      icHoy: this.ic('hoy', 18), icClientes: this.ic('clientes', 18), icVentas: this.ic('ventas', 18), icEquipo: this.ic('equipo', 18),
+      icHoyTab: this.ic('hoy', 22), icClientesTab: this.ic('clientes', 22), icVentasTab: this.ic('ventas', 22),
+      icPlus: this.ic('plus', 16), icPlusLg: this.ic('plus', 26, 2.4),
+      icBack: this.ic('back', 20), icEdit: this.ic('edit', 16),
+      icChat: this.ic('chat', 20), icPhone: this.ic('phone', 20), icMail: this.ic('mail', 20),
+      icCheck: this.ic('check', 20, 2.4), icClock: this.ic('clock', 14),
+      icLogout: this.ic('logout', 18),
+    };
+  }
+
+  _iv(tipo) {
+    const v = this.iv(tipo);
+    return { bg: v.bg, fg: v.fg, icon: this.ic(v.icon, 15) };
+  }
+}
+</script>
+</body>
+</html>
