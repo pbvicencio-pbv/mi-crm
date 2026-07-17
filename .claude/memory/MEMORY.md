@@ -17,7 +17,7 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
 - Backend/DB: **Convex** + **Convex Auth (Password)**. NO Supabase/Postgres → no hay RLS;
   autorización dentro de cada función.
 - Front: Next.js 15 (App Router, TS) + Tailwind (mobile-first).
-- Deploy: **Railway** desde `master` (auto-deploy en cada push) + `npx convex deploy` para las
+- Deploy: **Railway** desde `main` (auto-deploy en cada push) + `npx convex deploy` para las
   funciones. NO Vercel.
 - Convex dev deployment: `elated-donkey-854` (team `ponciano-betancourt`, proyecto `crm-pulse`).
 - Fuente de verdad de producto: el diseño en `design/PROY CRM Pulse/` (11 pantallas). MVP =
@@ -44,6 +44,6 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
 ## Cómo se trabaja con este dueño
 
 - Planes **en pantalla** (no archivo) + ciclo de auditoría **GO/NO-GO** antes de implementar código.
-- Push a `master` = deploy: solo con aprobación explícita.
+- Push a `main` = deploy: solo con aprobación explícita.
 - Commits en español, Conventional Commits, **sin referencias a IA**.
 - Decisiones agrupadas en revisiones de plan; dudas sueltas de una en una.

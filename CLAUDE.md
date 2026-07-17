@@ -48,18 +48,18 @@ confiará en información falsa. El espejo para agentes no-Claude es `AGENTS.md`
    aprobación explícita del dueño. Presentar opciones con pros y contras y esperar la decisión.
    Acciones autónomas permitidas: corrección de bugs, refactor menor, actualización de
    dependencias menores.
-9. **NUNCA HACER PUSH SIN APROBACIÓN EXPLÍCITA**: **en este proyecto `git push origin master`
+9. **NUNCA HACER PUSH SIN APROBACIÓN EXPLÍCITA**: **en este proyecto `git push origin main`
    equivale a desplegar a producción en Railway** (auto-deploy). No se sube nada al remoto sin
    permiso directo del dueño. Commits locales sí están permitidos. Sin excepciones.
-10. **FLUJO GIT — TRABAJO EN `master`**: la rama de trabajo y de deploy es **`master`** (Railway
-    auto-despliega desde ahí; NO existe `main` ni flujo de PR en este proyecto). Commits locales
+10. **FLUJO GIT — TRABAJO EN `main`**: la rama de trabajo y de deploy es **`main`** (Railway
+    auto-despliega desde ahí; NO hay flujo de PR ni otra rama de larga vida en este proyecto). Commits locales
     frecuentes con Conventional Commits (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`). Ramas
-    `feat/*` opcionales para trabajo experimental, con merge a `master`. El push a `master` solo
+    `feat/*` opcionales para trabajo experimental, con merge a `main`. El push a `main` solo
     con aprobación (regla 9).
 11. **SYNC DEL REPO AL INICIO**: `git fetch origin` al comenzar cada sesión cuando el repo tenga
     historia compartida con el remoto (repo de un solo dev en una máquina → normalmente
     innecesario, pero no hace daño).
-12. **VALIDAR ANTES DE PUSH**: antes de cualquier push a `master`, ejecutar localmente TODOS los
+12. **VALIDAR ANTES DE PUSH**: antes de cualquier push a `main`, ejecutar localmente TODOS los
     Quality Gates. Push = deploy: no subir código que vaya a fallar en build o en runtime.
 13. **NUNCA BAJAR VERSIONES DE DEPENDENCIAS**: sin downgrade sin aprobación. Si un paquete causa
     problemas, buscar solución compatible con la versión actual o superior.
@@ -108,7 +108,7 @@ confiará en información falsa. El espejo para agentes no-Claude es `AGENTS.md`
   `import.meta.glob` rompe el push de `convex dev`.
 - **Env-gates de desarrollo**: `CRM_DEV_USER_EMAIL` (fallback de usuario dev, solo cuando NO hay
   identidad) y `CRM_ALLOW_SEED=true` (semillas). Ausentes en producción → fallan cerrado.
-- **Deploy**: front/app en **Railway** desde `master`; funciones Convex vía `npx convex deploy`.
+- **Deploy**: front/app en **Railway** desde `main`; funciones Convex vía `npx convex deploy`.
   Ver `DEPLOY.md`. Requiere `NEXT_PUBLIC_CONVEX_URL` (se inlinea en build).
 
 ---
@@ -165,7 +165,7 @@ con Convex Auth). Siguen M3 (clientes), M4 (seguimiento), M5 (ventas), M6 (cierr
 | UI | React + Tailwind CSS (mobile-first) | React 19 · Tailwind 3.4 | `src/components/**` |
 | Backend / DB | Convex (queries/mutations + reactividad) | 1.16 | `convex/**` |
 | Auth | Convex Auth · provider Password | `@convex-dev/auth` | `convex/auth.ts` (M2, en construcción) |
-| Hosting | Railway (app) + `npx convex deploy` (funciones) | n/a | push a `master` → auto-deploy |
+| Hosting | Railway (app) + `npx convex deploy` (funciones) | n/a | push a `main` → auto-deploy |
 | Tests | Vitest + Testing Library (+ Playwright) | Vitest 4 | `**/*.test.ts(x)` junto al código |
 
 ### Arquitectura
@@ -252,14 +252,14 @@ npx convex dev --once          # empuja esquema/funciones y typecheck de Convex
 
 # Commit / deploy
 git add -A && git commit -m "feat: descripción"   # commits locales OK
-git push origin master                            # SOLO con aprobación (regla 9) → Railway auto-deploya
+git push origin main                            # SOLO con aprobación (regla 9) → Railway auto-deploya
 ```
 
 ---
 
 ## Quality Gates
 
-Todo esto en verde antes de un push a `master` (= deploy):
+Todo esto en verde antes de un push a `main` (= deploy):
 
 - `npx tsc --noEmit` + `npm run lint` + `npm run build` sin errores.
 - `npm run test` (vitest) cubriendo el cambio.
@@ -283,5 +283,5 @@ Todo esto en verde antes de un push a `master` (= deploy):
 [ ] Skill correspondiente cargado antes de tocar su dominio
 [ ] Commit en Conventional Commits, en español, SIN referencias a IA
 [ ] gotchas.md actualizado si hubo algún error en la sesión
-[ ] Push a `master` solo con aprobación explícita del dueño
+[ ] Push a `main` solo con aprobación explícita del dueño
 ```

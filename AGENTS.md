@@ -24,9 +24,9 @@ Fuente de verdad completa: `CLAUDE.md`. Toda regla nueva se escribe primero all�
    agente presenta opciones con pros y contras.
 7. **CORREGIR LO PROPIO, REPORTAR LO PREEXISTENTE**: fallos introducidos por el cambio se corrigen
    dentro del cambio; la deuda preexistente se reporta sin ampliar el alcance.
-8. **FLUJO GIT — `master`**: rama de trabajo y de deploy = `master` (Railway auto-deploya; NO hay
-   `main` ni PRs). Commits en Conventional Commits. Ramas `feat/*` opcionales con merge a `master`.
-9. **NUNCA PUSH SIN APROBACIÓN**: `git push origin master` = deploy a producción. Commits locales
+8. **FLUJO GIT — `main`**: rama de trabajo y de deploy = `main` (Railway auto-deploya; NO hay
+   flujo de PR). Commits en Conventional Commits. Ramas `feat/*` opcionales con merge a `main`.
+9. **NUNCA PUSH SIN APROBACIÓN**: `git push origin main` = deploy a producción. Commits locales
    sí; push requiere confirmación del dueño.
 10. **VALIDAR ANTES DE PUSH**: correr los Quality Gates localmente (typecheck, lint, build, tests,
     `npx convex dev --once`). Push = deploy: no subir lo que vaya a fallar.
@@ -67,7 +67,7 @@ Fuente de verdad completa: `CLAUDE.md`. Toda regla nueva se escribe primero all�
 | UI | React + Tailwind (mobile-first) | React 19 · Tailwind 3.4 | `src/components/**` |
 | Backend / DB | Convex | 1.16 | `convex/**` |
 | Auth | Convex Auth (Password) | `@convex-dev/auth` | `convex/auth.ts` |
-| Hosting | Railway + `npx convex deploy` | n/a | push a `master` → auto-deploy |
+| Hosting | Railway + `npx convex deploy` | n/a | push a `main` → auto-deploy |
 | Tests | Vitest (+ Playwright) | Vitest 4 | `**/*.test.ts(x)` |
 
 Árbol de directorios completo y comentado: ver `CLAUDE.md` › Arquitectura.
@@ -101,7 +101,7 @@ npx convex dev --once          # empuja esquema/funciones + typecheck de Convex
 
 # Commit / deploy
 git add -A && git commit -m "feat: descripción"   # commits locales OK
-git push origin master                            # SOLO con aprobación → Railway auto-deploya
+git push origin main                            # SOLO con aprobación → Railway auto-deploya
 ```
 
 ---
@@ -116,5 +116,5 @@ git push origin master                            # SOLO con aprobación → Rai
 [ ] No hay secrets en el diff
 [ ] UI validada en escritorio y móvil si toca UI
 [ ] Commit en Conventional Commits, en español, SIN referencias a IA
-[ ] Push a `master` solo con aprobación del dueño
+[ ] Push a `main` solo con aprobación del dueño
 ```
