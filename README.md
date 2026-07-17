@@ -9,7 +9,7 @@ CRM para negocios pequeños: **no perder ventas por falta de seguimiento**. Reú
 - **Despliegue: Railway** (front/app) + Convex en producción (`npx convex deploy`)
 
 ## Requisitos
-- Node.js ≥ 18.18 (probado con Node 24) · npm
+- Node.js ≥ 20 (probado con Node 24) · npm
 
 ## Puesta en marcha
 ```bash
