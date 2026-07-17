@@ -27,3 +27,9 @@ Categorías sugeridas: `build` · `types` · `convex` · `auth` · `deploy` · `
 ## Registro
 
 <!-- Añadir entradas nuevas arriba (más reciente primero) siguiendo el formato. -->
+
+## 2026-07-17 · [deploy] Poll de deploy en background roto por usar `jq` (no instalado)
+- **Qué pasó:** un poll en segundo plano para vigilar el redeploy de Railway usó `railway status --json | jq …`. `jq` NO existe en este entorno (Git Bash/Windows), así que devolvió vacío en las 18 iteraciones y agotó el tiempo (~6 min) sin informar el estado real (el deploy sí había quedado SUCCESS).
+- **Causa raíz:** asumí `jq` disponible sin verificar; y metí el comando sin probarlo dentro de un background largo. El reintento con `node` también falló al inicio por buscar `commitHash` al nivel equivocado (vive en `meta.commitHash`, no como hermano de `status`).
+- **Regla preventiva:** en este entorno NO hay `jq` → parsear JSON con `node -e`. Probar el comando de parseo UNA vez en foreground antes de meterlo en un background/poll largo, y verificar la estructura real del JSON (dónde vive cada campo) antes de escribir el filtro.
+- **Ocurrencias:** 1
