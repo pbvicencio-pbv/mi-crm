@@ -1,0 +1,104 @@
+{
+  "_comment": "Configuración real del workspace, obtenida vía MCP de Linear (2026-07-17). NOTA: este workspace NO usa initiatives — el trabajo se organiza por PROJECT + MILESTONES (ver 'projects'). El nombre de la organización está inferido del team; el urlKey sí está verificado por las URLs de proyecto.",
+
+  "workspace": {
+    "name": "Talent Academy Curso",
+    "urlKey": "talent-academy-curso"
+  },
+
+  "me": {
+    "name": "Ponciano Betancourt",
+    "id": "94005813-d5a2-499b-bd63-7b61309390ce",
+    "email": "pbvicencio@gmail.com",
+    "isAdmin": true
+  },
+
+  "team": {
+    "name": "Talent Academy Curso",
+    "key": "TAL",
+    "id": "96efb5b1-00d3-47fd-87fe-cb019b93d60c",
+    "cycleConfig": {
+      "enabled": false,
+      "_note": "El team TAL NO tiene cycles activos (list_cycles current = vacío). Si se habilitan, completar aquí."
+    }
+  },
+
+  "initiatives": {
+    "_note": "El workspace NO tiene initiatives. El trabajo se organiza por PROJECT + MILESTONES (ver 'projects'). No inventar ni crear sin aprobación del dueño (regla 8 de CLAUDE.md)."
+  },
+
+  "projects": [
+    {
+      "name": "PROY CRM Pulse",
+      "id": "bb55b45b-5e47-4f40-a27b-54fb6d2928c6",
+      "slug": "proy-crm-pulse-4485304975aa",
+      "url": "https://linear.app/talent-academy-curso/project/proy-crm-pulse-4485304975aa",
+      "status": "Backlog",
+      "leadId": "94005813-d5a2-499b-bd63-7b61309390ce",
+      "_role": "MVP en construcción — proyecto de trabajo ACTIVO",
+      "milestones": [
+        { "name": "M0 · Diseño", "id": "79b1f9d6-dcce-4952-9de9-33858d0180ac" },
+        { "name": "M1 · Fundación técnica", "id": "d27550a4-f370-4a3b-8393-efc956680219" },
+        { "name": "M2 · Autenticación, acceso y usuarios", "id": "218da319-3fa5-42eb-be14-5d5c702b9bf8" },
+        { "name": "M3 · Gestión de clientes", "id": "58daff65-8e4a-47a3-9aa0-2e2cb4ccf422" },
+        { "name": "M4 · Seguimiento e interacciones", "id": "a8dd53e4-21d6-49a2-ad9b-c3a333fc52d9" },
+        { "name": "M5 · Ventas", "id": "df23567c-8af7-4ce4-8999-fa517428f397" },
+        { "name": "M6 · Cierre del MVP", "id": "8515e82b-d857-4ac6-abba-80de79e668d0" }
+      ]
+    },
+    {
+      "name": "CRM - RESTO PRD",
+      "id": "9287c85e-562f-4b52-a4b8-32dec67a21aa",
+      "slug": "crm-resto-prd-2580dd791334",
+      "url": "https://linear.app/talent-academy-curso/project/crm-resto-prd-2580dd791334",
+      "status": "Backlog",
+      "leadId": "94005813-d5a2-499b-bd63-7b61309390ce",
+      "_role": "Backlog post-MVP (funciones del PRD fuera del MVP: F4, F6, F10-F16)"
+    }
+  ],
+
+  "labels": {
+    "_note": "El workspace solo tiene estos 3 labels reales (nivel workspace, sin grupos). La taxonomía extendida vertical/type/actor/area/risk del ejemplo NO existe; ver examples/label-taxonomy.json si se quiere adoptar, con aprobación del dueño (el skill desaconseja labels sin uso).",
+    "existing": [
+      { "name": "Feature",     "id": "02d741ef-2291-455d-88b9-af4ec0eaf595", "color": "#BB87FC" },
+      { "name": "Bug",         "id": "194ba1fc-058c-4bd3-bc50-ce6b5f78c65e", "color": "#EB5757" },
+      { "name": "Improvement", "id": "d07f182d-5132-409d-a409-d0f9800edcea", "color": "#4EA7FC" }
+    ]
+  },
+
+  "workflowStates": {
+    "_comment": "Estados reales del team TAL. NO existen 'Triage' ni 'In Review'.",
+    "backlog":    { "name": "Backlog",     "id": "ff67a56d-2f67-4819-ac1c-96ae4cc81ebd", "type": "backlog" },
+    "todo":       { "name": "Todo",        "id": "49821848-0b17-4b21-8171-cb302793de1e", "type": "unstarted" },
+    "inProgress": { "name": "In Progress", "id": "3879fb3f-2843-4b81-b5fe-6a398c5875b9", "type": "started" },
+    "done":       { "name": "Done",        "id": "8137210c-797d-4ce2-b533-b2dc68ad9468", "type": "completed" },
+    "canceled":   { "name": "Canceled",    "id": "5225108a-7f15-4043-89cc-1b114f1a1f96", "type": "canceled" },
+    "duplicate":  { "name": "Duplicate",   "id": "3968d4bd-09ee-4cc2-9b85-5eaf82963c83", "type": "duplicate" },
+    "triage":     { "name": "Triage",      "id": null, "type": "triage",  "_note": "No existe en el team TAL" },
+    "inReview":   { "name": "In Review",   "id": null, "type": "started", "_note": "No existe en el team TAL" }
+  },
+
+  "estimates": {
+    "_note": "Convención del skill; no verificable con las tools MCP actuales. Ajustar si el team tiene otra escala.",
+    "scale": "fibonacci",
+    "values": [1, 2, 3, 5, 8],
+    "rules": {
+      "max_per_issue": 5,
+      "split_threshold": 5,
+      "_note": "Estimate >5 -> romper en sub-issues; >8 -> convertir a Project con milestones."
+    }
+  },
+
+  "agents": {
+    "_comment": "Ningún agente IA instalado (list_users solo devuelve a Ponciano y al bot de integración de Linear).",
+    "installed": false
+  },
+
+  "queries_to_fill_uuids": {
+    "_comment": "Queries para re-obtener los UUIDs si cambian. Usar el MCP de Linear o el cliente GraphQL.",
+    "team_id": "{ teams(filter: { key: { eq: \"TAL\" } }) { nodes { id name key } } }",
+    "project_and_milestone_ids": "{ projects(filter: { name: { eq: \"PROY CRM Pulse\" } }) { nodes { id name projectMilestones { nodes { id name } } } } }",
+    "label_ids": "{ issueLabels(first: 100) { nodes { id name color parent { name } } } }",
+    "workflow_state_ids": "{ team(id: \"96efb5b1-00d3-47fd-87fe-cb019b93d60c\") { states { nodes { id name type } } } }"
+  }
+}

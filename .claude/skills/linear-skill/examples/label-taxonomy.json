@@ -1,0 +1,222 @@
+{
+  "_description": "Taxonomía de labels PROPUESTA para el workspace Talent Academy Curso (team TAL). Los grupos están organizados de manera jerárquica con prefijo namespace/.",
+
+  "_note": "ASPIRACIONAL / NO ADOPTADA. Esta taxonomía extendida (vertical/type/actor/area/risk) NO existe en el workspace Talent Academy Curso hoy. Los ÚNICOS labels reales del workspace están en 'real_labels': Feature, Bug e Improvement. Los grupos de abajo se conservan como propuesta de futuro, sin implementar; no tienen IDs reales en Linear.",
+
+  "real_labels": {
+    "_description": "Los ÚNICOS labels que existen HOY en Talent Academy Curso (team TAL). Estos sí tienen ID real en Linear.",
+    "items": [
+      {
+        "name": "Feature",
+        "color": "#BB87FC",
+        "id": "02d741ef-2291-455d-88b9-af4ec0eaf595",
+        "description": "Funcionalidad nueva del producto."
+      },
+      {
+        "name": "Bug",
+        "color": "#EB5757",
+        "id": "194ba1fc-058c-4bd3-bc50-ce6b5f78c65e",
+        "description": "Comportamiento que diverge de lo esperado/diseño."
+      },
+      {
+        "name": "Improvement",
+        "color": "#4EA7FC",
+        "id": "d07f182d-5132-409d-a409-d0f9800edcea",
+        "description": "Mejora sobre algo existente (refactor, UX, rendimiento)."
+      }
+    ]
+  },
+
+  "principles": [
+    "REALIDAD (hoy en TAL): los únicos labels son Feature, Bug e Improvement (ver 'real_labels'). Los principios siguientes son ASPIRACIONALES y describen la taxonomía propuesta, aún no adoptada.",
+    "(aspiracional) Una issue debe tener al menos un label vertical/* (qué plataforma)",
+    "(aspiracional) Una issue debería tener un label type/* (qué tipo de trabajo)",
+    "(aspiracional) Una issue tocada por un agente IA debe tener label actor/ai",
+    "(aspiracional) El label area/* es opcional pero útil para análisis posteriores",
+    "(aspiracional) El label risk/* es opcional y solo para issues con riesgo notable",
+    "NO duplicar el campo priority de Linear con labels (Linear ya tiene Priority como campo nativo)"
+  ],
+
+  "groups": {
+    "vertical": {
+      "_description": "(ASPIRACIONAL) A qué plataforma del negocio pertenece la issue. En la propuesta sería OBLIGATORIO en toda issue; hoy no existe en TAL.",
+      "_workspace_level": true,
+      "items": [
+        {
+          "name": "vertical/web",
+          "color": "#5e6ad2",
+          "description": "Web application"
+        },
+        {
+          "name": "vertical/platform",
+          "color": "#bb87fc",
+          "description": "Core platform"
+        },
+        {
+          "name": "vertical/mobile",
+          "color": "#26b5ce",
+          "description": "Mobile application"
+        },
+        {
+          "name": "vertical/growth",
+          "color": "#0f7488",
+          "description": "Growth & marketing surfaces"
+        },
+        {
+          "name": "vertical/data",
+          "color": "#f2c94c",
+          "description": "Internal data tools (dashboards, automations)"
+        }
+      ]
+    },
+
+    "type": {
+      "_description": "Qué tipo de trabajo es. ESPERADO en la mayoría de issues.",
+      "_workspace_level": true,
+      "items": [
+        {
+          "name": "type/feature",
+          "color": "#26b5ce",
+          "description": "Funcionalidad nueva añadida al producto"
+        },
+        {
+          "name": "type/bug",
+          "color": "#eb5757",
+          "description": "Comportamiento que diverge de lo esperado/spec"
+        },
+        {
+          "name": "type/chore",
+          "color": "#95a2b3",
+          "description": "Mantenimiento, deps, CI, infra que no cambia funcionalidad visible"
+        },
+        {
+          "name": "type/refactor",
+          "color": "#bb87fc",
+          "description": "Mejora interna sin cambio funcional para el usuario"
+        },
+        {
+          "name": "type/security",
+          "color": "#f7c8c1",
+          "description": "Vulnerabilidad o hardening de seguridad"
+        },
+        {
+          "name": "type/docs",
+          "color": "#4cb782",
+          "description": "Documentación (READMEs, API docs, guías)"
+        }
+      ]
+    },
+
+    "actor": {
+      "_description": "Quién está haciendo el trabajo. CRÍTICO para distinguir trabajo IA vs humano.",
+      "_workspace_level": true,
+      "items": [
+        {
+          "name": "actor/human",
+          "color": "#5e6ad2",
+          "description": "Trabajo realizado por humano. Es el default — no es obligatorio ponerlo si no hay actor/ai."
+        },
+        {
+          "name": "actor/ai",
+          "color": "#f2c94c",
+          "description": "Trabajo delegado a un agente IA. OBLIGATORIO si hay delegate IA."
+        },
+        {
+          "name": "actor/needs-review",
+          "color": "#eb5757",
+          "description": "Trabajo IA que requirió mucho rework humano. Para auditoría posterior."
+        }
+      ]
+    },
+
+    "area": {
+      "_description": "Área técnica afectada. OPCIONAL pero útil para reportes y filtros.",
+      "_workspace_level": true,
+      "items": [
+        {
+          "name": "area/frontend",
+          "color": "#26b5ce",
+          "description": "UI / cliente"
+        },
+        {
+          "name": "area/backend",
+          "color": "#bb87fc",
+          "description": "API / servicios"
+        },
+        {
+          "name": "area/infra",
+          "color": "#95a2b3",
+          "description": "Infraestructura, deploy, CI/CD"
+        },
+        {
+          "name": "area/db",
+          "color": "#f2c94c",
+          "description": "Base de datos, migraciones, queries"
+        },
+        {
+          "name": "area/integrations",
+          "color": "#4cb782",
+          "description": "Integraciones con servicios externos (auth providers, payment, analytics, etc.)"
+        }
+      ]
+    },
+
+    "risk": {
+      "_description": "Nivel de riesgo de la issue. OPCIONAL — solo etiquetar si hay riesgo notable.",
+      "_workspace_level": true,
+      "items": [
+        {
+          "name": "risk/low",
+          "color": "#4cb782",
+          "description": "Riesgo bajo. Cambio aislado, fácil rollback."
+        },
+        {
+          "name": "risk/medium",
+          "color": "#f2c94c",
+          "description": "Riesgo medio. Cambio con dependencias o efectos potenciales."
+        },
+        {
+          "name": "risk/high",
+          "color": "#eb5757",
+          "description": "Riesgo alto. Cambio crítico (DB migration, auth, payments, datos sensibles)."
+        }
+      ]
+    },
+
+    "legacy": {
+      "_description": "Los 3 labels que EXISTEN hoy en TAL (ver 'real_labels' para IDs y colores reales). El plan de migrarlos a type/* es ASPIRACIONAL y NO ha comenzado; hoy son la taxonomía canónica y NO se deben eliminar.",
+      "_workspace_level": true,
+      "items": [
+        {
+          "name": "Bug",
+          "color": "#EB5757",
+          "description": "Comportamiento que diverge de lo esperado/diseño. (Mapea a type/bug si algún día se adopta la taxonomía extendida.)"
+        },
+        {
+          "name": "Feature",
+          "color": "#BB87FC",
+          "description": "Funcionalidad nueva del producto. (Mapea a type/feature en la taxonomía aspiracional.)"
+        },
+        {
+          "name": "Improvement",
+          "color": "#4EA7FC",
+          "description": "Mejora sobre algo existente. (Mapea a type/refactor en la taxonomía aspiracional.)"
+        }
+      ]
+    }
+  },
+
+  "deprecated": [],
+
+  "migration_plan": {
+    "_description": "ASPIRACIONAL / NO INICIADO. Plan hipotético para adoptar la taxonomía extendida. Hoy en TAL solo existen Feature, Bug e Improvement y no hay trabajo de migración en curso.",
+    "steps": [
+      "1. Crear todos los labels de la taxonomía nueva (vertical, type, actor, area, risk).",
+      "2. Para issues abiertas con labels legacy: añadir el label nuevo equivalente. NO quitar el legacy aún.",
+      "3. Cycle por cycle, ir reemplazando legacy → nuevo en issues activas.",
+      "4. Una vez no haya issues abiertas con labels legacy, eliminar los labels legacy del workspace.",
+      "5. Para issues archivadas, dejarlas como están (no contamina el flujo activo)."
+    ],
+    "estimated_duration": "2-3 cycles si se incorpora al triage normal"
+  }
+}
