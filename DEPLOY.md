@@ -30,7 +30,7 @@ Convex Auth (provider **Password**) corre en el deployment de Convex. Estas vari
 | `JWT_PRIVATE_KEY` | ✅ | Clave RS256 (PKCS8) para firmar los tokens de acceso. |
 | `JWKS` | ✅ | JWKS público correspondiente. |
 | `SITE_URL` | Condicional / futura | Origen de la app. Solo la ejercen flujos OAuth y email (reset·verify), ausentes en el MVP (Password-only). La fija el initializer; documentada como futura. |
-| `CRM_SEED_PW_DUENA`, `CRM_SEED_PW_VENDEDOR` | Solo aprovisionar | Contraseñas (≥ 8) de las cuentas demo. **Fuera del repo.** |
+| `CRM_SEED_PW_DUENA`, `CRM_SEED_PW_VENDEDOR`, `CRM_SEED_PW_MARTA` | Solo aprovisionar | Contraseñas (≥ 8) de las cuentas demo. **Fuera del repo.** |
 | `CRM_ALLOW_SEED` | Solo aprovisionar | Habilita `seed`/`seedAuth`; se retira tras sembrar. |
 
 **Llaves** (una vez por deployment): generar el par RS256 (`JWT_PRIVATE_KEY` + `JWKS`) con el generador de Convex Auth y fijarlas con `npx convex env set …`.
@@ -39,11 +39,12 @@ Convex Auth (provider **Password**) corre en el deployment de Convex. Estas vari
 ```
 npx convex env set CRM_SEED_PW_DUENA '<contraseña>'
 npx convex env set CRM_SEED_PW_VENDEDOR '<contraseña>'
+npx convex env set CRM_SEED_PW_MARTA '<contraseña>'
 npx convex env set CRM_ALLOW_SEED true
 npx convex run seedAuth:run
 npx convex env remove CRM_ALLOW_SEED
 ```
-Cuentas: **Elena** (`elena.demo@pulsecrm.test`, dueña) y **Carlos** (`carlos.demo@pulsecrm.test`, vendedor). La sesión persiste 30 días.
+Cuentas: **Elena** (`elena.demo@pulsecrm.test`, dueña), **Carlos** (`carlos.demo@pulsecrm.test`, vendedor) y **Marta** (`marta.demo@pulsecrm.test`, dueña). El aprovisionamiento es idempotente (reconcilia las existentes y crea las que falten). La sesión persiste 30 días.
 
 ## Datos de demo
 Para poblar la Agenda con datos de demostración (clientes, ventas, seguimientos) en un deployment de Convex:

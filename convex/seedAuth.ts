@@ -18,10 +18,12 @@ import { normalizarEmail } from "./lib/auth";
 
 const EMAIL_DUENA = normalizarEmail("elena.demo@pulsecrm.test");
 const EMAIL_VENDEDOR = normalizarEmail("carlos.demo@pulsecrm.test");
+const EMAIL_MARTA = normalizarEmail("marta.demo@pulsecrm.test");
 
 const CUENTAS = [
   { email: EMAIL_DUENA, nombre: "Elena Vargas", rol: "duena" as const, passEnv: "CRM_SEED_PW_DUENA" },
   { email: EMAIL_VENDEDOR, nombre: "Carlos Méndez", rol: "vendedor" as const, passEnv: "CRM_SEED_PW_VENDEDOR" },
+  { email: EMAIL_MARTA, nombre: "Marta", rol: "duena" as const, passEnv: "CRM_SEED_PW_MARTA" },
 ];
 
 /** Lee el estado de una cuenta: authAccount (login-capable) + usuarios de dominio. */
