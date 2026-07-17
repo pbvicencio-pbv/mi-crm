@@ -30,3 +30,9 @@ Thumbs.db
 
 # convex: la carpeta convex/_generated SÍ se versiona (tipos generados);
 # los secretos locales viven en .env.local
+
+# claude code: config local por máquina (CLAUDE.md, AGENTS.md y .claude/memory SÍ se versionan)
+.claude/settings.local.json
+
+# temporales de trabajo
+/tmp/
