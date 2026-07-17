@@ -72,6 +72,11 @@
 
         <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,64px" label="Empresa (opcional)" placeholder="Nombre de la empresa" default-value="{{ v.empresa }}"></x-import>
 
+        <div style="{{ rowStyle }}">
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,64px" label="Cargo (opcional)" placeholder="Puesto o rol" default-value="{{ v.cargo }}"></x-import>
+          <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,64px" label="Ciudad (opcional)" placeholder="Ciudad" default-value="{{ v.ciudad }}"></x-import>
+        </div>
+
         <div>
           <div style="font-size:13px;font-weight:600;margin-bottom:8px">Red / canal</div>
           <div style="display:flex;flex-wrap:wrap;gap:8px">
@@ -82,6 +87,17 @@
         </div>
 
         <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="100%,64px" label="Origen (opcional)" options="{{ origenOptions }}" placeholder="Selecciona un origen" default-value="{{ v.origen }}"></x-import>
+
+        <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="100%,64px" label="Propietario" options="{{ propietarioOptions }}" placeholder="Asignar responsable" default-value="{{ v.propietario }}"></x-import>
+
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">Prioridad</div>
+          <div style="display:flex;gap:8px">
+            <sc-for list="{{ prioridades }}" as="p" hint-placeholder-count="3">
+              <button class="chipbtn" style="{{ p.style }}">{{ p.label }}</button>
+            </sc-for>
+          </div>
+        </div>
 
         <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Textarea" hint-size="100%,96px" label="Notas" placeholder="Añade una nota sobre este cliente" default-value="{{ v.notas }}"></x-import>
       </div>
@@ -125,8 +141,8 @@ class Component extends DCLogic {
     const isError = scenario === 'error';
 
     const v = isEdicion
-      ? { nombre: 'Laura Fernández', tel: '+52 55 1234 5678', email: 'laura.fernandez@innovatech.mx', empresa: 'Innovatech Soluciones', origen: 'Recomendación', notas: 'Interesada en el plan anual. Decisión antes de fin de mes.' }
-      : { nombre: '', tel: '', email: '', empresa: '', origen: '', notas: '' };
+      ? { nombre: 'Laura Fernández', tel: '+52 55 1234 5678', email: 'laura.fernandez@innovatech.mx', empresa: 'Innovatech Soluciones', cargo: 'Directora de compras', ciudad: 'CDMX', origen: 'Recomendación', propietario: 'Ricardo Salas', prioridad: 'Alta', notas: 'Interesada en el plan anual. Decisión antes de fin de mes.' }
+      : { nombre: '', tel: '', email: '', empresa: '', cargo: '', ciudad: '', origen: '', propietario: '', prioridad: 'Media', notas: '' };
 
     const chip = (label, color, sel) => {
       const base = 'display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:7px 13px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color 120ms;';
@@ -144,6 +160,21 @@ class Component extends DCLogic {
       chip('Email', '#3B82F6', false),
     ];
 
+    // Prioridad: segmentado Alta/Media/Baja (default Media). Tono Alta=danger, Media=warning, Baja=neutral.
+    const prioColor = { Alta: '#DC2626', Media: '#F59E0B', Baja: '#64748B' };
+    const prioChip = (label) => {
+      const sel = v.prioridad === label;
+      const c = prioColor[label];
+      const base = 'flex:1;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color 120ms;';
+      return {
+        label,
+        style: base + (sel
+          ? 'border:1.5px solid ' + c + ';color:' + c + ';background:' + c + '14;'
+          : 'border:1px solid var(--border-strong);color:var(--text-secondary);background:transparent;'),
+      };
+    };
+    const prioridades = [prioChip('Alta'), prioChip('Media'), prioChip('Baja')];
+
     // presentation
     const wrapStyle = isDesktop
       ? { position: 'absolute', top: 0, left: '248px', right: 0, bottom: 0, background: 'rgba(15,23,42,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', zIndex: 5 }
@@ -157,7 +188,9 @@ class Component extends DCLogic {
 
     return {
       isDesktop, isMobile,
-      v, canales, origenOptions: ['Recomendación', 'Campaña', 'Sitio web', 'Evento', 'Otro'],
+      v, canales, prioridades,
+      origenOptions: ['Recomendación', 'Campaña', 'Sitio web', 'Evento', 'Otro'],
+      propietarioOptions: ['Elena Vargas', 'Ricardo Salas', 'Carlos Méndez'],
       title: isEdicion ? 'Editar cliente' : 'Nuevo cliente',
       titleAlign: isMobile ? '' : '',
       saveLabel: isEdicion ? 'Guardar cambios' : 'Guardar cliente',

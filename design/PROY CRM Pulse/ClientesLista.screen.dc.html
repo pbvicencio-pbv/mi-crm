@@ -86,6 +86,11 @@
             <button aria-label="Limpiar búsqueda" style="border:none;background:none;padding:4px;margin:-4px;cursor:pointer;color:var(--text-muted);display:inline-flex;flex:none">{{ icClose }}</button>
           </sc-if>
         </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <sc-for list="{{ prioFiltros }}" as="f" hint-placeholder-count="4">
+            <button onClick="{{ f.onClick }}" style="{{ f.style }}">{{ f.label }}</button>
+          </sc-for>
+        </div>
       </div>
     </div>
 
@@ -119,9 +124,17 @@
               <div style="display:flex;flex-wrap:wrap;gap:6px">
                 <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" variant="outline" tone="neutral">{{ c.canal }}</x-import>
                 <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" tone="{{ c.tone }}" dot="{{ true }}">{{ c.estado }}</x-import>
+                <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" tone="{{ c.prioTone }}">{{ c.prioridad }}</x-import>
               </div>
             </div>
           </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sinResultados }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:8px;box-shadow:var(--shadow-xs);padding:36px 24px;text-align:center;margin-top:4px">
+          <div style="font-size:16px;font-weight:700">Sin clientes que coincidan</div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-top:4px">Prueba con otra prioridad o cambia la búsqueda.</div>
         </div>
       </sc-if>
     </div>
@@ -131,6 +144,8 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1000,&quot;height&quot;:620},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;'desktop' | 'mobile'&quot;},&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;normal&quot;,&quot;busqueda&quot;,&quot;vacio&quot;],&quot;default&quot;:&quot;normal&quot;,&quot;tsType&quot;:&quot;'normal' | 'busqueda' | 'vacio'&quot;}}">
 class Component extends DCLogic {
+  state = { prioFiltro: 'Todas' };
+
   ic(name, size, sw) {
     size = size || 18; sw = sw || 2;
     const P = (d) => ['path', { d }];
@@ -170,20 +185,32 @@ class Component extends DCLogic {
     const isBusqueda = scenario === 'busqueda';
     const query = isBusqueda ? 'ra' : '';
 
+    // canal ∈ {WhatsApp, Instagram, Teléfono, Email} (NO confundir con origen/tipo). estado = 4 valores derivados.
     const master = [
-      { nombre: 'Laura Fernández', linea: '+52 55 1234 5678', mono: true, canal: 'WhatsApp', estado: 'En negociación', tone: 'warning' },
-      { nombre: 'Carlos Méndez', linea: 'Último contacto hace 3 d', mono: false, canal: 'Referido', estado: 'Nuevo lead', tone: 'neutral' },
-      { nombre: 'Ana Torres', linea: '+52 33 3456 7890', mono: true, canal: 'Instagram', estado: 'Ganado', tone: 'success' },
-      { nombre: 'Miguel Ángel Ruiz', linea: '+52 664 456 7890', mono: true, canal: 'Sitio web', estado: 'Ganado', tone: 'success' },
-      { nombre: 'Sofía Ramírez', linea: '+52 55 5678 9012', mono: true, canal: 'WhatsApp', estado: 'En negociación', tone: 'warning' },
-      { nombre: 'Diego Herrera', linea: 'Último contacto hace 1 sem', mono: false, canal: 'Llamada', estado: 'Nuevo lead', tone: 'neutral' },
-      { nombre: 'Valentina Cruz', linea: '+52 442 789 0123', mono: true, canal: 'Instagram', estado: 'Perdido', tone: 'danger' },
-      { nombre: 'Jorge Domínguez', linea: '+52 477 890 1234', mono: true, canal: 'Referido', estado: 'En negociación', tone: 'warning' },
+      { nombre: 'Laura Fernández', linea: '+52 55 1234 5678', tel: '+52 55 1234 5678', mono: true, canal: 'WhatsApp', estado: 'En negociación', tone: 'warning', prioridad: 'Alta' },
+      { nombre: 'Carlos Méndez', linea: 'Último contacto hace 3 d', tel: '+52 81 2345 6789', mono: false, canal: 'Teléfono', estado: 'Nuevo lead', tone: 'neutral', prioridad: 'Media' },
+      { nombre: 'Ana Torres', linea: '+52 33 3456 7890', tel: '+52 33 3456 7890', mono: true, canal: 'Instagram', estado: 'Ganado', tone: 'success', prioridad: 'Baja' },
+      { nombre: 'Miguel Ángel Ruiz', linea: '+52 664 456 7890', tel: '+52 664 456 7890', mono: true, canal: 'Email', estado: 'Ganado', tone: 'success', prioridad: 'Alta' },
+      { nombre: 'Sofía Ramírez', linea: '+52 55 5678 9012', tel: '+52 55 5678 9012', mono: true, canal: 'WhatsApp', estado: 'En negociación', tone: 'warning', prioridad: 'Media' },
+      { nombre: 'Diego Herrera', linea: 'Último contacto hace 1 sem', tel: '+52 222 678 9012', mono: false, canal: 'Teléfono', estado: 'Nuevo lead', tone: 'neutral', prioridad: 'Baja' },
+      { nombre: 'Valentina Cruz', linea: '+52 442 789 0123', tel: '+52 442 789 0123', mono: true, canal: 'Instagram', estado: 'Perdido', tone: 'danger', prioridad: 'Media' },
+      { nombre: 'Jorge Domínguez', linea: '+52 477 890 1234', tel: '+52 477 890 1234', mono: true, canal: 'Email', estado: 'En negociación', tone: 'warning', prioridad: 'Alta' },
     ];
 
+    const prioRank = { Alta: 0, Media: 1, Baja: 2 };
+    const prioColor = { Alta: 'danger', Media: 'warning', Baja: 'neutral' };
+    const prioFiltro = this.state.prioFiltro;
     let list = master;
-    if (isVacio) list = [];
-    else if (isBusqueda) list = master.filter((c) => c.nombre.toLowerCase().includes(query));
+    if (isVacio) {
+      list = [];
+    } else {
+      // Búsqueda por nombre O teléfono.
+      if (query) list = list.filter((c) => c.nombre.toLowerCase().includes(query) || c.tel.toLowerCase().includes(query));
+      // Filtro por prioridad; combina con la búsqueda (AND).
+      if (prioFiltro !== 'Todas') list = list.filter((c) => c.prioridad === prioFiltro);
+    }
+    // Orden por prioridad Alta > Media > Baja, luego por nombre.
+    list = list.slice().sort((a, b) => (prioRank[a.prioridad] - prioRank[b.prioridad]) || a.nombre.localeCompare(b.nombre));
 
     const clientes = list.map((c) => ({
       nombre: c.nombre,
@@ -191,7 +218,18 @@ class Component extends DCLogic {
       linea: c.linea,
       lineaClass: c.mono ? 'mono' : '',
       canal: c.canal, estado: c.estado, tone: c.tone,
+      prioridad: c.prioridad, prioTone: prioColor[c.prioridad],
     }));
+
+    // Filtro por prioridad (segmentado, interactivo): al hacer click filtra la lista (AND con la búsqueda).
+    const filtroChip = (label) => {
+      const sel = label === prioFiltro;
+      const base = 'min-height:34px;padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color 120ms;';
+      return { label, onClick: () => this.setState({ prioFiltro: label }), style: base + (sel
+        ? 'border:1.5px solid var(--brand);color:var(--brand);background:var(--brand-subtle);'
+        : 'border:1px solid var(--border-strong);color:var(--text-secondary);background:var(--surface-card);') };
+    };
+    const prioFiltros = ['Todas', 'Alta', 'Media', 'Baja'].map(filtroChip);
 
     const contentStyle = {
       position: 'absolute', top: '56px', right: 0, bottom: isMobile ? '64px' : 0,
@@ -206,12 +244,12 @@ class Component extends DCLogic {
       : { display: 'flex', flexDirection: 'column', gap: '12px' };
 
     return {
-      isDesktop, isMobile, isVacio, hasList: !isVacio,
-      clientes, showClear: isBusqueda,
+      isDesktop, isMobile, isVacio, hasList: clientes.length > 0, sinResultados: !isVacio && clientes.length === 0,
+      clientes, prioFiltros, showClear: isBusqueda,
       queryText: isBusqueda ? query : 'Buscar por nombre o teléfono',
       queryColor: isBusqueda ? 'var(--text-primary)' : 'var(--text-muted)',
-      totalNum: isBusqueda ? String(clientes.length) : String(master.length),
-      totalLabel: isBusqueda ? 'resultados' : 'clientes',
+      totalNum: String(clientes.length),
+      totalLabel: (isBusqueda || prioFiltro !== 'Todas') ? 'resultados' : 'clientes',
       contentStyle, searchWrapStyle, innerXStyle, innerStyle, gridStyle,
       icMark: this.ic('mark', 22, 2.4),
       icHoy: this.ic('hoy', 18), icClientes: this.ic('clientes', 18), icVentas: this.ic('ventas', 18), icEquipo: this.ic('equipo', 18),

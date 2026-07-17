@@ -202,6 +202,7 @@
                     <div style="font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.empresa }}</div>
                   </div>
                   <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" tone="{{ c.tone }}" dot="{{ true }}">{{ c.estado }}</x-import>
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,20px" tone="{{ c.prioTone }}">{{ c.prioridad }}</x-import>
                 </button>
                 <button onClick="{{ c.onMenu }}" aria-label="Acciones" style="width:40px;height:44px;flex:none;border:none;background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted)">{{ icMore }}</button>
                 <sc-if value="{{ c.menuOpen }}" hint-placeholder-val="{{ false }}">
@@ -231,10 +232,15 @@
                     <div style="font-size:19px;font-weight:800;letter-spacing:-0.02em">{{ client.nombre }}</div>
                     <div style="font-size:13px;color:var(--text-secondary)">{{ client.puesto }} · {{ client.empresa }}</div>
                   </div>
+                  <div style="text-align:right;flex:none">
+                    <div style="font-size:11px;color:var(--text-muted);font-weight:600">Valor</div>
+                    <div class="mono" style="font-size:18px;font-weight:800;color:#059669;letter-spacing:-0.02em">{{ client.valor }}</div>
+                  </div>
                 </div>
                 <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
                   <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,22px" tone="{{ client.tone }}" dot="{{ true }}">{{ client.estado }}</x-import>
                   <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,22px" variant="outline" tone="neutral">{{ client.canal }}</x-import>
+                  <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,22px" tone="{{ client.prioTone }}">{{ client.prioridad }}</x-import>
                 </div>
                 <div style="display:flex;gap:14px;margin-top:18px">
                   <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
@@ -480,10 +486,15 @@
           <div style="padding:18px;display:flex;flex-direction:column;gap:14px">
             <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,58px" label="Nombre" required="{{ true }}" placeholder="Nombre y apellidos" value="{{ cfNombre }}" onInput="{{ cfSetNombre }}"></x-import>
             <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,58px" label="Empresa" placeholder="Nombre de la empresa" value="{{ cfEmpresa }}" onInput="{{ cfSetEmpresa }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,58px" label="Cargo" placeholder="Puesto o rol" value="{{ cfCargo }}" onInput="{{ cfSetCargo }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,58px" label="Ciudad" placeholder="Ciudad" value="{{ cfCiudad }}" onInput="{{ cfSetCiudad }}"></x-import>
             <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,58px" label="Correo" type="email" placeholder="nombre@empresa.mx" value="{{ cfCorreo }}" onInput="{{ cfSetCorreo }}"></x-import>
             <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Input" hint-size="100%,58px" label="Teléfono" placeholder="+52 55 0000 0000" value="{{ cfTelefono }}" onInput="{{ cfSetTelefono }}"></x-import>
-            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="100%,58px" label="Estado" options="{{ estadoOptions }}" value="{{ cfEstado }}" onChange="{{ cfSetEstado }}"></x-import>
-            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Textarea" hint-size="100%,90px" label="Notas" placeholder="Añade una nota sobre este cliente"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="100%,58px" label="Canal de contacto" options="{{ canalOptions }}" placeholder="Selecciona un canal" value="{{ cfCanal }}" onChange="{{ cfSetCanal }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="100%,58px" label="Origen" options="{{ origenOptions }}" placeholder="Selecciona un origen" value="{{ cfOrigen }}" onChange="{{ cfSetOrigen }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="100%,58px" label="Propietario" options="{{ propietarioOptions }}" placeholder="Asignar responsable" value="{{ cfPropietario }}" onChange="{{ cfSetPropietario }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Select" hint-size="100%,58px" label="Prioridad" options="{{ prioridadOptions }}" value="{{ cfPrioridad }}" onChange="{{ cfSetPrioridad }}"></x-import>
+            <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Textarea" hint-size="100%,90px" label="Notas" placeholder="Añade una nota sobre este cliente" value="{{ cfNotas }}" onInput="{{ cfSetNotas }}"></x-import>
           </div>
         </sc-if>
 
@@ -724,7 +735,7 @@ class Component extends DCLogic {
     rowMenu: null, // 'cli:<id>' | 'vta:<id>'
     confirmData: null, // { type:'cliente'|'venta', id, nombre }
     toast: null,
-    cfNombre: '', cfEmpresa: '', cfCorreo: '', cfTelefono: '', cfEstado: 'Lead',
+    cfNombre: '', cfEmpresa: '', cfCorreo: '', cfTelefono: '', cfCargo: '', cfCiudad: '', cfCanal: '', cfOrigen: '', cfPropietario: '', cfPrioridad: 'Media', cfNotas: '',
     authed: false,
     accountOpen: false,
     role: 'duena', // 'duena' | 'vendedor'
@@ -747,15 +758,17 @@ class Component extends DCLogic {
     ventaNewVendedor: '',
     ventaExtraCli: [],
     ventaExtraVen: [],
+    // NOTA: `estadoDemo` es un valor de PRESENTACIÓN del prototipo, NO un campo del schema.
+    // En producción el estado del cliente se DERIVA de sus ventas (ver estadoDerivado()). `valor` = suma de ventas ganadas (derivado).
     clientes: [
-      { id: 'c1', nombre: 'Laura Fernández', puesto: 'Directora de compras', empresa: 'Innovatech Soluciones', ciudad: 'CDMX', correo: 'laura.fernandez@innovatech.mx', telefono: '+52 55 1234 5678', estado: 'Cualificado', valor: '$284K', propietario: 'Ricardo Salas' },
-      { id: 'c2', nombre: 'Carlos Méndez', puesto: 'Gerente general', empresa: 'Grupo Marfil', ciudad: 'Monterrey', correo: 'carlos.mendez@marfil.com', telefono: '+52 81 2345 6789', estado: 'Lead', valor: '$96K', propietario: 'Ricardo Salas' },
-      { id: 'c3', nombre: 'Ana Torres', puesto: 'Coordinadora de proyectos', empresa: 'Constructora Vega', ciudad: 'Guadalajara', correo: 'ana.torres@cvega.mx', telefono: '+52 33 3456 7890', estado: 'Propuesta', valor: '$412K', propietario: 'Ricardo Salas' },
-      { id: 'c4', nombre: 'Miguel Ángel Ruiz', puesto: 'Director de operaciones', empresa: 'Logística del Norte', ciudad: 'Tijuana', correo: 'ma.ruiz@lognorte.mx', telefono: '+52 664 456 7890', estado: 'Ganado', valor: '$538K', propietario: 'Ricardo Salas' },
-      { id: 'c5', nombre: 'Sofía Ramírez', puesto: 'Administradora', empresa: 'Clínica Santa Fe', ciudad: 'CDMX', correo: 'sofia.ramirez@santafe.mx', telefono: '+52 55 5678 9012', estado: 'Negociación', valor: '$174K', propietario: 'Ricardo Salas' },
-      { id: 'c6', nombre: 'Diego Herrera', puesto: 'Editor', empresa: 'Editorial Aurora', ciudad: 'Puebla', correo: 'diego.herrera@aurora.mx', telefono: '+52 222 678 9012', estado: 'Lead', valor: '$62K', propietario: 'Ricardo Salas' },
-      { id: 'c7', nombre: 'Valentina Cruz', puesto: 'Compras', empresa: 'TecnoRetail', ciudad: 'Querétaro', correo: 'valentina.cruz@tecnoretail.mx', telefono: '+52 442 789 0123', estado: 'Cualificado', valor: '$228K', propietario: 'Ricardo Salas' },
-      { id: 'c8', nombre: 'Jorge Domínguez', puesto: 'Gerente comercial', empresa: 'Alimentos del Valle', ciudad: 'León', correo: 'jorge.dominguez@delvalle.mx', telefono: '+52 477 890 1234', estado: 'Propuesta', valor: '$305K', propietario: 'Ricardo Salas' },
+      { id: 'c1', nombre: 'Laura Fernández', puesto: 'Directora de compras', empresa: 'Innovatech Soluciones', ciudad: 'CDMX', correo: 'laura.fernandez@innovatech.mx', telefono: '+52 55 1234 5678', canal: 'WhatsApp', estadoDemo: 'En negociación', prioridad: 'Alta', valor: '$284K', propietario: 'Ricardo Salas' },
+      { id: 'c2', nombre: 'Carlos Méndez', puesto: 'Gerente general', empresa: 'Grupo Marfil', ciudad: 'Monterrey', correo: 'carlos.mendez@marfil.com', telefono: '+52 81 2345 6789', canal: 'Teléfono', estadoDemo: 'Nuevo lead', prioridad: 'Media', valor: '$96K', propietario: 'Ricardo Salas' },
+      { id: 'c3', nombre: 'Ana Torres', puesto: 'Coordinadora de proyectos', empresa: 'Constructora Vega', ciudad: 'Guadalajara', correo: 'ana.torres@cvega.mx', telefono: '+52 33 3456 7890', canal: 'Instagram', estadoDemo: 'En negociación', prioridad: 'Baja', valor: '$412K', propietario: 'Ricardo Salas' },
+      { id: 'c4', nombre: 'Miguel Ángel Ruiz', puesto: 'Director de operaciones', empresa: 'Logística del Norte', ciudad: 'Tijuana', correo: 'ma.ruiz@lognorte.mx', telefono: '+52 664 456 7890', canal: 'Email', estadoDemo: 'Ganado', prioridad: 'Alta', valor: '$538K', propietario: 'Ricardo Salas' },
+      { id: 'c5', nombre: 'Sofía Ramírez', puesto: 'Administradora', empresa: 'Clínica Santa Fe', ciudad: 'CDMX', correo: 'sofia.ramirez@santafe.mx', telefono: '+52 55 5678 9012', canal: 'WhatsApp', estadoDemo: 'En negociación', prioridad: 'Media', valor: '$174K', propietario: 'Ricardo Salas' },
+      { id: 'c6', nombre: 'Diego Herrera', puesto: 'Editor', empresa: 'Editorial Aurora', ciudad: 'Puebla', correo: 'diego.herrera@aurora.mx', telefono: '+52 222 678 9012', canal: 'Teléfono', estadoDemo: 'Nuevo lead', prioridad: 'Baja', valor: '$62K', propietario: 'Ricardo Salas' },
+      { id: 'c7', nombre: 'Valentina Cruz', puesto: 'Compras', empresa: 'TecnoRetail', ciudad: 'Querétaro', correo: 'valentina.cruz@tecnoretail.mx', telefono: '+52 442 789 0123', canal: 'Instagram', estadoDemo: 'Perdido', prioridad: 'Media', valor: '$228K', propietario: 'Ricardo Salas' },
+      { id: 'c8', nombre: 'Jorge Domínguez', puesto: 'Gerente comercial', empresa: 'Alimentos del Valle', ciudad: 'León', correo: 'jorge.dominguez@delvalle.mx', telefono: '+52 477 890 1234', canal: 'Email', estadoDemo: 'En negociación', prioridad: 'Alta', valor: '$305K', propietario: 'Ricardo Salas' },
     ],
     ventas: [
       { id: 'v1', producto: 'Curso de ventas', cliente: 'Laura Fernández', vendedor: 'Ricardo Salas', estado: 'Ganada', importe: '$284K', fecha: '02 jul', dias: 9 },
@@ -830,7 +843,17 @@ class Component extends DCLogic {
   }
 
   toneFor(estado) {
-    return { 'Lead': 'neutral', 'Cualificado': 'info', 'Propuesta': 'warning', 'Negociación': 'brand', 'Ganado': 'success', 'Perdido': 'danger' }[estado] || 'neutral';
+    return { 'Nuevo lead': 'neutral', 'En negociación': 'warning', 'Ganado': 'success', 'Perdido': 'danger' }[estado] || 'neutral';
+  }
+
+  // Estado del cliente: DERIVADO, no editable ni persistido. En producción se calcula de las ventas
+  // (ganada > abierta > perdida > sin ventas; ver convex/lib/derivados.ts). El formulario NUNCA lo guarda.
+  estadoDerivado(c) {
+    return (c && c.estadoDemo) || 'Nuevo lead';
+  }
+
+  prioTone(p) {
+    return { 'Alta': 'danger', 'Media': 'warning', 'Baja': 'neutral' }[p] || 'neutral';
   }
 
   clients() {
@@ -843,7 +866,8 @@ class Component extends DCLogic {
 
   openClienteEdit(c) {
     this.setState({ overlay: 'editar', clientId: c.id, rowMenu: null,
-      cfNombre: c.nombre, cfEmpresa: c.empresa, cfCorreo: c.correo, cfTelefono: c.telefono, cfEstado: c.estado });
+      cfNombre: c.nombre, cfEmpresa: c.empresa, cfCorreo: c.correo, cfTelefono: c.telefono,
+      cfCargo: c.puesto || '', cfCiudad: c.ciudad || '', cfCanal: c.canal || '', cfOrigen: c.origen || '', cfPropietario: c.propietario || '', cfPrioridad: c.prioridad || 'Media', cfNotas: c.notas || '' });
   }
 
   openVentaEdit(v) {
@@ -871,18 +895,7 @@ class Component extends DCLogic {
     setTimeout(() => this.setState({ toast: null }), 2600);
   }
 
-  _oldClients() {
-    return [
-      { id: 'c1', nombre: 'Laura Fernández', puesto: 'Directora de compras', empresa: 'Innovatech Soluciones', ciudad: 'CDMX', correo: 'laura.fernandez@innovatech.mx', telefono: '+52 55 1234 5678', estado: 'Cualificado', valor: '$284K', propietario: 'Ricardo Salas' },
-      { id: 'c2', nombre: 'Carlos Méndez', puesto: 'Gerente general', empresa: 'Grupo Marfil', ciudad: 'Monterrey', correo: 'carlos.mendez@marfil.com', telefono: '+52 81 2345 6789', estado: 'Lead', valor: '$96K', propietario: 'Ricardo Salas' },
-      { id: 'c3', nombre: 'Ana Torres', puesto: 'Coordinadora de proyectos', empresa: 'Constructora Vega', ciudad: 'Guadalajara', correo: 'ana.torres@cvega.mx', telefono: '+52 33 3456 7890', estado: 'Propuesta', valor: '$412K', propietario: 'Ricardo Salas' },
-      { id: 'c4', nombre: 'Miguel Ángel Ruiz', puesto: 'Director de operaciones', empresa: 'Logística del Norte', ciudad: 'Tijuana', correo: 'ma.ruiz@lognorte.mx', telefono: '+52 664 456 7890', estado: 'Ganado', valor: '$538K', propietario: 'Ricardo Salas' },
-      { id: 'c5', nombre: 'Sofía Ramírez', puesto: 'Administradora', empresa: 'Clínica Santa Fe', ciudad: 'CDMX', correo: 'sofia.ramirez@santafe.mx', telefono: '+52 55 5678 9012', estado: 'Negociación', valor: '$174K', propietario: 'Ricardo Salas' },
-      { id: 'c6', nombre: 'Diego Herrera', puesto: 'Editor', empresa: 'Editorial Aurora', ciudad: 'Puebla', correo: 'diego.herrera@aurora.mx', telefono: '+52 222 678 9012', estado: 'Lead', valor: '$62K', propietario: 'Ricardo Salas' },
-      { id: 'c7', nombre: 'Valentina Cruz', puesto: 'Compras', empresa: 'TecnoRetail', ciudad: 'Querétaro', correo: 'valentina.cruz@tecnoretail.mx', telefono: '+52 442 789 0123', estado: 'Cualificado', valor: '$228K', propietario: 'Ricardo Salas' },
-      { id: 'c8', nombre: 'Jorge Domínguez', puesto: 'Gerente comercial', empresa: 'Alimentos del Valle', ciudad: 'León', correo: 'jorge.dominguez@delvalle.mx', telefono: '+52 477 890 1234', estado: 'Propuesta', valor: '$305K', propietario: 'Ricardo Salas' },
-    ];
-  }
+  // (_oldClients() eliminado — mock legacy con estado de 6 etapas, sin uso en el prototipo.)
 
   taskVisual(tipo) {
     const map = {
@@ -908,7 +921,7 @@ class Component extends DCLogic {
   buildTask(t) {
     const done = !!this.state.done[t.id];
     const cli = this.clients().find((c) => c.id === t.clientId);
-    const estado = cli ? cli.estado : '';
+    const estado = cli ? this.estadoDerivado(cli) : '';
     const isVencida = t.grupo === 'vencidas';
     return {
       id: t.id, nombre: t.nombre, motivo: t.motivo, hora: t.hora, estado, tone: this.toneFor(estado), done,
@@ -981,7 +994,8 @@ class Component extends DCLogic {
     const q = this.state.search.trim().toLowerCase();
     const filtered = clients.filter((c) => !q || c.nombre.toLowerCase().includes(q) || c.empresa.toLowerCase().includes(q));
     const filteredClients = filtered.map((c) => ({
-      id: c.id, nombre: c.nombre, empresa: c.empresa, estado: c.estado, tone: this.toneFor(c.estado),
+      id: c.id, nombre: c.nombre, empresa: c.empresa, estado: this.estadoDerivado(c), tone: this.toneFor(this.estadoDerivado(c)),
+      prioridad: c.prioridad, prioTone: this.prioTone(c.prioridad),
       open: () => this.setState({ route: 'ficha', clientId: c.id, fichaTab: 'resumen' }),
       menuOpen: this.state.rowMenu === 'cli:' + c.id,
       onMenu: (e) => { e.stopPropagation(); this.setState((s) => ({ rowMenu: s.rowMenu === 'cli:' + c.id ? null : 'cli:' + c.id })); },
@@ -991,7 +1005,7 @@ class Component extends DCLogic {
 
     // ficha data
     const fichaTab = this.state.fichaTab;
-    const clientView = client ? Object.assign({}, client, { tone: this.toneFor(client.estado), canal: 'WhatsApp' }) : {};
+    const clientView = client ? Object.assign({}, client, { estado: this.estadoDerivado(client), tone: this.toneFor(this.estadoDerivado(client)), canal: client.canal || 'WhatsApp', prioTone: this.prioTone(client.prioridad) }) : {};
     const av = (bg, fg, ic) => ({ iconBg: bg, iconFg: fg, icon: this.ic(ic, 15) });
     const clientActivities = [
       Object.assign({ texto: 'Confirmó interés en el plan anual.', hora: 'Hoy · 09:12', autor: 'Ricardo Salas' }, av('var(--brand-subtle)', 'var(--brand)', 'phone')),
@@ -1003,7 +1017,6 @@ class Component extends DCLogic {
       { label: 'Correo', valor: cv.correo, cls: '' },
       { label: 'Teléfono', valor: cv.telefono, cls: 'mono' },
       { label: 'Empresa', valor: cv.empresa + ' · ' + cv.ciudad, cls: '' },
-      { label: 'Valor', valor: cv.valor, cls: 'mono' },
       { label: 'Propietario', valor: cv.propietario, cls: '' },
     ] : [];
     const fichaVentas = [
@@ -1030,8 +1043,8 @@ class Component extends DCLogic {
       animation: (isSheet ? 'sheetUp 240ms' : 'dialogPop 180ms') + ' cubic-bezier(0.2,0,0,1)',
     };
     const editValues = overlay === 'editar' && client
-      ? { nombre: client.nombre, empresa: client.empresa, correo: client.correo, telefono: client.telefono, estado: client.estado }
-      : { nombre: '', empresa: '', correo: '', telefono: '', estado: 'Lead' };
+      ? { nombre: client.nombre, empresa: client.empresa, correo: client.correo, telefono: client.telefono }
+      : { nombre: '', empresa: '', correo: '', telefono: '' };
 
     const isInteraccion = overlay === 'interaccion';
     const isClienteForm = overlay === 'nuevo' || overlay === 'editar';
@@ -1097,16 +1110,9 @@ class Component extends DCLogic {
     const vColors = { 'Abierta': '#F59E0B', 'Ganada': '#059669', 'Perdida': '#DC2626' };
     const ventaEstados = ['Abierta', 'Ganada', 'Perdida'].map((l) => ({ label: l, onClick: () => this.setState({ ventaEstado: l }), style: 'flex:1;min-height:40px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;' + (vEstado === l ? 'background:' + vColors[l] + ';color:#fff;box-shadow:var(--shadow-xs)' : 'background:transparent;color:var(--text-secondary)') }));
 
-    // ventas — pipeline por etapa
-    const stageDefs = [
-      { nombre: 'Lead', count: 5, monto: 420, montoStr: '$420K', color: 'var(--slate-400)' },
-      { nombre: 'Cualificado', count: 8, monto: 1200, montoStr: '$1.2M', color: 'var(--info-solid)' },
-      { nombre: 'Propuesta', count: 4, monto: 980, montoStr: '$980K', color: 'var(--warning-solid)' },
-      { nombre: 'Negociación', count: 3, monto: 610, montoStr: '$610K', color: 'var(--brand)' },
-      { nombre: 'Ganado', count: 6, monto: 1800, montoStr: '$1.8M', color: 'var(--success-solid)' },
-    ];
-    const stageMax = Math.max.apply(null, stageDefs.map((s) => s.monto));
-    const ventasStages = stageDefs.map((s) => ({ nombre: s.nombre, count: s.count, montoStr: s.montoStr, color: s.color, barPct: Math.round((s.monto / stageMax) * 100) + '%' }));
+    // (F6 · embudo de oportunidades — post-MVP, TAL-30. Eliminado del prototipo MVP: sus 6 etapas
+    // manuales chocaban con el estado derivado del cliente (4 valores) y con el estado de venta del
+    // schema (abierta/ganada/perdida). No reintroducir aquí; vive en TAL-30.)
 
     // ventas — listado con filtros
     const ventaFiltro = this.state.ventaFiltro;
@@ -1196,7 +1202,7 @@ class Component extends DCLogic {
       totalClientes: clients.length, resultCount: filtered.length, noResults: filtered.length === 0,
 
       // ventas / equipo
-      ventasStages, teamRows,
+      teamRows,
       equipoLoading, equipoVacioView, equipoListView, equipoCount: equipoList.length,
       openUsuario: () => this.setState({ overlay: 'usuario', usuarioEditId: null, usuarioNombre: '', usuarioEmail: '', usuarioRol: 'Vendedor' }),
       addUsuario: () => this.setState((s) => { const n = s.usuarioNombre.trim(); if (!n) return {}; if (s.usuarioEditId) { const cur = s.equipo.find((x) => x.id === s.usuarioEditId); const dc = s.equipo.filter((x) => x.rol === 'Dueña').length; const rol = (cur.rol === 'Dueña' && s.usuarioRol === 'Vendedor' && dc <= 1) ? 'Dueña' : s.usuarioRol; return { equipo: s.equipo.map((x) => x.id === s.usuarioEditId ? Object.assign({}, x, { nombre: n, email: s.usuarioEmail.trim(), rol: rol }) : x), overlay: null, usuarioEditId: null }; } return { equipo: s.equipo.concat([{ id: 'u' + Date.now(), nombre: n, email: s.usuarioEmail.trim(), rol: s.usuarioRol }]), overlay: null }; }),
@@ -1243,7 +1249,7 @@ class Component extends DCLogic {
       setRoleDuena: () => this.setState({ role: 'duena' }),
       setRoleVendedor: () => this.setState((s) => ({ role: 'vendedor', route: s.route === 'equipo' ? 'hoy' : s.route })),
       logout: () => this.setState({ authed: false, accountOpen: false, route: 'hoy' }),
-      openNuevo: () => this.setState({ overlay: 'nuevo', accountOpen: false, clientId: null, cfNombre: '', cfEmpresa: '', cfCorreo: '', cfTelefono: '', cfEstado: 'Lead' }),
+      openNuevo: () => this.setState({ overlay: 'nuevo', accountOpen: false, clientId: null, cfNombre: '', cfEmpresa: '', cfCorreo: '', cfTelefono: '', cfCargo: '', cfCiudad: '', cfCanal: '', cfOrigen: '', cfPropietario: '', cfPrioridad: 'Media', cfNotas: '' }),
       openEditar: () => { if (client) this.openClienteEdit(client); },
       closeOverlay: () => this.setState({ overlay: null }),
       stop: (e) => { e.stopPropagation(); },
@@ -1286,12 +1292,19 @@ class Component extends DCLogic {
 
       // overlay
       overlayOpen, overlayWrapStyle, sheetStyle, editValues,
-      cfNombre: this.state.cfNombre, cfEmpresa: this.state.cfEmpresa, cfCorreo: this.state.cfCorreo, cfTelefono: this.state.cfTelefono, cfEstado: this.state.cfEstado,
+      cfNombre: this.state.cfNombre, cfEmpresa: this.state.cfEmpresa, cfCorreo: this.state.cfCorreo, cfTelefono: this.state.cfTelefono,
+      cfCargo: this.state.cfCargo, cfCiudad: this.state.cfCiudad, cfCanal: this.state.cfCanal, cfOrigen: this.state.cfOrigen, cfPropietario: this.state.cfPropietario, cfPrioridad: this.state.cfPrioridad, cfNotas: this.state.cfNotas,
       cfSetNombre: (e) => this.setState({ cfNombre: e.target.value }),
       cfSetEmpresa: (e) => this.setState({ cfEmpresa: e.target.value }),
       cfSetCorreo: (e) => this.setState({ cfCorreo: e.target.value }),
       cfSetTelefono: (e) => this.setState({ cfTelefono: e.target.value }),
-      cfSetEstado: (e) => this.setState({ cfEstado: e.target.value }),
+      cfSetCargo: (e) => this.setState({ cfCargo: e.target.value }),
+      cfSetCiudad: (e) => this.setState({ cfCiudad: e.target.value }),
+      cfSetCanal: (e) => this.setState({ cfCanal: e.target.value }),
+      cfSetOrigen: (e) => this.setState({ cfOrigen: e.target.value }),
+      cfSetPropietario: (e) => this.setState({ cfPropietario: e.target.value }),
+      cfSetPrioridad: (e) => this.setState({ cfPrioridad: e.target.value }),
+      cfSetNotas: (e) => this.setState({ cfNotas: e.target.value }),
       toast: this.state.toast,
       isConfirmar: overlay === 'confirmar',
       confirmNombre: this.state.confirmData ? this.state.confirmData.nombre : '',
@@ -1314,7 +1327,7 @@ class Component extends DCLogic {
         }
         if (ov === 'nuevo' || ov === 'editar') {
           const owner = account.nombre;
-          this.setState((s) => { const nombre = s.cfNombre.trim(); if (!nombre) return {}; if (ov === 'editar') { return { clientes: s.clientes.map((x) => x.id === s.clientId ? Object.assign({}, x, { nombre: nombre, empresa: s.cfEmpresa, correo: s.cfCorreo, telefono: s.cfTelefono, estado: s.cfEstado }) : x), overlay: null, toast: 'Cliente actualizado' }; } return { clientes: s.clientes.concat([{ id: 'c' + Date.now(), nombre: nombre, puesto: '', empresa: s.cfEmpresa, ciudad: '', correo: s.cfCorreo, telefono: s.cfTelefono, estado: s.cfEstado || 'Lead', valor: '\u2014', propietario: owner }]), overlay: null, route: 'clientes', toast: 'Cliente creado' }; });
+          this.setState((s) => { const nombre = s.cfNombre.trim(); if (!nombre) return {}; if (ov === 'editar') { return { clientes: s.clientes.map((x) => x.id === s.clientId ? Object.assign({}, x, { nombre: nombre, empresa: s.cfEmpresa, puesto: s.cfCargo, ciudad: s.cfCiudad, correo: s.cfCorreo, telefono: s.cfTelefono, canal: s.cfCanal, origen: s.cfOrigen, propietario: s.cfPropietario || x.propietario, prioridad: s.cfPrioridad, notas: s.cfNotas }) : x), overlay: null, toast: 'Cliente actualizado' }; } return { clientes: s.clientes.concat([{ id: 'c' + Date.now(), nombre: nombre, puesto: s.cfCargo, empresa: s.cfEmpresa, ciudad: s.cfCiudad, correo: s.cfCorreo, telefono: s.cfTelefono, canal: s.cfCanal, origen: s.cfOrigen, prioridad: s.cfPrioridad, notas: s.cfNotas, valor: '$0', propietario: s.cfPropietario || owner }]), overlay: null, route: 'clientes', toast: 'Cliente creado' }; });
           this._flashToast();
           return;
         }
@@ -1330,7 +1343,10 @@ class Component extends DCLogic {
       ventaNewCliente: this.state.ventaNewCliente, ventaNewVendedor: this.state.ventaNewVendedor,
       icBell: this.ic('bell', 16), icMinus: this.ic('minus', 18),
       overlaySubtitle: (isInteraccion || isSeguimiento || isVenta) && client ? client.nombre : '',
-      estadoOptions: ['Lead', 'Cualificado', 'Propuesta', 'Negociación', 'Ganado', 'Perdido'],
+      canalOptions: ['WhatsApp', 'Instagram', 'Teléfono', 'Email'],
+      origenOptions: ['Recomendación', 'Campaña', 'Sitio web', 'Evento', 'Otro'],
+      propietarioOptions: ['Elena Vargas', 'Ricardo Salas', 'Mariana López', 'Tomás Aguirre'],
+      prioridadOptions: ['Alta', 'Media', 'Baja'],
       overlayTitle: overlay === 'confirmar' ? (this.state.confirmData && this.state.confirmData.type === 'venta' ? 'Eliminar venta' : 'Eliminar cliente') : (isUsuario ? (this.state.usuarioEditId ? 'Editar usuario' : 'Añadir usuario') : (isVenta ? (this.state.ventaEditId ? 'Editar venta' : 'Registrar venta') : (isSeguimiento ? 'Programar seguimiento' : (isInteraccion ? 'Registrar interacción' : (overlay === 'editar' ? 'Editar cliente' : 'Nuevo cliente'))))),
       overlaySaveLabel: isUsuario ? (this.state.usuarioEditId ? 'Guardar cambios' : 'Añadir usuario') : (isVenta ? (this.state.ventaEditId ? 'Guardar cambios' : 'Registrar venta') : (isSeguimiento ? 'Agendar seguimiento' : (isInteraccion ? 'Guardar interacción' : (overlay === 'editar' ? 'Guardar cambios' : 'Crear cliente')))),
     };

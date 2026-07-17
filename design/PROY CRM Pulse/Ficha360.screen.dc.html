@@ -92,10 +92,15 @@
                 <div style="font-size:19px;font-weight:800;letter-spacing:-0.02em">{{ nombre }}</div>
                 <div style="font-size:13px;color:var(--text-secondary);margin-top:1px">{{ subtitulo }}</div>
               </div>
+              <div style="text-align:right;flex:none">
+                <div style="font-size:11px;color:var(--text-muted);font-weight:600">Valor</div>
+                <div class="mono" style="font-size:18px;font-weight:800;color:#059669;letter-spacing:-0.02em">{{ valor }}</div>
+              </div>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
               <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,22px" tone="{{ estadoTone }}" dot="{{ true }}">{{ estado }}</x-import>
               <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,22px" variant="outline" tone="neutral">{{ canal }}</x-import>
+              <x-import component-from-global-scope="PulseCRMDSPBV_9fef4b.Badge" hint-size="auto,22px" tone="{{ prioTone }}">{{ prioLabel }}</x-import>
             </div>
             <div style="display:flex;gap:14px;margin-top:18px">
               <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
@@ -262,6 +267,10 @@ class Component extends DCLogic {
     const estado = llena ? 'En negociación' : 'Nuevo lead';
     const estadoTone = llena ? 'warning' : 'neutral';
     const canal = llena ? 'WhatsApp' : 'Instagram';
+    // Valor: DERIVADO (suma de ventas ganadas), no editable. Prioridad: campo del cliente (Alta/Media/Baja).
+    const valor = llena ? '$284K' : '$0';
+    const prioridad = llena ? 'Alta' : 'Media';
+    const prioTone = { Alta: 'danger', Media: 'warning', Baja: 'neutral' }[prioridad];
 
     const datos = llena ? [
       { label: 'Teléfono', valor: '+52 55 1234 5678', cls: 'mono' },
@@ -294,6 +303,7 @@ class Component extends DCLogic {
       isDesktop, isMobile, llena, vacia,
       contentStyle, innerStyle, colsStyle,
       nombre, subtitulo, estado, estadoTone, canal,
+      valor, prioridad, prioLabel: prioridad, prioTone,
       datos, interacciones, ventas,
       tieneSeguimiento: llena, tieneInteracciones: llena, tieneVentas: llena,
       segMotivo: 'Llamar para cierre de contrato', segFecha: 'Mañana 10:00',
