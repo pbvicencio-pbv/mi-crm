@@ -1,0 +1,41 @@
+# .railwayignore — what NOT to upload during `railway up`
+# Same syntax as .gitignore. Railway respects .gitignore by default;
+# .railwayignore is for additional excludes specific to deployment.
+
+# Heavy local dirs that .gitignore may not cover
+node_modules
+.next
+.nuxt
+.svelte-kit
+dist
+build
+out
+.cache
+
+# Test artifacts
+coverage
+.nyc_output
+__pycache__
+*.pyc
+
+# Editor
+.idea
+.vscode
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local env files (NEVER ship these — use Railway variables instead)
+.env
+.env.local
+.env.*.local
+
+# Local Docker stuff
+docker-compose.override.yml
+
+# Local DB / storage
+*.sqlite
+*.sqlite3
+data/

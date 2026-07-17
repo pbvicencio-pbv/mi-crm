@@ -1,0 +1,54 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# .coderabbit.yaml — Go
+
+language: es-ES
+
+tone_instructions: |
+  Sé directo y conciso. Usa ejemplos de Go idiomático.
+
+reviews:
+  profile: chill
+  high_level_summary: true
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches: [main, master]
+
+  path_filters:
+    - "!**/vendor/**"
+    - "!**/*.pb.go"
+    - "!**/*_gen.go"
+    - "!**/mock_*.go"
+    - "!**/mocks/**"
+    - "!**/go.sum"
+    - "!**/coverage.out"
+
+  instructions: |
+    Go project. No comentes sobre:
+    - Orden de imports (goimports lo maneja)
+    - Nombres cortos en loops triviales (i, j, k)
+
+    Enfócate en:
+    - Errors no manejados (if err != nil faltante)
+    - Defer dentro de loops (puede explotar memoria)
+    - Goroutines sin wait/cancel mechanism (goroutine leaks)
+    - Map access concurrente sin sync.Mutex / sync.Map
+    - Context.Context no propagado
+    - SQL injection via fmt.Sprintf en queries
+    - Panics en código de producción (debería retornar error)
+    - Slicing con índices que podrían pasar el len
+
+  tools:
+    golangci-lint:
+      enabled: true
+    gitleaks:
+      enabled: true
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  opt_out: false
+  learnings:
+    scope: auto

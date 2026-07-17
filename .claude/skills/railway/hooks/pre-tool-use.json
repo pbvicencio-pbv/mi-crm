@@ -1,0 +1,13 @@
+{
+  "_comment_": "Hook config for the railway skill. Auto-approves railway:* CLI commands and the skill's helper scripts. Destructive operations (delete/down) are NOT auto-approved here — they're prompted via the skill's confirmation logic.",
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "command": ".claude/skills/railway/hooks/check-bash.sh",
+        "_comment_": "Inspect the bash command and decide whether to auto-approve, prompt, or block. See check-bash.sh."
+      }
+    ]
+  }
+}

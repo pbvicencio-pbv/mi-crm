@@ -1,0 +1,88 @@
+# ============================================================
+# railway.toml — production-grade canonical template
+# ============================================================
+# Drop this in your repo root (or apps/<service>/ for monorepos
+# with the Config-as-Code Path set in service Settings).
+#
+# Schema: https://railway.com/railway.schema.json
+# Settings priority: environments.<name>.deploy > [deploy] > dashboard
+# ============================================================
+
+[build]
+# Default builder. Railway auto-picks DOCKERFILE if a Dockerfile is present.
+builder = "RAILPACK"
+
+# Optional: pin Railpack version for reproducible builds
+# railpackVersion = "0.6.0"
+
+# Optional: explicit build command (Railpack auto-detects most cases)
+# buildCommand = "pnpm install --frozen-lockfile && pnpm build"
+
+# Optional: explicit Dockerfile path (default is "Dockerfile" at repo root)
+# dockerfilePath = "Railway.dockerfile"
+
+# Watch patterns control what triggers rebuilds. Critical for monorepos.
+# Without this, every commit anywhere in the repo redeploys this service.
+watchPatterns = [
+  "src/**",
+  "package.json",
+  "pnpm-lock.yaml",
+  "Dockerfile",
+  "railway.toml",
+  "railpack.json"
+]
+
+[deploy]
+# Start command. For Node, prefer `node` directly over `npm start` so SIGTERM forwards.
+startCommand = "node dist/server.js"
+
+# Run idempotent migrations BEFORE the deploy container starts.
+# WARNING: pre-deploy has NO volume access, NO private network. Use the
+# public DB URL (DATABASE_PUBLIC_URL) or run migrations at app startup.
+# preDeployCommand = "pnpm prisma migrate deploy"
+
+# Healthcheck — gates traffic during deploy. Hit this until 200 OK.
+# Origin: healthcheck.railway.app (allowlist if you have hostname filters).
+healthcheckPath = "/health"
+healthcheckTimeout = 120          # default 300; tighten when fast-booting
+
+# Restart policy: ON_FAILURE | ALWAYS | NEVER
+# - HTTP services      → ON_FAILURE (default)
+# - Workers / daemons  → ALWAYS
+# - Cron jobs          → NEVER
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# Zero-downtime: keep old deploy alive `overlapSeconds` after new is Active,
+# then send SIGTERM and wait `drainingSeconds` before SIGKILL.
+# Note: services with mounted volumes get brief downtime regardless.
+overlapSeconds = 30
+drainingSeconds = 10
+
+# Cron schedule (5-min minimum, UTC). Mutually exclusive with HTTP service.
+# cronSchedule = "0 */6 * * *"
+
+# Multi-region replicas. Valid region IDs (May 2026):
+#   us-west2 | us-east4-eqdc4a | europe-west4-drams3a | asia-southeast1-eqsg3a
+# [deploy.multiRegionConfig]
+# "us-west2"             = { numReplicas = 2 }
+# "europe-west4-drams3a" = { numReplicas = 1 }
+
+# ============================================================
+# Per-environment overrides
+# ============================================================
+
+[environments.production.deploy]
+restartPolicyType = "ALWAYS"
+overlapSeconds = 60                # more conservative in prod
+drainingSeconds = 30
+
+[environments.staging.deploy]
+healthcheckTimeout = 60
+overlapSeconds = 0                  # acceptable downtime in staging
+
+# Per-PR-environment defaults (used when PR Environments are enabled)
+[environments.pr.deploy]
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"
+overlapSeconds = 0

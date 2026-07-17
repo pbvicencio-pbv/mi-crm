@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.railpack.com",
+
+  "_comment_": "Railpack config — opt-in customization for the default Railway builder. Most projects work without this file: Railpack auto-detects providers and builds. Add this only when (a) you need to force a specific provider, (b) you want custom install/build steps, (c) you need a specific runtime base image. Override file path via RAILPACK_CONFIG_FILE env var.",
+
+  "providers": ["node"],
+
+  "packages": {
+    "node": "22",
+    "pnpm": "9"
+  },
+
+  "steps": {
+    "install": {
+      "uses": "node.install",
+      "packageManager": "pnpm",
+      "_comment_": "Auto-runs `pnpm install --frozen-lockfile`"
+    },
+    "build": {
+      "run": "pnpm run build",
+      "inputs": ["install"]
+    }
+  },
+
+  "deploy": {
+    "startCommand": "node dist/server.js",
+    "base": "node:22-slim",
+    "_comment_about_base_": "Pin the runtime base for reproducibility. node:22-slim is small and supported."
+  }
+}

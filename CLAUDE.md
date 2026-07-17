@@ -119,6 +119,11 @@ Skills realmente disponibles en este entorno (cargarlos antes de tocar su superf
 
 | Dominio | Skill | Cuándo cargarlo |
 |---------|-------|-----------------|
+| Backend / DB (Convex) | `convex-skill` | Antes de tocar `convex/**` (queries/mutations/schema/auth). Afinado para PULSE ("Contexto/Patrones PULSE CRM") |
+| Frontend web (Next.js) | `nextjs-web` | Antes de tocar `src/app/**` o componentes. OJO: PULSE corre en **Next.js 15.1** (ver avisos de compatibilidad del skill) |
+| Infra / deploy (Railway) | `railway` | Operaciones de Railway. En PULSE deploy = push a `main`; sin `railway up` manual sin aprobación (regla 9) |
+| Gestión de trabajo (Linear) | `linear-skill` | Crear/actualizar issues, cycles, planificación (equipo TAL, proyecto "PROY CRM Pulse") |
+| Revisión en GitHub (CodeRabbit) | `coderabbit-review` | Solo si se adopta flujo de PR en GitHub (hoy PULSE trabaja directo en `main`, sin PRs — regla 10) |
 | Verificar un cambio | `verify` | Antes de dar por hecho cualquier cambio con superficie ejecutable |
 | Lanzar / probar la app | `run` | Para arrancar la app y verla funcionando en el navegador |
 | Revisión de código | `code-review` | Sobre el diff antes de cerrar trabajo no trivial |
@@ -126,8 +131,9 @@ Skills realmente disponibles en este entorno (cargarlos antes de tocar su superf
 | Seguridad | `security-review` | Al revisar cambios sensibles (auth, autorización, datos) |
 | API de Claude/Anthropic | `claude-api` | SOLO si se integra la API de Claude/Anthropic en el producto (hoy no aplica) |
 
-> No hay skills instalados específicos de Convex, Next.js, Railway o Linear. Para esos dominios:
-> usar la documentación oficial reciente (regla 18) y verificar con MCP de Linear cuando aplique.
+> Los skills de dominio (`convex-skill`, `nextjs-web`, `railway`, `linear-skill`) están afinados/anotados
+> para PULSE. `coderabbit-review` existe pero no aplica al flujo actual (sin PRs). El MCP de Linear
+> complementa a `linear-skill`; verifica UIs externas antes de instruir (regla 18).
 
 ---
 

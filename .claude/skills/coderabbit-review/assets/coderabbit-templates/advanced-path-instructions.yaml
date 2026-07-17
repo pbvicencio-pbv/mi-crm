@@ -1,0 +1,280 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# .coderabbit.yaml — Ejemplo avanzado: path_instructions por dominio (genérico)
+# Para repos que tocan varios dominios (pagos, auth, email, API, DB, ads...).
+#
+# GENERADO-DE: coderabbit-review skill. Mantener en sync con el template.
+# Si se edita en un repo concreto, dejar comentarios "# LOCAL: <razón>" en
+# las líneas divergentes.
+#
+# Idea central: `path_instructions` deja que CodeRabbit aplique reglas de
+# revisión DISTINTAS según la carpeta/glob del archivo tocado. Así el review
+# de un módulo de pagos exige idempotencia y redondeo de dinero, mientras que
+# el de un módulo de auth se enfoca en authz y manejo de sesiones. Copia los
+# bloques que apliquen a tu repo y ajusta los globs a tu estructura real.
+
+language: es-ES
+
+tone_instructions: |
+  Sé directo y conciso. Explica el vector de riesgo o el porqué de cada
+  sugerencia en una sola frase. No elogies código que está bien — solo
+  comenta cuando hay algo accionable.
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  sequence_diagrams: true
+  changed_files_summary: true
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches: [main, master, develop, staging, production]
+
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/.next/**"
+    - "!**/coverage/**"
+    - "!**/.turbo/**"
+    - "!**/__pycache__/**"
+    - "!**/.venv/**"
+    - "!**/*.lock"
+    - "!**/package-lock.json"
+    - "!**/pnpm-lock.yaml"
+    - "!**/yarn.lock"
+    - "!**/poetry.lock"
+    - "!**/*.generated.*"
+    - "!**/*.gen.*"
+    - "!**/*.pb.*"
+    - "!**/*.d.ts"
+    - "!**/__snapshots__/**"
+    - "!**/*.snap"
+    - "!**/*.min.js"
+    - "!**/*.min.css"
+    - "!**/migrations/versions/**"
+
+  instructions: |
+    No comentes sobre:
+    - Orden de imports o formatting (lo maneja el linter/formatter)
+    - Type hints faltantes en scripts one-off
+    - Comentarios en inglés vs español (si el repo mezcla ambos)
+
+    Foco obligatorio en:
+    - Manejo correcto de timezones cuando el negocio es multi-país
+    - Rate limiting hacia APIs de terceros
+    - Retry logic con backoff exponencial en cualquier network call
+    - Manejo de webhooks con idempotency keys (dedup)
+    - Secretos en env vars, no en código
+    - Validación de datos antes de operaciones batch (emails, mensajes, jobs)
+
+  # Notas sobre path_instructions:
+  # - Schema oficial: `path` es un ÚNICO glob string (no CSV).
+  # - Por eso cada dominio lógico se desglosa en varios bloques, uno por glob.
+  # - Las `instructions` se comparten textualmente entre bloques de un mismo
+  #   dominio usando anclas YAML (&nombre) y referencias (*nombre); así cada
+  #   glob aplica la misma regla sin duplicar el texto.
+  path_instructions:
+    # === Pagos / facturación / checkout ===
+    - path: "**/payments/**"
+      instructions: &payments |
+        Código de pagos / dinero. Cero tolerancia a errores de importe.
+        Foco en:
+        - Idempotencia: un mismo pago no se debe cobrar dos veces (idempotency keys)
+        - Redondeo de dinero: usar enteros en la unidad mínima (centavos) o
+          decimales de precisión fija, NUNCA float para importes
+        - Validación de firma de webhooks del proveedor de pagos
+        - Claves de API del PSP nunca hardcodeadas — siempre env/secret manager
+        - Manejo de estados de pago (pending/succeeded/failed/refunded) sin race conditions
+        - Reintentos que no dupliquen cargos
+    - path: "**/billing/**"
+      instructions: *payments
+    - path: "**/checkout/**"
+      instructions: *payments
+
+    # === Auth / seguridad / permisos ===
+    - path: "**/auth/**"
+      instructions: &security |
+        Código de seguridad / autenticación. Zero tolerance para debilidades.
+        Foco en:
+        - Checks de autorización (authz) en CADA acción sensible, no solo login
+        - Manejo correcto de sesiones y tokens (expiración, rotación, revocación)
+        - No exponer detalles de errores internos al cliente
+        - Secretos y claves privadas fuera del código y de los logs
+        - Validación exhaustiva de input y protección contra CSRF/session fixation
+        - Logging de eventos de seguridad sin filtrar datos sensibles
+    - path: "**/security/**"
+      instructions: *security
+    - path: "**/permissions/**"
+      instructions: *security
+
+    # === Email / newsletter ===
+    - path: "**/email/**"
+      instructions: &email_infra |
+        Infraestructura de email. Foco en:
+        - Deliverability: registros DNS (SPF, DKIM, DMARC) consistentes
+        - Bounce handling y suppression lists respetadas
+        - Cumplimiento de unsubscribe (opt-out honrado antes del send)
+        - Rate limiting por dominio receptor (Gmail, Outlook, etc.)
+        - Plantillas no imagen-pesadas (evitar tab Promotions)
+        - Segmentación correcta antes de cualquier envío masivo
+    - path: "**/newsletter/**"
+      instructions: *email_infra
+
+    # === API / webhooks ===
+    - path: "**/api/**"
+      instructions: &api |
+        Endpoints expuestos y webhooks entrantes. Foco obligatorio en:
+        - Validación de input (esquemas tipo zod/pydantic/joi)
+        - Rate limiting y protección contra abuso
+        - Verificación de firma de webhooks (HMAC) antes de procesar el payload
+        - Manejo de errores que no filtre stack traces ni rutas internas
+        - PII: no loggear datos personales ni secretos en claro
+        - Idempotencia en webhooks (dedup por id de evento)
+    - path: "**/webhooks/**"
+      instructions: *api
+
+    # === Base de datos / migraciones ===
+    - path: "**/db/**"
+      instructions: &db |
+        Capa de datos. Foco en:
+        - Migraciones reversibles (siempre un `down` o rollback claro)
+        - Índices para queries frecuentes y prevención de N+1
+        - Least-privilege / RLS: el rol de la app no debe tener más permisos de los necesarios
+        - Transacciones correctas alrededor de escrituras multi-tabla
+        - Sin secretos ni credenciales embebidas en cadenas de conexión versionadas
+    - path: "**/migrations/**"
+      instructions: *db
+
+    # === Ads / marketing ===
+    - path: "**/*-ads/**"
+      instructions: &ads |
+        APIs de ad platforms / marketing. Foco en:
+        - Rate limiting (cada plataforma tiene límites distintos)
+        - Manejo de token refresh y expiración de credenciales
+        - Budget safety (no crear campañas con typo en el monto)
+        - Validación de datos y atribución correcta (p. ej. UTM params)
+        - Claves de API fuera del código
+    - path: "**/marketing/**"
+      instructions: *ads
+
+    # === Smart contracts / DeFi ===
+    - path: "**/contracts/**"
+      instructions: &defi |
+        Código Solidity / DeFi. Se manejan fondos reales.
+        Foco CRÍTICO en:
+        - Reentrancia: patrón checks-effects-interactions antes de llamadas externas
+        - Integer overflow/underflow (unchecked blocks, versiones <0.8.0)
+        - Slippage protection en swaps (front-running / sandwich / MEV)
+        - Gas estimation con buffer de seguridad
+        - Direcciones hardcodeadas que deberían ser immutable args o params
+        - Magic numbers sin constante nombrada ni justificación
+        - Access control en funciones que mueven fondos (onlyOwner, roles, multi-sig)
+        - Manejo correcto de decimales de tokens (18 vs 6 vs 8)
+    - path: "**/*.sol"
+      instructions: *defi
+
+    # === Tests ===
+    - path: "**/tests/**"
+      instructions: &tests |
+        Tests. Foco en assertions específicas, no tautologías, sin orden-dependency,
+        cleanup entre tests. No comentes sobre `any` ni coverage.
+    - path: "**/*.test.*"
+      instructions: *tests
+    - path: "**/*.spec.*"
+      instructions: *tests
+    - path: "**/__tests__/**"
+      instructions: *tests
+
+  # Tools SAST y linters habilitados.
+  # eslint, biome, ruff se mantienen activos; desactivarlos en repos con
+  # linters locales como fuente de verdad.
+  tools:
+    # Seguridad / secrets
+    gitleaks: { enabled: true }
+    trufflehog: { enabled: true }
+    semgrep: { enabled: true }
+    opengrep: { enabled: true }
+    osvScanner: { enabled: true }
+    trivy: { enabled: true }
+    checkov: { enabled: true }
+    # AST patterns
+    ast-grep: { essential_rules: true }
+    # Lenguaje natural
+    languagetool:
+      enabled: true
+      level: "default"
+      disabled_categories:
+        - "TYPOS"
+        - "TYPOGRAPHY"
+        - "CASING"
+    # Docs / YAML / Actions
+    markdownlint: { enabled: true }
+    yamllint: { enabled: true }
+    actionlint: { enabled: true }
+    # Shell / Docker
+    shellcheck: { enabled: true }
+    hadolint: { enabled: true }
+    # Lenguajes
+    eslint: { enabled: true }
+    biome: { enabled: true }
+    ruff: { enabled: true }
+    # GitHub checks
+    github-checks:
+      enabled: true
+      timeout_ms: 90000
+
+  pre_merge_checks:
+    title:
+      mode: warning
+      requirements: |
+        PR title debe seguir Conventional Commits:
+        feat|fix|chore|docs|refactor|test|ci(scope): descripción
+        Ejemplos: feat(payments): add idempotency key, fix(auth): rotate session token
+    description:
+      mode: warning
+    issue_assessment:
+      mode: warning
+    custom_checks:
+      - mode: "error"
+        name: "No secrets in code"
+        instructions: |
+          El PR NO debe contener secrets, API keys, tokens, private keys
+          ni URLs con credenciales embebidas. Patrones a detectar
+          (placeholders para evitar falsos positivos de secret scanners al
+          propagar este template a otros repos): <stripe-live-key>,
+          <stripe-publishable-key>, <slack-bot-token>, <slack-user-token>,
+          <github-token>, <aws-access-key>, <google-api-key>,
+          <private-key-header>, private_key=<secret>, api_key=<secret>,
+          jwt_secret=<secret>, postgres://<user>:<pass>@<host>,
+          redis://:<pass>@<host>.
+          Si se detecta cualquier credencial real: BLOQUEAR merge y pedir
+          rotar la credencial.
+      - mode: "warning"
+        name: "Breaking changes documentados"
+        instructions: |
+          Si el PR modifica schema de datos, elimina endpoints públicos, o cambia
+          firmas públicas de funciones exportadas, debe incluir sección
+          "## Breaking changes" en la descripción del PR.
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  opt_out: false
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  pull_requests:
+    scope: auto
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "CLAUDE.md"
+      - "AGENTS.md"
+      - "docs/decisions/**"
+      - "docs/explanation/**"
+      - "docs/coding-standards/**"
