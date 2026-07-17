@@ -8,13 +8,16 @@
  * @module
  */
 
+import type * as auth from "../auth.js";
 import type * as clientes from "../clientes.js";
 import type * as health from "../health.js";
+import type * as http from "../http.js";
 import type * as interacciones from "../interacciones.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_derivados from "../lib/derivados.js";
 import type * as lib_fechas from "../lib/fechas.js";
 import type * as seed from "../seed.js";
+import type * as seedAuth from "../seedAuth.js";
 import type * as seguimientos from "../seguimientos.js";
 import type * as usuarios from "../usuarios.js";
 import type * as ventas from "../ventas.js";
@@ -26,13 +29,16 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  auth: typeof auth;
   clientes: typeof clientes;
   health: typeof health;
+  http: typeof http;
   interacciones: typeof interacciones;
   "lib/auth": typeof lib_auth;
   "lib/derivados": typeof lib_derivados;
   "lib/fechas": typeof lib_fechas;
   seed: typeof seed;
+  seedAuth: typeof seedAuth;
   seguimientos: typeof seguimientos;
   usuarios: typeof usuarios;
   ventas: typeof ventas;

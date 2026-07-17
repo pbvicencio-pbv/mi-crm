@@ -1,5 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { authTables } from "@convex-dev/auth/server";
 
 /**
  * Esquema de CRM Pulse (M1.3 / TAL-7).
@@ -18,6 +19,10 @@ import { v } from "convex/values";
  * Fecha de alta = `_creationTime` (lo añade Convex automáticamente, junto con `_id`).
  */
 export default defineSchema({
+  // Tablas de Convex Auth (M2.1 / TAL-9): users, authSessions, authAccounts,
+  // authRefreshTokens, authVerificationCodes, authVerifiers, authRateLimits.
+  ...authTables,
+
   clientes: defineTable({
     nombre: v.string(),
     telefono: v.optional(v.string()),
@@ -110,8 +115,10 @@ export default defineSchema({
     nombre: v.string(),
     email: v.string(),
     rol: v.union(v.literal("duena"), v.literal("vendedor")),
-    // Enlace con la identidad de Convex Auth (se completa en M2.1 / TAL-9).
-    authId: v.optional(v.string()),
+    // Enlace con la identidad de Convex Auth (users._id). Se fija al aprovisionar (seedAuth).
+    authId: v.optional(v.id("users")),
     // La contraseña NO se guarda aquí: la gestiona Convex Auth.
-  }).index("por_email", ["email"]),
+  })
+    .index("por_email", ["email"])
+    .index("por_authId", ["authId"]),
 });

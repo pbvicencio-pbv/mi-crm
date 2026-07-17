@@ -19,6 +19,10 @@ vi.mock("next/link", () => ({
   ),
 }));
 vi.mock("convex/react", () => ({ useQuery: () => h.user }));
+vi.mock("@convex-dev/auth/react", () => ({
+  useAuthActions: () => ({ signOut: vi.fn(), signIn: vi.fn() }),
+}));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn() }) }));
 
 import { AccountMenu } from "./AccountMenu";
 

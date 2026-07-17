@@ -1,12 +1,11 @@
 import { ConvexError } from "convex/values";
+import { getAuthUserId } from "@convex-dev/auth/server";
 import type { QueryCtx, MutationCtx } from "../_generated/server";
 import type { Doc } from "../_generated/dataModel";
 
 /**
- * Resolución del usuario de la sesión y autorización (TAL-16 / TAL-8).
+ * Resolución del usuario de la sesión y autorización (M2.2 / TAL-10).
  * Convención del repo: cada función Convex autoriza DENTRO de sí misma (no hay RLS).
- * El login real (Convex Auth Password) llega en M2.2/TAL-10; aquí queda el punto de
- * enganche con un fallback dev EXPLÍCITO y env-gated.
  */
 
 type Ctx = QueryCtx | MutationCtx;
@@ -19,23 +18,24 @@ export function normalizarEmail(email: string): string {
 /**
  * Resuelve el usuario de la sesión.
  *
- * Invariante de seguridad (NO usar `identidad ?? dev`):
- *  - Identidad presente + email con usuario → ese usuario.
- *  - Identidad presente + email SIN usuario  → null (NUNCA cae al fallback dev).
- *  - Identidad ausente + CRM_DEV_USER_EMAIL  → usuario dev (solo desarrollo).
+ * Invariante de seguridad (NO usar `authId ?? dev`):
+ *  - Identidad presente → usuario con ese `authId`; si no existe → null (NUNCA cae al fallback dev).
+ *  - Identidad ausente + CRM_DEV_USER_EMAIL → usuario dev (solo desarrollo).
  *  - Identidad ausente + sin variable        → null.
  *
- * Resolución por email normalizado sobre `por_email`, con `.unique()` (falla cerrado
- * si hay correos duplicados). No se usa authId porque el esquema no lo indexa.
+ * `getAuthUserId` devuelve el `Id<"users">` de Convex Auth (parsea el subject "userId|sessionId").
+ * Se resuelve por el índice `por_authId` con `.unique()` (falla cerrado ante authId duplicado).
  */
 export async function resolverUsuario(ctx: Ctx): Promise<Doc<"usuarios"> | null> {
-  const identidad = await ctx.auth.getUserIdentity();
+  const authUserId = await getAuthUserId(ctx);
 
-  if (identidad) {
-    // Identidad presente: SOLO se resuelve por su propio email; si no está
-    // aprovisionado, se devuelve null (no hereda la cuenta de desarrollo).
-    if (!identidad.email) return null;
-    return await buscarPorEmail(ctx, normalizarEmail(identidad.email));
+  if (authUserId) {
+    // Identidad presente: SOLO se resuelve por su propio authId; si no está
+    // aprovisionada, se devuelve null (no hereda la cuenta de desarrollo).
+    return await ctx.db
+      .query("usuarios")
+      .withIndex("por_authId", (q) => q.eq("authId", authUserId))
+      .unique();
   }
 
   const devEmail = process.env.CRM_DEV_USER_EMAIL;

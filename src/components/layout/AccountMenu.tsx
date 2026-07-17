@@ -9,7 +9,9 @@ import {
   type ReactNode,
 } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { LogOut, User, Users } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import { Avatar } from "@/components/ui/Avatar";
@@ -24,6 +26,8 @@ const ROL_LABEL = { duena: "Dueña", vendedor: "Vendedor" } as const;
  */
 export function AccountMenu({ variant }: { variant: "sidebar" | "topbar" }) {
   const usuario = useQuery(api.usuarios.actual);
+  const { signOut } = useAuthActions();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -133,14 +137,18 @@ export function AccountMenu({ variant }: { variant: "sidebar" | "topbar" }) {
             </ItemMenu>
           )}
           <div className="my-1 h-px bg-slate-100" />
-          <Link
-            href="/login"
+          <button
+            type="button"
             role="menuitem"
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium text-danger hover:bg-danger-bg"
+            onClick={async () => {
+              setOpen(false);
+              await signOut();
+              router.push("/login");
+            }}
+            className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-[13px] font-medium text-danger hover:bg-danger-bg"
           >
             <LogOut size={16} /> Cerrar sesión
-          </Link>
+          </button>
         </div>
       )}
     </div>

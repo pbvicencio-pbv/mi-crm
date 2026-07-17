@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { convexTest } from "convex-test";
+import { convexTest, type TestConvex } from "convex-test";
 import schema from "./schema";
 import { api } from "./_generated/api";
 import { calcularIntervalos } from "./lib/fechas";
@@ -15,6 +15,23 @@ const hoyLocal = () =>
 
 const idset = (r: { page: Array<{ seguimientoId: string }> }) =>
   new Set(r.page.map((i) => i.seguimientoId));
+
+// Autentica como el usuario de dominio con ese email: crea/enlaza su identidad de Convex Auth
+// (users._id ↔ usuarios.authId) y devuelve el contexto con esa identidad (subject "authId|sesión").
+async function como(t: TestConvex<typeof schema>, email: string) {
+  const authId = await t.run(async (ctx) => {
+    const u = await ctx.db
+      .query("usuarios")
+      .withIndex("por_email", (q) => q.eq("email", email))
+      .unique();
+    if (!u) throw new Error(`usuarios no encontrado: ${email}`);
+    if (u.authId) return u.authId;
+    const id = await ctx.db.insert("users", { email });
+    await ctx.db.patch(u._id, { authId: id });
+    return id;
+  });
+  return t.withIdentity({ subject: `${authId}|s` });
+}
 
 async function mundo() {
   const iv = calcularIntervalos({ timeZone: TZ, fechaLocal: hoyLocal() }, Date.now());
@@ -51,7 +68,8 @@ async function mundo() {
 describe("agenda* (autorización, intervalos, archivados)", () => {
   it("vendedor · Hoy: solo lo propio, sin lo de la dueña, sin archivados ni hechos", async () => {
     const { t, ids, args } = await mundo();
-    const s = idset(await t.withIdentity({ email: "carlos@x.test" }).query(api.seguimientos.agendaHoy, args));
+    const as = await como(t, "carlos@x.test");
+    const s = idset(await as.query(api.seguimientos.agendaHoy, args));
     expect(s.has(ids.hoyInicio)).toBe(true);
     expect(s.has(ids.hoyMedio)).toBe(true);
     expect(s.has(ids.hoyDuena)).toBe(false); // scope de responsable en el índice
@@ -62,14 +80,15 @@ describe("agenda* (autorización, intervalos, archivados)", () => {
 
   it("dueña · Hoy: ve también lo de la dueña", async () => {
     const { t, ids, args } = await mundo();
-    const s = idset(await t.withIdentity({ email: "elena@x.test" }).query(api.seguimientos.agendaHoy, args));
+    const as = await como(t, "elena@x.test");
+    const s = idset(await as.query(api.seguimientos.agendaHoy, args));
     expect(s.has(ids.hoyDuena)).toBe(true);
     expect(s.has(ids.hoyInicio)).toBe(true);
   });
 
   it("Vencidos y Próximas ubican bien los bordes semiabiertos", async () => {
     const { t, ids, args } = await mundo();
-    const as = t.withIdentity({ email: "carlos@x.test" });
+    const as = await como(t, "carlos@x.test");
     const venc = idset(await as.query(api.seguimientos.agendaVencidos, args));
     const prox = idset(await as.query(api.seguimientos.agendaProximas, args));
     expect(venc.has(ids.vencido)).toBe(true);
@@ -90,7 +109,7 @@ describe("agenda* (autorización, intervalos, archivados)", () => {
       await ctx.db.insert("seguimientos", { cliente_id: cArch, fecha_objetivo: medio - 100, estado: "pendiente", responsable: v });
       return await ctx.db.insert("seguimientos", { cliente_id: cOk, fecha_objetivo: medio, estado: "pendiente", responsable: v });
     });
-    const as = t.withIdentity({ email: "carlos@x.test" });
+    const as = await como(t, "carlos@x.test");
     const encontrados = new Set<string>();
     const cursores = new Set<string>();
     let cursor: string | null = null;
@@ -125,7 +144,8 @@ describe("agenda* · sanitización de paginationOpts", () => {
         await ctx.db.insert("seguimientos", { cliente_id: c, fecha_objetivo: medio + i, estado: "pendiente", responsable: v });
       }
     });
-    const r = await t.withIdentity({ email: "carlos@x.test" }).query(api.seguimientos.agendaHoy, {
+    const as = await como(t, "carlos@x.test");
+    const r = await as.query(api.seguimientos.agendaHoy, {
       paginationOpts: { numItems: 1000, cursor: null },
       timeZone: TZ,
       fechaLocal: hoyLocal(),
@@ -139,7 +159,7 @@ describe("agenda* · sanitización de paginationOpts", () => {
     await t.run(async (ctx) => {
       await ctx.db.insert("usuarios", { nombre: "C", email: "carlos@x.test", rol: "vendedor" });
     });
-    const as = t.withIdentity({ email: "carlos@x.test" });
+    const as = await como(t, "carlos@x.test");
     const base = { timeZone: TZ, fechaLocal: hoyLocal() };
     await expect(
       as.query(api.seguimientos.agendaHoy, { ...base, paginationOpts: { numItems: 0, cursor: null } }),

@@ -39,11 +39,12 @@ describe("seed:run (interna, env-gated, colisión segura)", () => {
     vi.stubEnv("CRM_ALLOW_SEED", "true");
     const t = convexTest(schema, modules);
     await t.run(async (ctx) => {
+      const authId = await ctx.db.insert("users", { email: "elena.demo@pulsecrm.test" });
       await ctx.db.insert("usuarios", {
         nombre: "Real",
         email: "elena.demo@pulsecrm.test",
         rol: "duena",
-        authId: "real-123",
+        authId,
       });
     });
     await expect(t.mutation(internal.seed.run, {})).rejects.toThrow();
@@ -72,6 +73,8 @@ describe("seed:run (interna, env-gated, colisión segura)", () => {
 
   it("tras sembrar, agendaHoy incluye la tarea creada en `now` (en cualquier zona)", async () => {
     vi.stubEnv("CRM_ALLOW_SEED", "true");
+    // La demo autentica por el fallback dev (sin login real): resuelve por email sin identidad.
+    vi.stubEnv("CRM_DEV_USER_EMAIL", "elena.demo@pulsecrm.test");
     const t = convexTest(schema, modules);
     await t.mutation(internal.seed.run, {});
     const tz = "Asia/Tokyo"; // distinta de la zona demo (America/Mexico_City)
@@ -81,13 +84,11 @@ describe("seed:run (interna, env-gated, colisión segura)", () => {
       month: "2-digit",
       day: "2-digit",
     }).format(new Date());
-    const r = await t
-      .withIdentity({ email: "elena.demo@pulsecrm.test" })
-      .query(api.seguimientos.agendaHoy, {
-        paginationOpts: { numItems: 50, cursor: null },
-        timeZone: tz,
-        fechaLocal: fechaLocalTokyo,
-      });
+    const r = await t.query(api.seguimientos.agendaHoy, {
+      paginationOpts: { numItems: 50, cursor: null },
+      timeZone: tz,
+      fechaLocal: fechaLocalTokyo,
+    });
     expect(r.page.some((i: { motivo: string | null }) => i.motivo === "Confirmar cierre de contrato")).toBe(
       true,
     );

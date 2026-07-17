@@ -21,15 +21,38 @@ Railway está conectado a GitHub (`pbvicencio-pbv/mi-crm`) y publica **automáti
 1. En Railway → **Settings → Build Command**: `npx convex deploy --cmd 'npm run build'`.
 2. Añade `CONVEX_DEPLOY_KEY`. `convex deploy` publica las funciones al deployment de producción **e inyecta `NEXT_PUBLIC_CONVEX_URL` automáticamente** en el build.
 
-## Datos de demo (temporal, hasta el login M2.2 / TAL-10)
-El acceso real (Convex Auth) llega en M2.2. Mientras tanto, para que la Agenda muestre datos en un deployment, define en **ese** deployment de Convex:
+## Autenticación (Convex Auth · M2)
+
+Convex Auth (provider **Password**) corre en el deployment de Convex. Estas variables se fijan en el **deployment de Convex** (`npx convex env set`), NO en `.env.local`:
+
+| Variable | Obligatoria | Para qué |
+|---|---|---|
+| `JWT_PRIVATE_KEY` | ✅ | Clave RS256 (PKCS8) para firmar los tokens de acceso. |
+| `JWKS` | ✅ | JWKS público correspondiente. |
+| `SITE_URL` | Condicional / futura | Origen de la app. Solo la ejercen flujos OAuth y email (reset·verify), ausentes en el MVP (Password-only). La fija el initializer; documentada como futura. |
+| `CRM_SEED_PW_DUENA`, `CRM_SEED_PW_VENDEDOR` | Solo aprovisionar | Contraseñas (≥ 8) de las cuentas demo. **Fuera del repo.** |
+| `CRM_ALLOW_SEED` | Solo aprovisionar | Habilita `seed`/`seedAuth`; se retira tras sembrar. |
+
+**Llaves** (una vez por deployment): generar el par RS256 (`JWT_PRIVATE_KEY` + `JWKS`) con el generador de Convex Auth y fijarlas con `npx convex env set …`.
+
+**Aprovisionar las cuentas de acceso** (idempotente; NO hay auto-registro público):
 ```
-npx convex env set CRM_DEV_USER_EMAIL <email de la dueña demo>
+npx convex env set CRM_SEED_PW_DUENA '<contraseña>'
+npx convex env set CRM_SEED_PW_VENDEDOR '<contraseña>'
+npx convex env set CRM_ALLOW_SEED true
+npx convex run seedAuth:run
+npx convex env remove CRM_ALLOW_SEED
+```
+Cuentas: **Elena** (`elena.demo@pulsecrm.test`, dueña) y **Carlos** (`carlos.demo@pulsecrm.test`, vendedor). La sesión persiste 30 días.
+
+## Datos de demo
+Para poblar la Agenda con datos de demostración (clientes, ventas, seguimientos) en un deployment de Convex:
+```
 npx convex env set CRM_ALLOW_SEED true
 npx convex run seed:run
 npx convex env remove CRM_ALLOW_SEED
 ```
-Sin `CRM_DEV_USER_EMAIL`, la Agenda responde "No autenticado" (falla cerrado; sin fuga de datos).
+El fallback de desarrollo `CRM_DEV_USER_EMAIL` (resuelve un usuario **solo cuando no hay sesión**, p. ej. desde el CLI) sigue disponible; sin él y sin sesión, las funciones responden "No autenticado" (falla cerrado; sin fuga de datos).
 
 ## Requisitos
 - **Node ≥ 20** (fijado en `package.json` → `engines`).
