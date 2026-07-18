@@ -121,6 +121,8 @@ export function FichaClienteView({
   now = Date.now(),
   onAnotarInteraccion,
   onProgramarSeguimiento,
+  onCerrarSeguimiento,
+  cerrandoSeguimiento = false,
 }: {
   ficha: Ficha;
   now?: number;
@@ -128,6 +130,9 @@ export function FichaClienteView({
   onAnotarInteraccion?: () => void;
   /** Abre la programación de seguimiento (P7). Si no llega, la CTA de seguimiento queda deshabilitada. */
   onProgramarSeguimiento?: () => void;
+  /** Cierra el próximo seguimiento ("Marcar hecho", P4·TAL-17). Si no llega, el botón queda deshabilitado. */
+  onCerrarSeguimiento?: () => void;
+  cerrandoSeguimiento?: boolean;
 }) {
   const subtitulo = [ficha.cargo, ficha.empresa].filter(Boolean).join(" · ");
 
@@ -246,10 +251,11 @@ export function FichaClienteView({
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  disabled
+                  onClick={onCerrarSeguimiento}
+                  disabled={!onCerrarSeguimiento || cerrandoSeguimiento}
                   aria-label="Marcar hecho"
-                  title="Próxima fase"
-                  className="flex h-11 w-11 flex-none items-center justify-center rounded-full border-2 border-slate-300 text-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
+                  title={onCerrarSeguimiento ? "Marcar como hecho" : "Próxima fase"}
+                  className="flex h-11 w-11 flex-none items-center justify-center rounded-full border-2 border-slate-300 text-slate-400 transition hover:border-brand hover:bg-brand-subtle hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-border disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:border-slate-300 disabled:hover:bg-transparent disabled:hover:text-slate-400"
                 >
                   <Check size={18} />
                 </button>

@@ -220,3 +220,26 @@ describe("FichaClienteView · CTA de programar seguimiento", () => {
     expect(screen.getByRole("button", { name: /Registrar venta/ })).toBeDisabled();
   });
 });
+
+describe("FichaClienteView · Marcar hecho (cerrar seguimiento)", () => {
+  it("con onCerrarSeguimiento: 'Marcar hecho' habilitado y al pulsarlo invoca el callback", async () => {
+    const onCerrar = vi.fn();
+    render(<FichaClienteView ficha={LLENA} now={NOW} onCerrarSeguimiento={onCerrar} />);
+    const btn = screen.getByRole("button", { name: "Marcar hecho" });
+    expect(btn).toBeEnabled();
+    await userEvent.click(btn);
+    expect(onCerrar).toHaveBeenCalledTimes(1);
+  });
+
+  it("mientras cierra queda deshabilitado (evita doble toque)", () => {
+    render(
+      <FichaClienteView ficha={LLENA} now={NOW} onCerrarSeguimiento={() => {}} cerrandoSeguimiento />,
+    );
+    expect(screen.getByRole("button", { name: "Marcar hecho" })).toBeDisabled();
+  });
+
+  it("sin callback: 'Marcar hecho' sigue deshabilitado", () => {
+    render(<FichaClienteView ficha={LLENA} now={NOW} />);
+    expect(screen.getByRole("button", { name: "Marcar hecho" })).toBeDisabled();
+  });
+});

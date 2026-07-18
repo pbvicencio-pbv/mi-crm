@@ -85,8 +85,22 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
   refactorizado. **Gates verdes**: tsc, lint, build, **163 tests** (+23), `convex dev --once` (aditivo;
   `_generated` SIN cambio porque `seguimientos` ya existía como módulo). **Smoke Playwright PASS** (modal +
   calendario a 1280/375; atajo "En 3 días" → día 21 con hoy=18; pasado deshabilitado; **sin Agendar → sin
-  escritura al live**). **Commit pendiente** en la rama (no committeado aún).
-- **Pendiente**: TAL-17 (cerrar seguimiento) · M5 (ventas) · M6 (cierre) · TAL-59 (archivar).
+  escritura al live**). Commit `7a218c2` en la rama (pusheado).
+- **TAL-17 (M4.4 Cerrar seguimiento)** IMPLEMENTADA (Linear In Progress). La Agenda ya cerraba (TAL-16,
+  `AgendaHoy` → `seguimientos.cerrar`); esta pasada habilita "Marcar hecho" en la **ficha**: `FichaCliente`
+  usa la mutation existente `seguimientos.cerrar` + `cerrandoSeguimiento` + toast; `FichaClienteView`
+  habilita el botón. **Sin backend nuevo**. **171 tests** (+3). Smoke: botón habilitado en ficha con
+  pendiente (Diego Herrera) **sin pulsarlo** (cerrar escribiría al live). Committeado en la rama.
+- **TAL-60 (endurecimiento pre-merge)** → **Done** (commit `966088c`): (A) borrado `convex/health.ts`
+  (query `ping` pública sin auth, código muerto; confirmado fuera de `_generated`); (B) validación
+  server-side de longitudes en `clientes` crear/actualizar (nombre≤120 y no vacío, telefono≤40,
+  email≤200+sanidad básica, empresa≤120, cargo≤80, ciudad≤80, notas≤2000; opcionales vacíos→undefined) +
+  tests; (D) `EquipoAdmin` contraseña `type=password`+toggle+`autoComplete=new-password`; docs
+  `CLAUDE.md`/`AGENTS.md` a **Next 15.5 / Convex 1.42**. Origen: auditoría NO-GO de pre-merge (hallazgos
+  **preexistentes**, no de TAL-14/15/17).
+- **M4 completo en la rama** (TAL-14/15/16/17 + endurecimiento TAL-60). **Pendiente**: revisar diff y
+  decidir **merge a `main`** (= deploy Railway → requiere aprobación); cerrar en Linear TAL-15/17/60 (GO
+  de cierre). Después: M5 (ventas) · M6 (cierre) · TAL-59 (archivar).
 - Higiene Linear pendiente: M1.1–M1.3 siguen en Todo aunque están hechas.
 - **Datos demo en el deployment**: `elated-donkey-854` tiene **5 clientes demo** (+ ventas y
   seguimientos, sembrados para la Agenda). Útil: permite verificar listas/derivados **poblados

@@ -26,9 +26,11 @@ export function FichaCliente({ id }: { id: string }) {
   const ficha = useQuery(api.clientes.ficha, { id: clienteId });
   const registrarInteraccion = useMutation(api.interacciones.registrar);
   const crearSeguimiento = useMutation(api.seguimientos.crearSeguimiento);
+  const cerrarSeguimiento = useMutation(api.seguimientos.cerrar);
 
   const [modal, setModal] = useState<ModalState>(null);
   const [guardando, setGuardando] = useState(false);
+  const [cerrandoSeguimiento, setCerrandoSeguimiento] = useState(false);
   const [toast, setToast] = useState<{ tone: "success" | "danger"; msg: string } | null>(null);
 
   if (ficha === undefined) return <FichaSkeleton />;
@@ -62,12 +64,30 @@ export function FichaCliente({ id }: { id: string }) {
     }
   };
 
+  // "Marcar hecho" del próximo seguimiento (TAL-17). Un toque; reutiliza `seguimientos.cerrar`
+  // (idempotente). Al cerrar, la ficha re-deriva y el bloque pasa al estado vacío.
+  const onCerrarSeguimiento = async () => {
+    const seg = ficha.proximoSeguimiento;
+    if (!seg || cerrandoSeguimiento) return;
+    setCerrandoSeguimiento(true);
+    try {
+      await cerrarSeguimiento({ id: seg._id });
+      setToast({ tone: "success", msg: "Seguimiento completado" });
+    } catch (e) {
+      setToast({ tone: "danger", msg: mensajeError(e, "No se pudo marcar como hecho") });
+    } finally {
+      setCerrandoSeguimiento(false);
+    }
+  };
+
   return (
     <>
       <FichaClienteView
         ficha={ficha}
         onAnotarInteraccion={() => setModal({ tipo: "interaccion" })}
         onProgramarSeguimiento={() => setModal({ tipo: "seguimiento" })}
+        onCerrarSeguimiento={onCerrarSeguimiento}
+        cerrandoSeguimiento={cerrandoSeguimiento}
       />
 
       <Modal
