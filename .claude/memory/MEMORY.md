@@ -27,7 +27,7 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
 
 ## Estado del MVP (al 18-jul-2026)
 
-- **Hecho y DESPLEGADO en prod (pusheado; `origin/main` y local en `8420402`)**: M0 · M1 ·
+- **Hecho y DESPLEGADO en prod (pusheado; `origin/main` y local en `312595e`)**: M0 · M1 ·
   shell (TAL-8) · Agenda (TAL-16) · M2.1/TAL-9 + M2.2/TAL-10 (login/rutas) · **M2.3/TAL-32 +
   M2.4/TAL-48** (Equipo + Mi cuenta; `bf5d715`+`971fe44`) · **M3.1** = TAL-11 (alta/edición) +
   TAL-34 (prioridad) + P5 de TAL-35 (`df88017`; `clientes.crear/actualizar/obtener` con
@@ -40,9 +40,9 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
 - **Gate de acceso verificado en prod (18-jul)**: peticiones sin cookies a `/`, `/hoy`, `/clientes`
   responden **307 → /login**; `/login` 200. NO hay bypass. Landing directo a `/hoy` en un navegador
   ya usado = **sesión persistida** (cookie Convex Auth, `maxAge` 30 días en `middleware.ts`), no un fallo.
-- **M3.3 = TAL-13 (Ficha 360)**: COMMITEADA en local (GO de plan y GO de cierre de auditoría
-  recibidos). **Aún SIN push** (pendiente de autorización explícita del dueño; la auditoría no la
-  sustituye) y **Linear sigue In Progress** (se mueve a Done tras el push). Backend: `clientes.ficha`
+- **M3.3 = TAL-13 (Ficha 360)**: **DESPLEGADA y cerrada** (Linear **Done**; `312595e` en
+  `origin/main`, push autorizado por el dueño). Plan NO-GO→GO y GO de cierre recibidos. Backend:
+  `clientes.ficha`
   (query reactiva read-only; `requireUsuario`; `null` si archivado/inexistente) con derivados —estado,
   **valor** = Σ ganadas no archivadas `importe*cantidad` (`derivarValorCliente` nuevo), último
   contacto = max(interacciones.fecha)— + bloques poblados en lectura (próximo seguimiento pendiente,
