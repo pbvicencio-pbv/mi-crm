@@ -25,14 +25,26 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
 - Derivados NO se persisten (estado/valor de cliente, último contacto, total de venta).
 - Borrado = archivar (soft-delete, campo `archivado`).
 
-## Estado del MVP (al 16-jul-2026)
+## Estado del MVP (al 17-jul-2026)
 
 - **Hecho y desplegado**: M0 (diseño, 11 pantallas) · M1 (fundación) · shell de navegación (TAL-8)
-  · Agenda del día (TAL-16 / M4.3).
-- **En curso**: M2 — Login/Auth real con Convex Auth (M2.1/TAL-9 cuentas semilla + M2.2/TAL-10
-  login + protección de rutas). Plan aprobado por el flujo de auditoría antes de codificar.
+  · Agenda del día (TAL-16 / M4.3) · M2.1/TAL-9 (cuentas semilla) · M2.2/TAL-10 (login + protección
+  de rutas).
+- **Hecho, verificado y committeado LOCAL (sin push aún)**: M2.3/TAL-32 (gestión de equipo, dueña-only)
+  + M2.4/TAL-48 (Mi cuenta / perfil). Backend `bf5d715` (+24 tests); frontend `971fe44` (Equipo, Mi
+  cuenta, Modal/Select del DS, modal de confirmación de baja). Verify en navegador 33/33
+  (escritorio 1280px + móvil 375px) y security-review sin hallazgos. **Prod sigue con placeholders
+  hasta el push.**
 - **Pendiente**: M3 (clientes) · M4 (seguimiento/interacciones) · M5 (ventas) · M6 (cierre).
 - Higiene Linear pendiente: M1.1–M1.3 siguen en Todo aunque están hechas.
+
+### Verify en local (esta máquina)
+
+- `next dev` NO arranca bajo OneDrive (EINVAL readlink en `.next/diagnostics`; ver `gotchas.md`).
+  Para verificar en local: `npm run build` → `npm run start` (:3000). Cuentas demo: Elena
+  (`elena.demo@pulsecrm.test`, dueña) / Carlos (`carlos.demo@pulsecrm.test`, vendedor); contraseñas
+  en `CRM_SEED_PW_*` del deployment. `elated-donkey-854` es COMPARTIDO (sirve la app en vivo de
+  Railway, sin `CONVEX_DEPLOY_KEY`): no crear/mutar cuentas reales al verificar.
 
 ## Auth (contexto M2)
 
