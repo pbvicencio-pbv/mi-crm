@@ -28,6 +28,12 @@ Categorías sugeridas: `build` · `types` · `convex` · `auth` · `deploy` · `
 
 <!-- Añadir entradas nuevas arriba (más reciente primero) siguiendo el formato. -->
 
+## 2026-07-18 · [tests] `role="menuitem"` anula el rol implícito → `getByRole("button"/"link")` no lo encuentra
+- **Qué pasó:** al testear el menú ⋮ de la lista de clientes (TAL-59), 3 tests fallaron con "Unable to find role" pese a que el DOM mostraba el elemento. Buscaba `getByRole("button", {name:/Eliminar/})` y `getByRole("link", {name:/Editar/})`, pero a esos elementos les puse `role="menuitem"` (correcto para un `role="menu"`).
+- **Causa raíz:** un atributo `role` explícito SUSTITUYE al rol implícito del elemento; un `<button role="menuitem">` deja de exponerse como `button` para Testing Library (queda como `menuitem`), e igual un `<a role="menuitem">` deja de ser `link`.
+- **Regla preventiva:** cuando un elemento lleva `role` explícito, consultar por ESE rol en los tests (`getByRole("menuitem", …)`), no por el implícito. El atributo `href`/`disabled` sigue verificándose con `toHaveAttribute`/`toBeDisabled` sobre el mismo nodo.
+- **Ocurrencias:** 1
+
 ## 2026-07-18 · [tests] Verify de UI con Playwright contra rutas protegidas (receta que funciona)
 - **Qué pasó:** al verificar la Ficha 360 sin extensión de navegador, tres tropiezos: (1) el script en el scratchpad no resolvía `import "playwright"` (`ERR_MODULE_NOT_FOUND`) porque ESM busca `node_modules` desde la carpeta del archivo; (2) todas las rutas salvo `/login` responden `307 → /login` (middleware), así que hay que loguear primero; (3) mi heurística "hay `role=alert` ⇒ login falló" dio falso negativo porque **`/hoy` tiene su propio `role="alert"`** (banner de la Agenda).
 - **Causa raíz:** supuestos sobre resolución de módulos ESM y sobre qué señales indican fallo de login.

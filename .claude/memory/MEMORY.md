@@ -55,8 +55,9 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
   seguimiento + `total` de venta). **Gates verdes**: tsc, lint, 118 tests (13 nuevos), build, `convex
   dev --once`. **Verify Playwright PASS** (login demo → ficha a 1280 y 375; vacío "Cliente Prueba" +
   poblado "Diego Herrera": valor $0 con venta abierta de $26K = correcto, contacto oculto sin datos).
-- **M3 restante**: TAL-49 (M3.4 estado auto-calc) → **Done** (reconciliado: se cerró en Linear el
-  18-jul aunque este MEMORY lo daba por pendiente). Queda **TAL-59** (archivar) en Todo.
+- **M3 restante**: TAL-49 (M3.4 estado auto-calc) → **Done**. **TAL-59 (archivar · parte CLIENTES)
+  → Done** (18-jul; GO de plan y de cierre) — ver bullet TAL-59 abajo. La parte de ventas se difiere
+  a M5.2/TAL-50 (como indica el propio issue).
 - **M4 EN CURSO** — rama **`feat/m4-seguimiento`** (creada desde `main`, **pusheada a GitHub**; NO
   fusionada a `main`). TAL-14/TAL-15/TAL-17 movidas a **Todo** (TAL-16 Agenda ya Done). **TAL-14 (M4.1
   Registrar interacción)** → **Done** (Linear; commit `2dc246d` pusheado a `origin/feat/m4-seguimiento`): mutation `interacciones.registrar`
@@ -104,6 +105,21 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
   Done. `origin/main` = `0a8bd2c` (el push arrastró también el docs `3f0f43f`, solo memoria, que quedaba
   local). Auditoría pre-merge sin bloqueantes. **Siguiente**: M5 (ventas) · M6 (cierre) · TAL-59
   (archivar). Higiene Linear: M1.1–M1.3 aún en Todo aunque hechas.
+- **TAL-59 (Archivar/soft-delete · parte CLIENTES) → Done** (18-jul; GO de plan y de cierre). Rama
+  `feat/tal-59-archivar`, merge fast-forward a `main` + push (Railway auto-deploy). Backend
+  `clientes.archivarCliente` (`requireUsuario`; idempotente `{ok,yaArchivado}` estilo `seguimientos.cerrar`;
+  `get`→`patch` acotado sin escaneo → no amplía read-set/OCC; **sin cascada** — `listar`/`obtener`/`ficha`
+  y la Agenda ya ocultan lo del cliente archivado); ya en `elated-donkey-854` vía `convex dev --once`
+  (aditivo, sin cambio de esquema). Front: **`ui/ConfirmDialog.tsx`** reutilizable (overlay papelera + copy
+  reversible + botón danger; durante el archivado deshabilita confirmar/cancelar y **bloquea cierre por
+  backdrop/Escape** → anti doble-submit); ficha "Eliminar cliente" → navega a `/clientes` (guard de
+  integridad); lista reestructurada de `<Link>` completo a **stretched-link + menú ⋮** (Editar/Eliminar)
+  para no anidar interactivos. Copy: "Se archivará a {nombre} y dejará de aparecer en tus listas. Podrás
+  recuperarlo más adelante." **Gates verdes**: tsc, lint, **188 tests** (+17), build, `convex dev --once`.
+  **Smoke Playwright PASS** (1280/375; abrir confirm desde lista y ficha + **Cancelar**, sin escritura al
+  live). **Ventas (`archivarVenta` + ⋮ en la pantalla de ventas) → M5.2/TAL-50** (hoy `ventas.ts` es stub;
+  reutilizará `ConfirmDialog`). Gotcha nuevo (`gotchas.md`): `role="menuitem"` anula el rol implícito →
+  en tests usar `getByRole("menuitem")`, no `button`/`link`.
 - Higiene Linear pendiente: M1.1–M1.3 siguen en Todo aunque están hechas.
 - **Datos demo en el deployment**: `elated-donkey-854` tiene **5 clientes demo** (+ ventas y
   seguimientos, sembrados para la Agenda). Útil: permite verificar listas/derivados **poblados
