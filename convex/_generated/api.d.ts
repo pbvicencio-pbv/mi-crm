@@ -10,7 +10,6 @@
 
 import type * as auth from "../auth.js";
 import type * as clientes from "../clientes.js";
-import type * as health from "../health.js";
 import type * as http from "../http.js";
 import type * as interacciones from "../interacciones.js";
 import type * as lib_auth from "../lib/auth.js";
@@ -32,7 +31,6 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   clientes: typeof clientes;
-  health: typeof health;
   http: typeof http;
   interacciones: typeof interacciones;
   "lib/auth": typeof lib_auth;

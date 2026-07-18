@@ -404,3 +404,59 @@ describe("clientes · ficha", () => {
     await expect(t.query(api.clientes.ficha, { id })).rejects.toThrow();
   });
 });
+
+describe("clientes · validación de longitudes y email", () => {
+  const largo = (n: number) => "a".repeat(n);
+
+  it("crear: nombre > 120 → rechaza", async () => {
+    const { t, ids } = await mundo();
+    const as = await como(t, "carlos@x.test");
+    await expect(
+      as.mutation(api.clientes.crearCliente, { nombre: largo(121), propietario: ids.elena }),
+    ).rejects.toThrow(/nombre/i);
+  });
+
+  it("crear: email inválido → rechaza", async () => {
+    const { t, ids } = await mundo();
+    const as = await como(t, "carlos@x.test");
+    await expect(
+      as.mutation(api.clientes.crearCliente, { nombre: "Ana", email: "no-es-email", propietario: ids.elena }),
+    ).rejects.toThrow(/email/i);
+  });
+
+  it("crear: notas > 2000 y teléfono > 40 → rechaza", async () => {
+    const { t, ids } = await mundo();
+    const as = await como(t, "carlos@x.test");
+    await expect(
+      as.mutation(api.clientes.crearCliente, { nombre: "Ana", notas: largo(2001), propietario: ids.elena }),
+    ).rejects.toThrow(/notas/i);
+    await expect(
+      as.mutation(api.clientes.crearCliente, { nombre: "Ana", telefono: largo(41), propietario: ids.elena }),
+    ).rejects.toThrow(/tel/i);
+  });
+
+  it("crear: opcionales vacíos/espacios → se guardan como undefined; nombre recortado", async () => {
+    const { t, ids } = await mundo();
+    const as = await como(t, "carlos@x.test");
+    const id = await as.mutation(api.clientes.crearCliente, {
+      nombre: "  Ana  ", telefono: "   ", email: "", empresa: "  ", propietario: ids.elena,
+    });
+    const c = await t.run((ctx) => ctx.db.get(id));
+    expect(c!.nombre).toBe("Ana");
+    expect(c!.telefono).toBeUndefined();
+    expect(c!.email).toBeUndefined();
+    expect(c!.empresa).toBeUndefined();
+  });
+
+  it("actualizar: nombre > 120 y email inválido → rechaza", async () => {
+    const { t, ids } = await mundo();
+    const as = await como(t, "carlos@x.test");
+    const id = await as.mutation(api.clientes.crearCliente, { nombre: "Ana", propietario: ids.elena });
+    await expect(
+      as.mutation(api.clientes.actualizarCliente, { id, nombre: largo(121), prioridad: "media", propietario: ids.elena }),
+    ).rejects.toThrow(/nombre/i);
+    await expect(
+      as.mutation(api.clientes.actualizarCliente, { id, nombre: "Ana", email: "malo", prioridad: "media", propietario: ids.elena }),
+    ).rejects.toThrow(/email/i);
+  });
+});

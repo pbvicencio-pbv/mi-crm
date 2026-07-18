@@ -4,8 +4,7 @@ Toda la persistencia y la lógica de servidor del CRM viven aquí como funciones
 
 ## Archivos
 - `schema.ts` — esquema de las 5 entidades (clientes, interacciones, seguimientos, ventas, usuarios). **Fuente de verdad del modelo de datos** (TAL-7).
-- `health.ts` — query `ping` para verificar la conexión (borrar tras confirmar).
-- `clientes.ts` · `ventas.ts` · `interacciones.ts` · `seguimientos.ts` · `usuarios.ts` — stubs por entidad; se rellenan en sus tareas de Linear.
+- `clientes.ts` · `ventas.ts` · `interacciones.ts` · `seguimientos.ts` · `usuarios.ts` — funciones por entidad (queries/mutations).
 - `_generated/` — tipos y APIs que **genera** `npx convex dev` (se versiona en el repo).
 - `auth.*` — se añaden en M2.1 (TAL-9) al configurar Convex Auth (proveedor Password).
 

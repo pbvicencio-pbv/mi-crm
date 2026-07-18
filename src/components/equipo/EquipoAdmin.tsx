@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
@@ -261,6 +262,7 @@ function UsuarioForm({
   const [email, setEmail] = useState(inicial?.email ?? "");
   const [rol, setRol] = useState<Rol>(inicial?.rol ?? "vendedor");
   const [password, setPassword] = useState("");
+  const [verPassword, setVerPassword] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const submit = (e: FormEvent) => {
@@ -288,10 +290,21 @@ function UsuarioForm({
       {esAlta && (
         <Input
           label="Contraseña temporal"
-          type="text"
+          type={verPassword ? "text" : "password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Mínimo 8 caracteres — la persona la cambia luego"
+          autoComplete="new-password"
+          suffix={
+            <button
+              type="button"
+              onClick={() => setVerPassword((v) => !v)}
+              aria-label={verPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              className="text-slate-400 hover:text-slate-600"
+            >
+              {verPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          }
         />
       )}
       {err && <p className="text-[13px] font-semibold text-danger">{err}</p>}

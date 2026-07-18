@@ -38,10 +38,32 @@ const estadoValidator = v.union(
   v.literal("perdido"),
 );
 
-/** Recorta un opcional; cadena vacía → `undefined` (en `patch`, `undefined` limpia el campo). */
-function limpiar(s: string | undefined): string | undefined {
-  const t = s?.trim();
-  return t ? t : undefined;
+// Topes de longitud por campo (server-side; el cliente no puede saltárselos). Se validan TRAS trim.
+const LIM = { nombre: 120, telefono: 40, email: 200, empresa: 120, cargo: 80, ciudad: 80, notas: 2000 } as const;
+
+/** Opcional: recorta; vacío → `undefined` (en `patch`, limpia el campo); excede `max` → error. */
+function opcional(valor: string | undefined, etiqueta: string, max: number): string | undefined {
+  const t = valor?.trim();
+  if (!t) return undefined;
+  if (t.length > max) throw new ConvexError(`${etiqueta} no puede superar ${max} caracteres`);
+  return t;
+}
+
+/** Nombre (obligatorio): recorta; vacío → error; excede → error. */
+function nombreValido(valor: string): string {
+  const t = valor.trim();
+  if (!t) throw new ConvexError("El nombre es obligatorio");
+  if (t.length > LIM.nombre) throw new ConvexError(`El nombre no puede superar ${LIM.nombre} caracteres`);
+  return t;
+}
+
+/** Email opcional: recorta; vacío → `undefined`; sanidad básica (no RFC completo) + tope. */
+function emailValido(valor: string | undefined): string | undefined {
+  const t = valor?.trim();
+  if (!t) return undefined;
+  if (t.length > LIM.email) throw new ConvexError(`El email no puede superar ${LIM.email} caracteres`);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) throw new ConvexError("El email no es válido");
+  return t;
 }
 
 /**
@@ -80,19 +102,18 @@ export const crearCliente = mutation({
   returns: v.id("clientes"),
   handler: async (ctx, args) => {
     const yo = await requireUsuario(ctx);
-    const nombre = args.nombre.trim();
-    if (!nombre) throw new ConvexError("El nombre es obligatorio");
+    const nombre = nombreValido(args.nombre);
     const propietario = await resolverPropietario(ctx, args.propietario, yo._id);
     return await ctx.db.insert("clientes", {
       nombre,
-      telefono: limpiar(args.telefono),
-      email: limpiar(args.email),
-      empresa: limpiar(args.empresa),
-      cargo: limpiar(args.cargo),
-      ciudad: limpiar(args.ciudad),
+      telefono: opcional(args.telefono, "El teléfono", LIM.telefono),
+      email: emailValido(args.email),
+      empresa: opcional(args.empresa, "La empresa", LIM.empresa),
+      cargo: opcional(args.cargo, "El cargo", LIM.cargo),
+      ciudad: opcional(args.ciudad, "La ciudad", LIM.ciudad),
       canal: args.canal,
       origen: args.origen,
-      notas: limpiar(args.notas),
+      notas: opcional(args.notas, "Las notas", LIM.notas),
       prioridad: args.prioridad ?? "media",
       propietario,
       registrado_por: yo._id,
@@ -128,19 +149,18 @@ export const actualizarCliente = mutation({
     const yo = await requireUsuario(ctx);
     const target = await ctx.db.get(args.id);
     if (!target || target.archivado === true) throw new ConvexError("Cliente no encontrado");
-    const nombre = args.nombre.trim();
-    if (!nombre) throw new ConvexError("El nombre es obligatorio");
+    const nombre = nombreValido(args.nombre);
     const propietario = await resolverPropietario(ctx, args.propietario, yo._id);
     await ctx.db.patch(args.id, {
       nombre,
-      telefono: limpiar(args.telefono),
-      email: limpiar(args.email),
-      empresa: limpiar(args.empresa),
-      cargo: limpiar(args.cargo),
-      ciudad: limpiar(args.ciudad),
+      telefono: opcional(args.telefono, "El teléfono", LIM.telefono),
+      email: emailValido(args.email),
+      empresa: opcional(args.empresa, "La empresa", LIM.empresa),
+      cargo: opcional(args.cargo, "El cargo", LIM.cargo),
+      ciudad: opcional(args.ciudad, "La ciudad", LIM.ciudad),
       canal: args.canal,
       origen: args.origen,
-      notas: limpiar(args.notas),
+      notas: opcional(args.notas, "Las notas", LIM.notas),
       prioridad: args.prioridad,
       propietario,
     });

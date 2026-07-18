@@ -120,7 +120,7 @@ Skills realmente disponibles en este entorno (cargarlos antes de tocar su superf
 | Dominio | Skill | Cuándo cargarlo |
 |---------|-------|-----------------|
 | Backend / DB (Convex) | `convex-skill` | Antes de tocar `convex/**` (queries/mutations/schema/auth). Afinado para PULSE ("Contexto/Patrones PULSE CRM") |
-| Frontend web (Next.js) | `nextjs-web` | Antes de tocar `src/app/**` o componentes. OJO: PULSE corre en **Next.js 15.1** (ver avisos de compatibilidad del skill) |
+| Frontend web (Next.js) | `nextjs-web` | Antes de tocar `src/app/**` o componentes. OJO: PULSE corre en **Next.js 15.5** (línea 15.x; ver avisos de compatibilidad del skill) |
 | Infra / deploy (Railway) | `railway` | Operaciones de Railway. En PULSE deploy = push a `main`; sin `railway up` manual sin aprobación (regla 9) |
 | Gestión de trabajo (Linear) | `linear-skill` | Crear/actualizar issues, cycles, planificación (equipo TAL, proyecto "PROY CRM Pulse") |
 | Revisión en GitHub (CodeRabbit) | `coderabbit-review` | Solo si se adopta flujo de PR en GitHub (hoy PULSE trabaja directo en `main`, sin PRs — regla 10) |
@@ -167,9 +167,9 @@ con Convex Auth). Siguen M3 (clientes), M4 (seguimiento), M5 (ventas), M6 (cierr
 
 | Capa | Tecnología | Versión | Ubicación |
 |------|-----------|---------|-----------|
-| Framework | Next.js (App Router, TS) | 15.1 | `src/app/**` |
+| Framework | Next.js (App Router, TS) | 15.5 | `src/app/**` |
 | UI | React + Tailwind CSS (mobile-first) | React 19 · Tailwind 3.4 | `src/components/**` |
-| Backend / DB | Convex (queries/mutations + reactividad) | 1.16 | `convex/**` |
+| Backend / DB | Convex (queries/mutations + reactividad) | 1.42 | `convex/**` |
 | Auth | Convex Auth · provider Password | `@convex-dev/auth` | `convex/auth.ts` (M2, en construcción) |
 | Hosting | Railway (app) + `npx convex deploy` (funciones) | n/a | push a `main` → auto-deploy |
 | Tests | Vitest + Testing Library (+ Playwright) | Vitest 4 | `**/*.test.ts(x)` junto al código |

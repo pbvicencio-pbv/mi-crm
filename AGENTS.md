@@ -64,9 +64,9 @@ Fuente de verdad completa: `CLAUDE.md`. Toda regla nueva se escribe primero all�
 
 | Capa | Tecnología | Versión | Ubicación |
 |------|-----------|---------|-----------|
-| Framework | Next.js (App Router, TS) | 15.1 | `src/app/**` |
+| Framework | Next.js (App Router, TS) | 15.5 | `src/app/**` |
 | UI | React + Tailwind (mobile-first) | React 19 · Tailwind 3.4 | `src/components/**` |
-| Backend / DB | Convex | 1.16 | `convex/**` |
+| Backend / DB | Convex | 1.42 | `convex/**` |
 | Auth | Convex Auth (Password) | `@convex-dev/auth` | `convex/auth.ts` |
 | Hosting | Railway + `npx convex deploy` | n/a | push a `main` → auto-deploy |
 | Tests | Vitest (+ Playwright) | Vitest 4 | `**/*.test.ts(x)` |
