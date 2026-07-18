@@ -1,15 +1,10 @@
+import { ClientesLista } from "@/components/clientes/ClientesLista";
+
 /**
- * P3 · Lista de clientes (M3.2 · TAL-12).
- * Diseño: design/PROY CRM Pulse/ClientesLista.screen.dc.html (+ .gallery).
- * Búsqueda por nombre/teléfono, badges de estado y canal, prioridad (ordenar/filtrar).
+ * P3 · Lista de clientes (M3.2 · TAL-12 + orden/filtro por prioridad TAL-36).
+ * Diseño: design/PROY CRM Pulse/ClientesLista.screen.dc.html.
+ * Datos reactivos en <ClientesLista> (contenedor); búsqueda/orden/filtro en la vista pura.
  */
 export default function ClientesPage() {
-  return (
-    <section>
-      <h1 className="text-2xl font-extrabold tracking-tight">Clientes</h1>
-      <p className="mt-1 text-sm text-slate-500">
-        Placeholder — Lista de clientes con búsqueda (TAL-12).
-      </p>
-    </section>
-  );
+  return <ClientesLista />;
 }

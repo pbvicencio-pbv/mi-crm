@@ -14,6 +14,7 @@ import { query, mutation } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { requireUsuario } from "./lib/auth";
+import { derivarEstadoCliente, type EstadoCliente } from "./lib/derivados";
 
 const canalValidator = v.union(
   v.literal("whatsapp"),
@@ -29,6 +30,12 @@ const origenValidator = v.union(
   v.literal("otro"),
 );
 const prioridadValidator = v.union(v.literal("alta"), v.literal("media"), v.literal("baja"));
+const estadoValidator = v.union(
+  v.literal("nuevo_lead"),
+  v.literal("en_negociacion"),
+  v.literal("ganado"),
+  v.literal("perdido"),
+);
 
 /** Recorta un opcional; cadena vacía → `undefined` (en `patch`, `undefined` limpia el campo). */
 function limpiar(s: string | undefined): string | undefined {
@@ -179,5 +186,47 @@ export const obtener = query({
       prioridad: c.prioridad,
       propietario: c.propietario,
     };
+  },
+});
+
+// ---------- Listado (P3 · TAL-12/TAL-36) ----------
+
+const filaCliente = v.object({
+  _id: v.id("clientes"),
+  nombre: v.string(),
+  telefono: v.optional(v.string()),
+  canal: v.optional(canalValidator),
+  prioridad: prioridadValidator,
+  estado: estadoValidator,
+});
+
+/**
+ * Lista de clientes activos (P3). Cualquier sesión válida. Acotado a 200 (`por_archivado=false`,
+ * excluye archivados). Devuelve el `estado` DERIVADO por cliente (lecturas constantes, cache por
+ * ejecución). La búsqueda/orden/filtro por prioridad se resuelven en cliente (dataset pequeño).
+ */
+export const listar = query({
+  args: {},
+  returns: v.array(filaCliente),
+  handler: async (ctx) => {
+    await requireUsuario(ctx);
+    const activos = await ctx.db
+      .query("clientes")
+      .withIndex("por_archivado", (q) => q.eq("archivado", false))
+      .take(200);
+    const cache = new Map<string, EstadoCliente>();
+    const filas = [];
+    for (const c of activos) {
+      const estado = await derivarEstadoCliente(ctx, c._id, cache);
+      filas.push({
+        _id: c._id,
+        nombre: c.nombre,
+        telefono: c.telefono,
+        canal: c.canal,
+        prioridad: c.prioridad,
+        estado,
+      });
+    }
+    return filas;
   },
 });

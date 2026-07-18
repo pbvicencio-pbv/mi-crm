@@ -192,3 +192,69 @@ describe("usuarios · opcionesAsignacion", () => {
     expect(nombres).toEqual(["Carlos", "Elena"]); // "Baja" (inactivo) fuera
   });
 });
+
+describe("clientes · listar", () => {
+  // Crea un cliente y le adjunta ventas (no archivadas salvo que se indique).
+  async function clienteCon(
+    t: TestConvex<typeof schema>,
+    dueno: string,
+    nombre: string,
+    ventas: { estado: "ganada" | "abierta" | "perdida"; archivado?: boolean }[],
+    archivado = false,
+  ) {
+    return await t.run(async (ctx) => {
+      const cid = await ctx.db.insert("clientes", {
+        nombre, prioridad: "media", propietario: dueno as never, registrado_por: dueno as never, archivado,
+      });
+      for (const vta of ventas) {
+        await ctx.db.insert("ventas", {
+          cliente_id: cid, producto: "P", importe: 100, cantidad: 1,
+          estado: vta.estado, fecha: 1, vendedor: dueno as never, registrado_por: dueno as never,
+          archivado: vta.archivado ?? false,
+        });
+      }
+      return cid;
+    });
+  }
+
+  it("estado derivado por ventas: ganada / abierta / solo perdida / sin ventas", async () => {
+    const { t, ids } = await mundo();
+    const d = ids.elena as unknown as string;
+    await clienteCon(t, d, "SinVentas", []); // → nuevo_lead
+    await clienteCon(t, d, "Abierta", [{ estado: "abierta" }]); // → en_negociacion
+    await clienteCon(t, d, "SoloPerdida", [{ estado: "perdida" }]); // → perdido
+    await clienteCon(t, d, "Ganada", [{ estado: "perdida" }, { estado: "ganada" }]); // ganada manda → ganado
+    const as = await como(t, "elena@x.test");
+    const filas = await as.query(api.clientes.listar, {});
+    const estado = Object.fromEntries(filas.map((f) => [f.nombre, f.estado]));
+    expect(estado["SinVentas"]).toBe("nuevo_lead");
+    expect(estado["Abierta"]).toBe("en_negociacion");
+    expect(estado["SoloPerdida"]).toBe("perdido");
+    expect(estado["Ganada"]).toBe("ganado");
+  });
+
+  it("excluye clientes archivados", async () => {
+    const { t, ids } = await mundo();
+    const d = ids.elena as unknown as string;
+    await clienteCon(t, d, "Activo", []);
+    await clienteCon(t, d, "Archivado", [], true);
+    const as = await como(t, "elena@x.test");
+    const nombres = (await as.query(api.clientes.listar, {})).map((f) => f.nombre);
+    expect(nombres).toContain("Activo");
+    expect(nombres).not.toContain("Archivado");
+  });
+
+  it("ventas archivadas NO cuentan para el estado (siguen nuevo_lead)", async () => {
+    const { t, ids } = await mundo();
+    const d = ids.elena as unknown as string;
+    await clienteCon(t, d, "ConVentaArchivada", [{ estado: "ganada", archivado: true }]);
+    const as = await como(t, "elena@x.test");
+    const filas = await as.query(api.clientes.listar, {});
+    expect(filas.find((f) => f.nombre === "ConVentaArchivada")?.estado).toBe("nuevo_lead");
+  });
+
+  it("sin sesión → rechaza", async () => {
+    const { t } = await mundo();
+    await expect(t.query(api.clientes.listar, {})).rejects.toThrow();
+  });
+});
