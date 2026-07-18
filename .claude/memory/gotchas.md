@@ -28,11 +28,11 @@ Categorías sugeridas: `build` · `types` · `convex` · `auth` · `deploy` · `
 
 <!-- Añadir entradas nuevas arriba (más reciente primero) siguiendo el formato. -->
 
-## 2026-07-17 · [build] `next dev` rompe en carpeta OneDrive (EINVAL readlink en `.next/diagnostics`)
-- **Qué pasó:** `npm run dev` murió al arrancar con `[Error: EINVAL: invalid argument, readlink '…\.next\diagnostics\framework.json']`. El proyecto vive bajo `OneDrive - FORTIA\…`; los reparse points de OneDrive rompen el `readlink` que hace el modo dev al escribir sus diagnósticos. Además, ese arranque de dev wipeó el build de producción (`.next/BUILD_ID` desapareció).
-- **Causa raíz:** `next dev` (solo dev) usa `.next/diagnostics/*` con symlinks/readlink que OneDrive no soporta. `next build` + `next start` NO tocan `diagnostics/`, así que no se ven afectados.
-- **Regla preventiva:** para verificar la app en local en esta máquina, usar el **build de producción**: `npm run build` → `npm run start` (sirve en :3000, idéntico a Railway). Reservar `next dev` para cuando el repo NO esté bajo OneDrive. Si se necesita `dev`, mover el repo fuera de OneDrive o fijar `distDir` fuera de la carpeta sincronizada.
-- **Ocurrencias:** 1
+## 2026-07-17 · [build] OneDrive rompe Next con EINVAL readlink en `.next/diagnostics/framework.json`
+- **Qué pasó:** `npm run dev` murió al arrancar con `[Error: EINVAL: invalid argument, readlink '…\.next\diagnostics\framework.json']` (y wipeó el `.next/BUILD_ID` de producción). Más tarde, `npm run build` falló **con el mismo EINVAL de forma INTERMITENTE** (varios builds previos habían pasado); OneDrive bloquea/sincroniza `.next` a mitad de operación.
+- **Causa raíz:** el repo vive bajo `OneDrive - FORTIA\…`; los reparse points de OneDrive rompen el `readlink` sobre `.next/diagnostics/*`. Afecta tanto a `next dev` (siempre) como a `next build` (intermitente).
+- **Regla preventiva:** (1) para ver/verificar en local usar el **build de producción** `npm run build` → `npm run start` (:3000), NO `next dev`. (2) Si `next build` da EINVAL, **`rm -rf .next` y reconstruir** (resuelve el intermitente). (3) Fix de raíz: sacar el repo de OneDrive o fijar `distDir` fuera de la carpeta sincronizada.
+- **Ocurrencias:** 2 (dev al arrancar + build intermitente)
 
 ## 2026-07-17 · [deploy] Poll de deploy en background roto por usar `jq` (no instalado)
 - **Qué pasó:** un poll en segundo plano para vigilar el redeploy de Railway usó `railway status --json | jq …`. `jq` NO existe en este entorno (Git Bash/Windows), así que devolvió vacío en las 18 iteraciones y agotó el tiempo (~6 min) sin informar el estado real (el deploy sí había quedado SUCCESS).

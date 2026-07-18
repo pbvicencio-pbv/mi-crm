@@ -35,7 +35,14 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
   cuenta, Modal/Select del DS, modal de confirmación de baja). Verify en navegador 33/33
   (escritorio 1280px + móvil 375px) y security-review sin hallazgos. **Prod sigue con placeholders
   hasta el push.**
-- **Pendiente**: M3 (clientes) · M4 (seguimiento/interacciones) · M5 (ventas) · M6 (cierre).
+- **M3 (clientes) EN CURSO**: M3.1/TAL-11 (alta/edición de cliente) + TAL-34 (campo prioridad; el
+  schema ya lo tenía) + parte P5 de TAL-35 (asignar prioridad) → **hechos, verificados y committeados
+  en local** (`df88017`, sin push): `convex/clientes.ts` (crear/actualizar/obtener con propietario
+  validado server-side), `usuarios.opcionesAsignacion`, `ClienteForm` (P5), `ui/Textarea`, rutas
+  `/clientes/nuevo` y `/clientes/[id]/editar`. 14 tests nuevos (85 total). Verify navegador 13/13.
+  Falta de M3: TAL-12 (lista+búsqueda), TAL-13 (ficha 360; cierra el chip de prioridad de TAL-35),
+  TAL-49 (estado auto-calc), TAL-59 (archivar), TAL-36 (orden/filtro por prioridad, sub de TAL-12).
+- **Pendiente**: M4 (seguimiento/interacciones) · M5 (ventas) · M6 (cierre).
 - Higiene Linear pendiente: M1.1–M1.3 siguen en Todo aunque están hechas.
 
 ### Verify en local (esta máquina)
