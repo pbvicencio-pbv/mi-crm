@@ -117,6 +117,9 @@ export default defineSchema({
     rol: v.union(v.literal("duena"), v.literal("vendedor")),
     // Enlace con la identidad de Convex Auth (users._id). Se fija al aprovisionar (seedAuth).
     authId: v.optional(v.id("users")),
+    // Baja lógica (soft-delete) del usuario: INACTIVO solo si `activo === false`.
+    // Optional a propósito: `undefined` = activo, para no romper las filas ya sembradas al migrar.
+    activo: v.optional(v.boolean()),
     // La contraseña NO se guarda aquí: la gestiona Convex Auth.
   })
     .index("por_email", ["email"])

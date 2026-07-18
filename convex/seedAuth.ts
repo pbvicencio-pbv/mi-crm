@@ -77,7 +77,7 @@ export const enlazarUsuario = internalMutation({
       }
       return usuario._id;
     }
-    return await ctx.db.insert("usuarios", { nombre, email, rol, authId: authUserId });
+    return await ctx.db.insert("usuarios", { nombre, email, rol, authId: authUserId, activo: true });
   },
 });
 

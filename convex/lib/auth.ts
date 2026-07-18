@@ -31,18 +31,27 @@ export async function resolverUsuario(ctx: Ctx): Promise<Doc<"usuarios"> | null>
 
   if (authUserId) {
     // Identidad presente: SOLO se resuelve por su propio authId; si no está
-    // aprovisionada, se devuelve null (no hereda la cuenta de desarrollo).
-    return await ctx.db
+    // aprovisionada (o está INACTIVA), se devuelve null (no hereda la cuenta de desarrollo).
+    const u = await ctx.db
       .query("usuarios")
       .withIndex("por_authId", (q) => q.eq("authId", authUserId))
       .unique();
+    return activoONull(u);
   }
 
   const devEmail = process.env.CRM_DEV_USER_EMAIL;
   if (devEmail) {
-    return await buscarPorEmail(ctx, normalizarEmail(devEmail));
+    return activoONull(await buscarPorEmail(ctx, normalizarEmail(devEmail)));
   }
   return null;
+}
+
+/**
+ * Baja lógica: un usuario con `activo === false` se trata como si NO existiera (falla cerrado),
+ * tanto con identidad real como con el fallback dev. `undefined` = activo (filas pre-migración).
+ */
+function activoONull(u: Doc<"usuarios"> | null): Doc<"usuarios"> | null {
+  return u && u.activo !== false ? u : null;
 }
 
 async function buscarPorEmail(ctx: Ctx, email: string): Promise<Doc<"usuarios"> | null> {
@@ -58,6 +67,18 @@ export async function requireUsuario(ctx: Ctx): Promise<Doc<"usuarios">> {
   const usuario = await resolverUsuario(ctx);
   if (!usuario) {
     throw new ConvexError("No autenticado");
+  }
+  return usuario;
+}
+
+/**
+ * Exige sesión Y rol `duena` (gestión de equipo · M2.3 / TAL-32). Falla cerrado.
+ * La autorización de dueña vive DENTRO de cada función de usuarios (no RLS).
+ */
+export async function requireDuena(ctx: Ctx): Promise<Doc<"usuarios">> {
+  const usuario = await requireUsuario(ctx);
+  if (usuario.rol !== "duena") {
+    throw new ConvexError("Solo la dueña puede gestionar el equipo");
   }
   return usuario;
 }
