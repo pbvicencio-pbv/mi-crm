@@ -10,6 +10,7 @@ import {
   Mail,
   MessageCircle,
   MapPin,
+  Trash2,
 } from "lucide-react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Avatar } from "@/components/ui/Avatar";
@@ -123,6 +124,8 @@ export function FichaClienteView({
   onProgramarSeguimiento,
   onCerrarSeguimiento,
   cerrandoSeguimiento = false,
+  onArchivar,
+  archivando = false,
 }: {
   ficha: Ficha;
   now?: number;
@@ -133,6 +136,9 @@ export function FichaClienteView({
   /** Cierra el próximo seguimiento ("Marcar hecho", P4·TAL-17). Si no llega, el botón queda deshabilitado. */
   onCerrarSeguimiento?: () => void;
   cerrandoSeguimiento?: boolean;
+  /** Abre la confirmación de archivar cliente (soft-delete · TAL-59). Sin él, el botón queda deshabilitado. */
+  onArchivar?: () => void;
+  archivando?: boolean;
 }) {
   const subtitulo = [ficha.cargo, ficha.empresa].filter(Boolean).join(" · ");
 
@@ -240,6 +246,17 @@ export function FichaClienteView({
             <Dato label="Propietario" valor={ficha.propietarioNombre} />
             {ficha.notas && <Dato label="Notas" valor={ficha.notas} />}
           </div>
+
+          {/* Eliminar (archivar · TAL-59): baja lógica. El contenedor confirma y navega a la lista. */}
+          <button
+            type="button"
+            onClick={onArchivar}
+            disabled={!onArchivar || archivando}
+            title={onArchivar ? "Archivar cliente" : "Próxima fase"}
+            className="inline-flex items-center justify-center gap-2 self-start rounded-md border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-danger hover:border-danger hover:bg-danger-bg disabled:pointer-events-none disabled:opacity-50"
+          >
+            <Trash2 size={16} /> {archivando ? "Archivando…" : "Eliminar cliente"}
+          </button>
         </div>
 
         {/* Columna derecha: próximo seguimiento + interacciones + ventas */}

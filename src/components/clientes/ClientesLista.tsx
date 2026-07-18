@@ -1,14 +1,79 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useState } from "react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { ClientesListaView } from "./ClientesListaView";
+import { ClientesListaView, type ClienteFila } from "./ClientesListaView";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Toast } from "@/components/ui/Toast";
 
-/** Contenedor: trae los datos (reactivo) y delega el render a la vista pura (testeable). */
+function mensajeError(e: unknown, fallback: string): string {
+  const d = (e as { data?: unknown } | null)?.data;
+  return typeof d === "string" ? d : fallback;
+}
+
+/** Contenedor: trae los datos (reactivo), delega el render a la vista pura (testeable) y orquesta
+ *  el archivado (soft-delete · TAL-59): confirmación + mutation + toast. Al archivar, la fila
+ *  desaparece sola (la query `listar` re-deriva y excluye archivados). */
 export function ClientesLista() {
   const clientes = useQuery(api.clientes.listar);
+  const archivarCliente = useMutation(api.clientes.archivarCliente);
+
+  const [confirmar, setConfirmar] = useState<ClienteFila | null>(null);
+  const [archivando, setArchivando] = useState(false);
+  const [toast, setToast] = useState<{ tone: "success" | "danger"; msg: string } | null>(null);
+
   if (clientes === undefined) return <ListaSkeleton />;
-  return <ClientesListaView clientes={clientes} />;
+
+  const onArchivar = async () => {
+    if (!confirmar || archivando) return;
+    setArchivando(true);
+    try {
+      await archivarCliente({ id: confirmar._id });
+      setToast({ tone: "success", msg: "Cliente archivado" });
+      setConfirmar(null);
+    } catch (e) {
+      setToast({ tone: "danger", msg: mensajeError(e, "No se pudo archivar el cliente") });
+    } finally {
+      setArchivando(false);
+    }
+  };
+
+  return (
+    <>
+      <ClientesListaView clientes={clientes} onArchivar={(c) => setConfirmar(c)} />
+
+      <ConfirmDialog
+        open={confirmar !== null}
+        onClose={() => setConfirmar(null)}
+        onConfirm={onArchivar}
+        title="Eliminar cliente"
+        confirmLabel="Archivar"
+        pendingLabel="Archivando…"
+        pendiente={archivando}
+        description={
+          confirmar ? (
+            <>
+              Se archivará a{" "}
+              <span className="font-semibold text-slate-900">{confirmar.nombre}</span> y dejará de
+              aparecer en tus listas. Podrás recuperarlo más adelante.
+            </>
+          ) : null
+        }
+      />
+
+      {toast && (
+        <div className="fixed bottom-20 right-4 z-[60] w-[calc(100%-2rem)] max-w-sm md:bottom-6 md:right-6">
+          <Toast
+            tone={toast.tone}
+            title={toast.tone === "success" ? "Listo" : "Error"}
+            description={toast.msg}
+            onClose={() => setToast(null)}
+          />
+        </div>
+      )}
+    </>
+  );
 }
 
 function ListaSkeleton() {

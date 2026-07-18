@@ -160,6 +160,50 @@ describe("clientes · actualizarCliente", () => {
   });
 });
 
+describe("clientes · archivarCliente", () => {
+  it("archiva (ok, yaArchivado false) y desaparece de listar/obtener/ficha", async () => {
+    const { t, ids } = await mundo();
+    const as = await como(t, "carlos@x.test");
+    const id = await as.mutation(api.clientes.crearCliente, { nombre: "Borrable", propietario: ids.elena });
+
+    const r = await as.mutation(api.clientes.archivarCliente, { id });
+    expect(r).toEqual({ ok: true, yaArchivado: false });
+
+    // Persistió el flag y las lecturas lo ocultan.
+    const c = await t.run((ctx) => ctx.db.get(id));
+    expect(c!.archivado).toBe(true);
+    const nombres = (await as.query(api.clientes.listar, {})).map((f) => f.nombre);
+    expect(nombres).not.toContain("Borrable");
+    expect(await as.query(api.clientes.obtener, { id })).toBeNull();
+    expect(await as.query(api.clientes.ficha, { id })).toBeNull();
+  });
+
+  it("idempotente: segunda llamada → yaArchivado true (no-op)", async () => {
+    const { t, ids } = await mundo();
+    const as = await como(t, "carlos@x.test");
+    const id = await as.mutation(api.clientes.crearCliente, { nombre: "Doble", propietario: ids.elena });
+    await as.mutation(api.clientes.archivarCliente, { id });
+    const r2 = await as.mutation(api.clientes.archivarCliente, { id });
+    expect(r2).toEqual({ ok: true, yaArchivado: true });
+  });
+
+  it("cliente inexistente → rechaza", async () => {
+    const { t, ids } = await mundo();
+    const as = await como(t, "carlos@x.test");
+    const id = await as.mutation(api.clientes.crearCliente, { nombre: "Efímero", propietario: ids.elena });
+    await t.run((ctx) => ctx.db.delete(id));
+    await expect(as.mutation(api.clientes.archivarCliente, { id })).rejects.toThrow(/no encontrado/i);
+  });
+
+  it("sin sesión → rechaza (requireUsuario)", async () => {
+    const { t, ids } = await mundo();
+    const id = await (await como(t, "carlos@x.test")).mutation(api.clientes.crearCliente, {
+      nombre: "X", propietario: ids.elena,
+    });
+    await expect(t.mutation(api.clientes.archivarCliente, { id })).rejects.toThrow();
+  });
+});
+
 describe("clientes · obtener", () => {
   it("devuelve el cliente crudo; null si archivado", async () => {
     const { t, ids } = await mundo();

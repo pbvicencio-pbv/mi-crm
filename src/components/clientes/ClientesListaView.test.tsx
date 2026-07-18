@@ -19,18 +19,17 @@ const CLIENTES: ClienteFila[] = [
   { _id: "c4" as any, nombre: "Diego Luna", telefono: undefined, canal: "telefono", prioridad: "media", estado: "perdido" },
 ];
 
-/** Cards visibles, en orden del DOM (excluye el enlace "Nuevo cliente" del encabezado). */
+/** Cada card es un <article> (patrón stretched-link + menú ⋮). En orden del DOM. */
 function cards() {
-  return screen
-    .getAllByRole("link")
-    .filter((l) => /^\/clientes\/c/.test(l.getAttribute("href") || ""));
+  return screen.queryAllByRole("article");
 }
+const cardDe = (nombre: string) => cards().find((c) => c.textContent?.includes(nombre))!;
 
 describe("ClientesListaView", () => {
   it("renderiza las cards con badges de canal, estado y prioridad", () => {
     render(<ClientesListaView clientes={CLIENTES} />);
     expect(cards()).toHaveLength(4);
-    const beto = cards().find((c) => c.textContent?.includes("Beto Ruiz"))!;
+    const beto = cardDe("Beto Ruiz");
     expect(within(beto).getByText("WhatsApp")).toBeInTheDocument();
     expect(within(beto).getByText("En negociación")).toBeInTheDocument();
     expect(within(beto).getByText("Alta")).toBeInTheDocument();
@@ -45,39 +44,33 @@ describe("ClientesListaView", () => {
     expect(orden[3]).toContain("Ana Torres"); // baja
   });
 
-  it("cada card enlaza a la ficha del cliente", () => {
+  it("el nombre de cada card enlaza a la ficha del cliente", () => {
     render(<ClientesListaView clientes={CLIENTES} />);
-    const ana = cards().find((c) => c.textContent?.includes("Ana Torres"))!;
-    expect(ana).toHaveAttribute("href", "/clientes/c1");
+    // Menú cerrado → el único enlace de la card es el del nombre (stretched-link).
+    expect(within(cardDe("Ana Torres")).getByRole("link")).toHaveAttribute("href", "/clientes/c1");
   });
 
   it("busca por nombre", async () => {
     render(<ClientesListaView clientes={CLIENTES} />);
     await userEvent.type(screen.getByLabelText("Buscar clientes"), "carla");
-    const c = cards();
-    expect(c).toHaveLength(1);
-    expect(c[0].textContent).toContain("Carla Díaz");
+    expect(cards()).toHaveLength(1);
+    expect(cards()[0].textContent).toContain("Carla Díaz");
   });
 
   it("busca por teléfono", async () => {
     render(<ClientesListaView clientes={CLIENTES} />);
     await userEvent.type(screen.getByLabelText("Buscar clientes"), "1111");
-    const c = cards();
-    expect(c).toHaveLength(1);
-    expect(c[0].textContent).toContain("Beto Ruiz");
+    expect(cards()).toHaveLength(1);
+    expect(cards()[0].textContent).toContain("Beto Ruiz");
   });
 
   it("filtra por prioridad (Alta) y combina con la búsqueda", async () => {
     render(<ClientesListaView clientes={CLIENTES} />);
     await userEvent.click(screen.getByRole("button", { name: "Alta" }));
-    let c = cards();
-    expect(c.map((x) => x.textContent).join("|")).toContain("Beto Ruiz");
-    expect(c).toHaveLength(2); // Beto + Carla (ambos alta)
-    // ahora AND con búsqueda:
+    expect(cards()).toHaveLength(2); // Beto + Carla (ambos alta)
     await userEvent.type(screen.getByLabelText("Buscar clientes"), "beto");
-    c = cards();
-    expect(c).toHaveLength(1);
-    expect(c[0].textContent).toContain("Beto Ruiz");
+    expect(cards()).toHaveLength(1);
+    expect(cards()[0].textContent).toContain("Beto Ruiz");
   });
 
   it("sin coincidencias → 'Sin clientes que coincidan'", async () => {
@@ -102,5 +95,51 @@ describe("ClientesListaView", () => {
       "href",
       "/clientes/nuevo",
     );
+  });
+});
+
+describe("ClientesListaView · menú ⋮ (Editar / Eliminar · TAL-59)", () => {
+  it("el menú está cerrado por defecto (sin opciones visibles)", () => {
+    render(<ClientesListaView clientes={CLIENTES} onArchivar={() => {}} />);
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  });
+
+  it("abre el menú y ofrece Editar (con href) y Eliminar", async () => {
+    render(<ClientesListaView clientes={CLIENTES} onArchivar={() => {}} />);
+    const beto = cardDe("Beto Ruiz");
+    await userEvent.click(within(beto).getByRole("button", { name: "Acciones de Beto Ruiz" }));
+    // Editar/Eliminar exponen role="menuitem" (dentro de un role="menu").
+    expect(within(beto).getByRole("menuitem", { name: /Editar/ })).toHaveAttribute(
+      "href",
+      "/clientes/c2/editar",
+    );
+    expect(within(beto).getByRole("menuitem", { name: /Eliminar/ })).toBeEnabled();
+  });
+
+  it("'Eliminar' invoca onArchivar con el cliente y cierra el menú", async () => {
+    const onArchivar = vi.fn();
+    render(<ClientesListaView clientes={CLIENTES} onArchivar={onArchivar} />);
+    const beto = cardDe("Beto Ruiz");
+    await userEvent.click(within(beto).getByRole("button", { name: "Acciones de Beto Ruiz" }));
+    await userEvent.click(within(beto).getByRole("menuitem", { name: /Eliminar/ }));
+    expect(onArchivar).toHaveBeenCalledTimes(1);
+    expect(onArchivar).toHaveBeenCalledWith(expect.objectContaining({ _id: "c2", nombre: "Beto Ruiz" }));
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument(); // se cerró
+  });
+
+  it("sin onArchivar: 'Eliminar' queda deshabilitado", async () => {
+    render(<ClientesListaView clientes={CLIENTES} />);
+    const beto = cardDe("Beto Ruiz");
+    await userEvent.click(within(beto).getByRole("button", { name: "Acciones de Beto Ruiz" }));
+    expect(within(beto).getByRole("menuitem", { name: /Eliminar/ })).toBeDisabled();
+  });
+
+  it("Escape cierra el menú", async () => {
+    render(<ClientesListaView clientes={CLIENTES} onArchivar={() => {}} />);
+    const beto = cardDe("Beto Ruiz");
+    await userEvent.click(within(beto).getByRole("button", { name: "Acciones de Beto Ruiz" }));
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   });
 });

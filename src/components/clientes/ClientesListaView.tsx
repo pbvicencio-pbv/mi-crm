@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Search, X, Plus, Users } from "lucide-react";
+import { Search, X, Plus, Users, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge, type BadgeTono } from "@/components/ui/Badge";
@@ -44,7 +44,15 @@ const FILTROS: { value: "todas" | Prioridad; label: string }[] = [
   { value: "baja", label: "Baja" },
 ];
 
-export function ClientesListaView({ clientes }: { clientes: ClienteFila[] }) {
+export function ClientesListaView({
+  clientes,
+  onArchivar,
+}: {
+  clientes: ClienteFila[];
+  /** Abre la confirmación de archivar la fila (soft-delete · TAL-59). Sin él, la opción "Eliminar"
+   *  del menú ⋮ queda deshabilitada. */
+  onArchivar?: (cliente: ClienteFila) => void;
+}) {
   const [q, setQ] = useState("");
   const [filtro, setFiltro] = useState<"todas" | Prioridad>("todas");
 
@@ -161,35 +169,115 @@ export function ClientesListaView({ clientes }: { clientes: ClienteFila[] }) {
           ) : (
             <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
               {visibles.map((c) => (
-                <Link
-                  key={c._id}
-                  href={`/clientes/${c._id}`}
-                  className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-3.5 shadow-xs transition-shadow hover:border-slate-300 hover:shadow-md"
-                >
-                  <div className="flex items-center gap-3">
-                    <Avatar name={c.nombre} size="md" />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-bold text-slate-900">{c.nombre}</div>
-                      <div className="mono truncate text-xs text-slate-500">{c.telefono ?? "—"}</div>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {c.canal && (
-                      <Badge variant="outline" tone="neutral">
-                        {CANAL_LABEL[c.canal]}
-                      </Badge>
-                    )}
-                    <Badge tone={ESTADO[c.estado].tono} dot>
-                      {ESTADO[c.estado].label}
-                    </Badge>
-                    <Badge tone={PRIORIDAD[c.prioridad].tono}>{PRIORIDAD[c.prioridad].label}</Badge>
-                  </div>
-                </Link>
+                <ClienteCard key={c._id} cliente={c} onArchivar={onArchivar} />
               ))}
             </div>
           )}
         </>
       )}
     </section>
+  );
+}
+
+/**
+ * Tarjeta de cliente. Patrón "stretched-link" accesible (como `TareaCard`): el nombre es un enlace
+ * cuyo overlay (`::after`) cubre la tarjeta y abre la ficha; el menú ⋮ es un hermano por encima
+ * (z-10), NO anidado en el enlace (no se pueden anidar interactivos). El menú (Editar / Eliminar)
+ * se cierra al elegir una opción, al pulsar fuera o con Escape.
+ */
+function ClienteCard({
+  cliente: c,
+  onArchivar,
+}: {
+  cliente: ClienteFila;
+  onArchivar?: (cliente: ClienteFila) => void;
+}) {
+  const [menu, setMenu] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menu) return;
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setMenu(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenu(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menu]);
+
+  return (
+    <article className="relative flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-3.5 shadow-xs transition-shadow hover:border-slate-300 hover:shadow-md">
+      <div className="flex items-center gap-3">
+        <Avatar name={c.nombre} size="md" />
+        <div className="min-w-0 flex-1">
+          <Link
+            href={`/clientes/${c._id}`}
+            className="rounded outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-2 focus-visible:after:ring-brand-border"
+          >
+            <span className="block truncate text-sm font-bold text-slate-900">{c.nombre}</span>
+          </Link>
+          <div className="mono truncate text-xs text-slate-500">{c.telefono ?? "—"}</div>
+        </div>
+
+        {/* Menú ⋮ — hermano por encima del enlace estirado (z-10). */}
+        <div ref={ref} className="relative z-10 flex-none">
+          <button
+            type="button"
+            aria-label={`Acciones de ${c.nombre}`}
+            aria-haspopup="menu"
+            aria-expanded={menu}
+            onClick={() => setMenu((v) => !v)}
+            className="flex h-8 w-8 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          >
+            <MoreVertical size={18} />
+          </button>
+          {menu && (
+            <div
+              role="menu"
+              className="absolute right-0 top-9 z-20 w-40 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg"
+            >
+              <Link
+                href={`/clientes/${c._id}/editar`}
+                role="menuitem"
+                onClick={() => setMenu(false)}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+              >
+                <Pencil size={15} /> Editar
+              </Link>
+              <button
+                type="button"
+                role="menuitem"
+                disabled={!onArchivar}
+                onClick={() => {
+                  setMenu(false);
+                  onArchivar?.(c);
+                }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-danger hover:bg-danger-bg disabled:pointer-events-none disabled:opacity-50"
+              >
+                <Trash2 size={15} /> Eliminar
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-1.5">
+        {c.canal && (
+          <Badge variant="outline" tone="neutral">
+            {CANAL_LABEL[c.canal]}
+          </Badge>
+        )}
+        <Badge tone={ESTADO[c.estado].tono} dot>
+          {ESTADO[c.estado].label}
+        </Badge>
+        <Badge tone={PRIORIDAD[c.prioridad].tono}>{PRIORIDAD[c.prioridad].label}</Badge>
+      </div>
+    </article>
   );
 }

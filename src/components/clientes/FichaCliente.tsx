@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
@@ -9,6 +10,7 @@ import { FichaClienteView } from "./FichaClienteView";
 import { InteraccionForm, type InteraccionDatos } from "./InteraccionForm";
 import { SeguimientoForm, type SeguimientoDatos } from "./SeguimientoForm";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Toast } from "@/components/ui/Toast";
 
 type ModalState = null | { tipo: "interaccion" } | { tipo: "seguimiento" };
@@ -22,15 +24,19 @@ function mensajeError(e: unknown, fallback: string): string {
  *  interacción (P6) y seguimiento (P7) — modal + mutation + toast. Al escribir, la ficha se
  *  recalcula sola (reactiva). */
 export function FichaCliente({ id }: { id: string }) {
+  const router = useRouter();
   const clienteId = id as Id<"clientes">;
   const ficha = useQuery(api.clientes.ficha, { id: clienteId });
   const registrarInteraccion = useMutation(api.interacciones.registrar);
   const crearSeguimiento = useMutation(api.seguimientos.crearSeguimiento);
   const cerrarSeguimiento = useMutation(api.seguimientos.cerrar);
+  const archivarCliente = useMutation(api.clientes.archivarCliente);
 
   const [modal, setModal] = useState<ModalState>(null);
   const [guardando, setGuardando] = useState(false);
   const [cerrandoSeguimiento, setCerrandoSeguimiento] = useState(false);
+  const [confirmarArchivar, setConfirmarArchivar] = useState(false);
+  const [archivando, setArchivando] = useState(false);
   const [toast, setToast] = useState<{ tone: "success" | "danger"; msg: string } | null>(null);
 
   if (ficha === undefined) return <FichaSkeleton />;
@@ -80,6 +86,21 @@ export function FichaCliente({ id }: { id: string }) {
     }
   };
 
+  // Archivar (soft-delete · TAL-59). Éxito → navega a la lista (el cliente ya no aparece);
+  // NO reseteamos `archivando` en el éxito porque el componente se desmonta al navegar. En error,
+  // se reabilita el diálogo con el mensaje. La query `ficha` ya devolvería null tras archivar.
+  const onArchivar = async () => {
+    if (archivando) return;
+    setArchivando(true);
+    try {
+      await archivarCliente({ id: clienteId });
+      router.push("/clientes");
+    } catch (e) {
+      setArchivando(false);
+      setToast({ tone: "danger", msg: mensajeError(e, "No se pudo archivar el cliente") });
+    }
+  };
+
   return (
     <>
       <FichaClienteView
@@ -88,6 +109,8 @@ export function FichaCliente({ id }: { id: string }) {
         onProgramarSeguimiento={() => setModal({ tipo: "seguimiento" })}
         onCerrarSeguimiento={onCerrarSeguimiento}
         cerrandoSeguimiento={cerrandoSeguimiento}
+        onArchivar={() => setConfirmarArchivar(true)}
+        archivando={archivando}
       />
 
       <Modal
@@ -109,6 +132,22 @@ export function FichaCliente({ id }: { id: string }) {
       >
         <SeguimientoForm guardando={guardando} onCancel={cerrar} onSubmit={onGuardarSeguimiento} />
       </Modal>
+
+      <ConfirmDialog
+        open={confirmarArchivar}
+        onClose={() => setConfirmarArchivar(false)}
+        onConfirm={onArchivar}
+        title="Eliminar cliente"
+        confirmLabel="Archivar"
+        pendingLabel="Archivando…"
+        pendiente={archivando}
+        description={
+          <>
+            Se archivará a <span className="font-semibold text-slate-900">{ficha.nombre}</span> y
+            dejará de aparecer en tus listas. Podrás recuperarlo más adelante.
+          </>
+        }
+      />
 
       {toast && (
         <div className="fixed bottom-20 right-4 z-[60] w-[calc(100%-2rem)] max-w-sm md:bottom-6 md:right-6">

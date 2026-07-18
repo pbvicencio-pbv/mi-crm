@@ -168,6 +168,29 @@ export const actualizarCliente = mutation({
   },
 });
 
+// ---------- Archivar (soft-delete · TAL-59) ----------
+
+/**
+ * Archiva un cliente (baja lógica). Cualquier sesión válida (`requireUsuario`), igual que
+ * crear/actualizar. Idempotente al estilo de `seguimientos.cerrar`: rechaza IDs inexistentes y,
+ * si ya está archivado, es no-op (`yaArchivado:true`). Corto y acotado (get → patch): NO escanea
+ * la tabla, para no ampliar el read-set (OCC). SIN cascada: no toca ventas/interacciones/
+ * seguimientos del cliente — las lecturas ya ocultan todo lo suyo (`listar`/`obtener`/`ficha`
+ * devuelven vacío/null al estar archivado). Restaurar (desarchivar) es mejora futura del issue.
+ */
+export const archivarCliente = mutation({
+  args: { id: v.id("clientes") },
+  returns: v.object({ ok: v.boolean(), yaArchivado: v.boolean() }),
+  handler: async (ctx, { id }) => {
+    await requireUsuario(ctx);
+    const cliente = await ctx.db.get(id);
+    if (!cliente) throw new ConvexError("Cliente no encontrado");
+    if (cliente.archivado === true) return { ok: true, yaArchivado: true };
+    await ctx.db.patch(id, { archivado: true });
+    return { ok: true, yaArchivado: false };
+  },
+});
+
 // ---------- Lectura para edición ----------
 
 const clienteParaEditar = v.object({

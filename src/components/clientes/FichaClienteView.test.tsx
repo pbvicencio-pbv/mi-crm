@@ -243,3 +243,24 @@ describe("FichaClienteView · Marcar hecho (cerrar seguimiento)", () => {
     expect(screen.getByRole("button", { name: "Marcar hecho" })).toBeDisabled();
   });
 });
+
+describe("FichaClienteView · Eliminar cliente (archivar · TAL-59)", () => {
+  it("con onArchivar: 'Eliminar cliente' habilitado y al pulsarlo invoca el callback", async () => {
+    const onArchivar = vi.fn();
+    render(<FichaClienteView ficha={LLENA} now={NOW} onArchivar={onArchivar} />);
+    const btn = screen.getByRole("button", { name: /Eliminar cliente/ });
+    expect(btn).toBeEnabled();
+    await userEvent.click(btn);
+    expect(onArchivar).toHaveBeenCalledTimes(1);
+  });
+
+  it("mientras archiva: el botón queda deshabilitado y muestra 'Archivando…'", () => {
+    render(<FichaClienteView ficha={LLENA} now={NOW} onArchivar={() => {}} archivando />);
+    expect(screen.getByRole("button", { name: /Archivando…/ })).toBeDisabled();
+  });
+
+  it("sin callback: 'Eliminar cliente' sigue deshabilitado", () => {
+    render(<FichaClienteView ficha={LLENA} now={NOW} />);
+    expect(screen.getByRole("button", { name: /Eliminar cliente/ })).toBeDisabled();
+  });
+});
