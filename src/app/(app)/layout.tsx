@@ -5,7 +5,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 /**
  * Layout de la zona autenticada (App Shell · M1.4 · TAL-8).
  * Escritorio (≥768px): sidebar fija + topbar; móvil: topbar + bottom-nav.
- * La protección de rutas (redirigir a /login sin sesión) llega en M2.2 (TAL-10).
+ * La protección de rutas (redirigir a /login sin sesión) vive en `middleware.ts` (M2.2 · TAL-10).
  */
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -22,7 +22,8 @@ const ROL_LABEL = { duena: "Dueña", vendedor: "Vendedor" } as const;
 /**
  * Menú de cuenta (TAL-8). Accesible: aria-expanded, cierre con Escape con
  * devolución de foco al disparador, y cierre al hacer clic fuera.
- * "Cerrar sesión" queda montado como acceso; la lógica llega en M2.2 (TAL-10).
+ * "Cerrar sesión" llama a `signOut()` de Convex Auth; tras cerrar, el middleware
+ * redirige a /login (protección de rutas ya activa desde M2.2 · TAL-10).
  */
 export function AccountMenu({ variant }: { variant: "sidebar" | "topbar" }) {
   const usuario = useQuery(api.usuarios.actual);

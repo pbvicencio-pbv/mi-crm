@@ -25,18 +25,21 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
 - Derivados NO se persisten (estado/valor de cliente, último contacto, total de venta).
 - Borrado = archivar (soft-delete, campo `archivado`).
 
-## Estado del MVP (al 17-jul-2026)
+## Estado del MVP (al 18-jul-2026)
 
-- **Hecho y DESPLEGADO en prod (pusheado)**: M0 · M1 · shell (TAL-8) · Agenda (TAL-16) ·
-  M2.1/TAL-9 + M2.2/TAL-10 (login/rutas) · **M2.3/TAL-32 + M2.4/TAL-48** (Equipo + Mi cuenta;
-  `bf5d715`+`971fe44`) · **M3.1** = TAL-11 (alta/edición) + TAL-34 (prioridad) + P5 de TAL-35
-  (`df88017`; `clientes.crear/actualizar/obtener` con propietario validado server-side,
-  `usuarios.opcionesAsignacion`, `ClienteForm`, `ui/Textarea`, rutas nuevo/editar).
-- **Committeado LOCAL, pendiente de PUSH**: **M3.2** = TAL-12 (lista + búsqueda) + TAL-36
-  (orden/filtro por prioridad) → `88b4c75`. `clientes.listar` (acotada, estado derivado con
+- **Hecho y DESPLEGADO en prod (pusheado; `origin/main` y local en `8420402`)**: M0 · M1 ·
+  shell (TAL-8) · Agenda (TAL-16) · M2.1/TAL-9 + M2.2/TAL-10 (login/rutas) · **M2.3/TAL-32 +
+  M2.4/TAL-48** (Equipo + Mi cuenta; `bf5d715`+`971fe44`) · **M3.1** = TAL-11 (alta/edición) +
+  TAL-34 (prioridad) + P5 de TAL-35 (`df88017`; `clientes.crear/actualizar/obtener` con
+  propietario validado server-side, `usuarios.opcionesAsignacion`, `ClienteForm`, `ui/Textarea`,
+  rutas nuevo/editar) · **M3.2** = TAL-12 (lista + búsqueda) + TAL-36 (orden/filtro por prioridad)
+  → `88b4c75` (docs `8420402`): `clientes.listar` (acotada, estado derivado con
   `derivarEstadoCliente`), `ClientesListaView` (vista pura testeable) + `ClientesLista` (contenedor),
   `ui/Badge` variant "outline". 98 tests (13 nuevos: 4 convex + 9 componente). Verify navegador 12/12
   (lista **poblada** read-only con datos demo: búsqueda, filtro, orden, badges, responsive).
+- **Gate de acceso verificado en prod (18-jul)**: peticiones sin cookies a `/`, `/hoy`, `/clientes`
+  responden **307 → /login**; `/login` 200. NO hay bypass. Landing directo a `/hoy` en un navegador
+  ya usado = **sesión persistida** (cookie Convex Auth, `maxAge` 30 días en `middleware.ts`), no un fallo.
 - **M3 restante**: TAL-13 (ficha 360; cierra el chip de prioridad de TAL-35), TAL-49 (estado
   auto-calc; depende de ventas/M5 para ganado/perdido), TAL-59 (archivar).
 - **Pendiente**: M4 (seguimiento/interacciones) · M5 (ventas) · M6 (cierre).
