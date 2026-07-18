@@ -55,9 +55,27 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
   seguimiento + `total` de venta). **Gates verdes**: tsc, lint, 118 tests (13 nuevos), build, `convex
   dev --once`. **Verify Playwright PASS** (login demo → ficha a 1280 y 375; vacío "Cliente Prueba" +
   poblado "Diego Herrera": valor $0 con venta abierta de $26K = correcto, contacto oculto sin datos).
-- **M3 restante tras TAL-13**: TAL-49 (estado auto-calc; depende de ventas/M5 para ganado/perdido),
-  TAL-59 (archivar).
-- **Pendiente**: M4 (seguimiento/interacciones) · M5 (ventas) · M6 (cierre).
+- **M3 restante**: TAL-49 (M3.4 estado auto-calc) → **Done** (reconciliado: se cerró en Linear el
+  18-jul aunque este MEMORY lo daba por pendiente). Queda **TAL-59** (archivar) en Todo.
+- **M4 EN CURSO** — rama **`feat/m4-seguimiento`** (creada desde `main`, **pusheada a GitHub**; NO
+  fusionada a `main`). TAL-14/TAL-15/TAL-17 movidas a **Todo** (TAL-16 Agenda ya Done). **TAL-14 (M4.1
+  Registrar interacción)** IMPLEMENTADA (Linear In Progress): mutation `interacciones.registrar`
+  (autoriza con `requireUsuario`; `registrado_por` server-side; rechaza cliente inexistente/archivado;
+  valida `fecha` server-side = entero seguro/>0/no-futuro con tolerancia 5 min; normaliza `canal` por
+  tipo —solo "mensaje"—; límite nota 2000). Validadores `tipo/canalInteraccion` movidos a
+  **`convex/lib/validadores.ts`** (los `convex/*.ts` públicos solo exportan funciones; lo compartido va
+  en `lib/`), importados por `clientes.ts` e `interacciones.ts`. Front: **`InteraccionForm`** (vista
+  pura) + modal en `FichaCliente` (`Modal` ganó props opcionales `subtitle` + `size="lg"` +
+  `aria-describedby`) + CTAs de interacción activadas en la ficha (seguimiento/ventas siguen `disabled`).
+  **Contrato de fecha**: el form omite `fecha` si sigue siendo hoy (server usa `Date.now()`); si se
+  cambia, envía el **mediodía local** de ese día (evita "00:00" perdiendo el último contacto).
+  **Gates verdes**: tsc, lint, build, **140 tests** (+22 nuevos: 10 backend, 9 form, 3 ficha),
+  `convex dev --once` (funciones empujadas a `elated-donkey-854`; SIN cambio de esquema). **Smoke
+  Playwright PASS**: login demo (Elena) → ficha → modal a 1280 y 375; derivación Llamada/WhatsApp OK;
+  **sin pulsar Guardar → sin escritura al live**. Commit en la rama; **sin merge a `main`** (pendiente
+  de aprobación al cerrar M4).
+- **Pendiente**: TAL-15 (programar seguimiento) · TAL-17 (cerrar seguimiento) · M5 (ventas) · M6
+  (cierre) · TAL-59 (archivar).
 - Higiene Linear pendiente: M1.1–M1.3 siguen en Todo aunque están hechas.
 - **Datos demo en el deployment**: `elated-donkey-854` tiene **5 clientes demo** (+ ventas y
   seguimientos, sembrados para la Agenda). Útil: permite verificar listas/derivados **poblados

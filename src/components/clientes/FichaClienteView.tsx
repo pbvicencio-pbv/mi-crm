@@ -116,7 +116,16 @@ function soloDigitos(telefono: string): string {
 
 const CARD = "rounded-lg border border-slate-200 bg-white shadow-xs";
 
-export function FichaClienteView({ ficha, now = Date.now() }: { ficha: Ficha; now?: number }) {
+export function FichaClienteView({
+  ficha,
+  now = Date.now(),
+  onAnotarInteraccion,
+}: {
+  ficha: Ficha;
+  now?: number;
+  /** Abre el alta de interacción (P6). Si no llega, las CTAs de interacción quedan deshabilitadas. */
+  onAnotarInteraccion?: () => void;
+}) {
   const subtitulo = [ficha.cargo, ficha.empresa].filter(Boolean).join(" · ");
 
   return (
@@ -270,8 +279,9 @@ export function FichaClienteView({ ficha, now = Date.now() }: { ficha: Ficha; no
                   variant="secondary"
                   size="sm"
                   iconLeft={<Plus size={16} />}
-                  disabled
-                  title="Próxima fase"
+                  onClick={onAnotarInteraccion}
+                  disabled={!onAnotarInteraccion}
+                  title={onAnotarInteraccion ? undefined : "Próxima fase"}
                 >
                   Anotar
                 </Button>
@@ -304,6 +314,7 @@ export function FichaClienteView({ ficha, now = Date.now() }: { ficha: Ficha; no
               <SeccionVacia
                 texto="Aún no hay interacciones registradas."
                 cta="Anotar interacción"
+                onClick={onAnotarInteraccion}
               />
             )}
           </div>
@@ -365,8 +376,9 @@ function Dato({ label, valor, mono }: { label: string; valor?: string; mono?: bo
   );
 }
 
-/** Estado vacío de una sección: texto + CTA deshabilitado (la escritura llega en M4/M5). */
-function SeccionVacia({ texto, cta }: { texto: string; cta: string }) {
+/** Estado vacío de una sección: texto + CTA. Con `onClick` la CTA se activa; sin él queda
+ *  deshabilitada (secciones cuya escritura aún no llega — seguimiento/ventas). */
+function SeccionVacia({ texto, cta, onClick }: { texto: string; cta: string; onClick?: () => void }) {
   return (
     <>
       <p className="text-sm text-slate-500">{texto}</p>
@@ -374,8 +386,9 @@ function SeccionVacia({ texto, cta }: { texto: string; cta: string }) {
         variant="primary"
         size="sm"
         iconLeft={<Plus size={16} />}
-        disabled
-        title="Próxima fase"
+        onClick={onClick}
+        disabled={!onClick}
+        title={onClick ? undefined : "Próxima fase"}
         className="mt-3"
       >
         {cta}

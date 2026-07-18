@@ -15,6 +15,7 @@ import type { MutationCtx, QueryCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { requireUsuario } from "./lib/auth";
 import { derivarEstadoCliente, derivarValorCliente, type EstadoCliente } from "./lib/derivados";
+import { tipoInteraccionValidator, canalInteraccionValidator } from "./lib/validadores";
 
 const canalValidator = v.union(
   v.literal("whatsapp"),
@@ -236,19 +237,6 @@ export const listar = query({
 // Techos de lectura por bloque (el MVP tiene poco por cliente; evita `.collect()` sin cota).
 const MAX_INTERACCIONES = 50;
 const MAX_VENTAS = 50;
-
-const tipoInteraccionValidator = v.union(
-  v.literal("llamada"),
-  v.literal("mensaje"),
-  v.literal("visita"),
-);
-// El canal de una interacción usa el mismo conjunto que el del cliente (orden del schema).
-const canalInteraccionValidator = v.union(
-  v.literal("whatsapp"),
-  v.literal("email"),
-  v.literal("telefono"),
-  v.literal("instagram"),
-);
 
 const fichaCliente = v.object({
   _id: v.id("clientes"),

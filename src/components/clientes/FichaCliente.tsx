@@ -1,17 +1,77 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { FichaClienteView } from "./FichaClienteView";
+import { InteraccionForm, type InteraccionDatos } from "./InteraccionForm";
+import { Modal } from "@/components/ui/Modal";
+import { Toast } from "@/components/ui/Toast";
 
-/** Contenedor: trae la ficha (reactiva) y delega el render a la vista pura (testeable). */
+function mensajeError(e: unknown): string {
+  const d = (e as { data?: unknown } | null)?.data;
+  return typeof d === "string" ? d : "No se pudo registrar la interacción";
+}
+
+/** Contenedor: trae la ficha (reactiva), delega el render a la vista pura y orquesta el alta de
+ *  interacción (modal + mutation + toast). Al registrar, la ficha se recalcula sola (reactiva). */
 export function FichaCliente({ id }: { id: string }) {
-  const ficha = useQuery(api.clientes.ficha, { id: id as Id<"clientes"> });
+  const clienteId = id as Id<"clientes">;
+  const ficha = useQuery(api.clientes.ficha, { id: clienteId });
+  const registrar = useMutation(api.interacciones.registrar);
+
+  const [anotando, setAnotando] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const [toast, setToast] = useState<{ tone: "success" | "danger"; msg: string } | null>(null);
+
   if (ficha === undefined) return <FichaSkeleton />;
   if (ficha === null) return <FichaNoDisponible />;
-  return <FichaClienteView ficha={ficha} />;
+
+  const onGuardar = async (datos: InteraccionDatos) => {
+    setGuardando(true);
+    try {
+      await registrar({ cliente_id: clienteId, ...datos });
+      setAnotando(false);
+      setToast({ tone: "success", msg: "Interacción registrada" });
+    } catch (e) {
+      setToast({ tone: "danger", msg: mensajeError(e) }); // el modal permanece abierto
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  return (
+    <>
+      <FichaClienteView ficha={ficha} onAnotarInteraccion={() => setAnotando(true)} />
+
+      <Modal
+        open={anotando}
+        onClose={() => setAnotando(false)}
+        title="Registrar interacción"
+        subtitle={ficha.nombre}
+        size="lg"
+      >
+        <InteraccionForm
+          guardando={guardando}
+          onCancel={() => setAnotando(false)}
+          onSubmit={onGuardar}
+        />
+      </Modal>
+
+      {toast && (
+        <div className="fixed bottom-20 right-4 z-[60] w-[calc(100%-2rem)] max-w-sm md:bottom-6 md:right-6">
+          <Toast
+            tone={toast.tone}
+            title={toast.tone === "success" ? "Listo" : "Error"}
+            description={toast.msg}
+            onClose={() => setToast(null)}
+          />
+        </div>
+      )}
+    </>
+  );
 }
 
 function FichaNoDisponible() {

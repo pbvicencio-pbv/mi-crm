@@ -16,6 +16,7 @@ import type * as interacciones from "../interacciones.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_derivados from "../lib/derivados.js";
 import type * as lib_fechas from "../lib/fechas.js";
+import type * as lib_validadores from "../lib/validadores.js";
 import type * as seed from "../seed.js";
 import type * as seedAuth from "../seedAuth.js";
 import type * as seguimientos from "../seguimientos.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   "lib/auth": typeof lib_auth;
   "lib/derivados": typeof lib_derivados;
   "lib/fechas": typeof lib_fechas;
+  "lib/validadores": typeof lib_validadores;
   seed: typeof seed;
   seedAuth: typeof seedAuth;
   seguimientos: typeof seguimientos;

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 vi.mock("next/link", () => ({
   default: ({ href, children, ...p }: any) => (
@@ -174,6 +175,32 @@ describe("FichaClienteView · escenario vacío", () => {
     render(<FichaClienteView ficha={VACIA} now={NOW} />);
     expect(screen.getByRole("button", { name: /Programar seguimiento/ })).toBeDisabled();
     expect(screen.getByRole("button", { name: /Anotar interacción/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Registrar venta/ })).toBeDisabled();
+  });
+});
+
+describe("FichaClienteView · CTAs de interacción con onAnotarInteraccion", () => {
+  it("con historial: 'Anotar' habilitado y al pulsarlo invoca el callback", async () => {
+    const onAnotar = vi.fn();
+    render(<FichaClienteView ficha={LLENA} now={NOW} onAnotarInteraccion={onAnotar} />);
+    const btn = screen.getByRole("button", { name: "Anotar" });
+    expect(btn).toBeEnabled();
+    await userEvent.click(btn);
+    expect(onAnotar).toHaveBeenCalledTimes(1);
+  });
+
+  it("sin interacciones: 'Anotar interacción' habilitado y dispara el callback", async () => {
+    const onAnotar = vi.fn();
+    render(<FichaClienteView ficha={VACIA} now={NOW} onAnotarInteraccion={onAnotar} />);
+    const btn = screen.getByRole("button", { name: /Anotar interacción/ });
+    expect(btn).toBeEnabled();
+    await userEvent.click(btn);
+    expect(onAnotar).toHaveBeenCalledTimes(1);
+  });
+
+  it("las CTAs de seguimiento y venta siguen deshabilitadas aunque se registre interacción", () => {
+    render(<FichaClienteView ficha={VACIA} now={NOW} onAnotarInteraccion={() => {}} />);
+    expect(screen.getByRole("button", { name: /Programar seguimiento/ })).toBeDisabled();
     expect(screen.getByRole("button", { name: /Registrar venta/ })).toBeDisabled();
   });
 });
