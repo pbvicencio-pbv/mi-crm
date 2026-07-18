@@ -98,9 +98,12 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
   tests; (D) `EquipoAdmin` contraseña `type=password`+toggle+`autoComplete=new-password`; docs
   `CLAUDE.md`/`AGENTS.md` a **Next 15.5 / Convex 1.42**. Origen: auditoría NO-GO de pre-merge (hallazgos
   **preexistentes**, no de TAL-14/15/17).
-- **M4 completo en la rama** (TAL-14/15/16/17 + endurecimiento TAL-60). **Pendiente**: revisar diff y
-  decidir **merge a `main`** (= deploy Railway → requiere aprobación); cerrar en Linear TAL-15/17/60 (GO
-  de cierre). Después: M5 (ventas) · M6 (cierre) · TAL-59 (archivar).
+- **M4 COMPLETO Y DESPLEGADO** (18-jul): merge fast-forward de `feat/m4-seguimiento` a `main`
+  (`312595e..0a8bd2c`) y **push a `main` autorizado por el dueño** → Railway auto-deploy (deployment
+  `bcf6126f`). TAL-14/15/17 + endurecimiento **TAL-60** en **Done** (Linear); TAL-16 (Agenda) ya estaba
+  Done. `origin/main` = `0a8bd2c` (el push arrastró también el docs `3f0f43f`, solo memoria, que quedaba
+  local). Auditoría pre-merge sin bloqueantes. **Siguiente**: M5 (ventas) · M6 (cierre) · TAL-59
+  (archivar). Higiene Linear: M1.1–M1.3 aún en Todo aunque hechas.
 - Higiene Linear pendiente: M1.1–M1.3 siguen en Todo aunque están hechas.
 - **Datos demo en el deployment**: `elated-donkey-854` tiene **5 clientes demo** (+ ventas y
   seguimientos, sembrados para la Agenda). Útil: permite verificar listas/derivados **poblados
