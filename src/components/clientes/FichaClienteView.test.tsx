@@ -204,3 +204,19 @@ describe("FichaClienteView · CTAs de interacción con onAnotarInteraccion", () 
     expect(screen.getByRole("button", { name: /Registrar venta/ })).toBeDisabled();
   });
 });
+
+describe("FichaClienteView · CTA de programar seguimiento", () => {
+  it("con onProgramarSeguimiento: la CTA vacía se habilita y dispara el callback", async () => {
+    const onProg = vi.fn();
+    render(<FichaClienteView ficha={VACIA} now={NOW} onProgramarSeguimiento={onProg} />);
+    const btn = screen.getByRole("button", { name: /Programar seguimiento/ });
+    expect(btn).toBeEnabled();
+    await userEvent.click(btn);
+    expect(onProg).toHaveBeenCalledTimes(1);
+  });
+
+  it("la CTA de venta sigue deshabilitada aunque se pueda programar seguimiento", () => {
+    render(<FichaClienteView ficha={VACIA} now={NOW} onProgramarSeguimiento={() => {}} />);
+    expect(screen.getByRole("button", { name: /Registrar venta/ })).toBeDisabled();
+  });
+});

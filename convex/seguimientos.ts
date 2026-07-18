@@ -147,6 +147,52 @@ export const agendaProximas = query({
   handler: (ctx, args) => consultarSeccion(ctx, "proximas", args),
 });
 
+// Techo funcional de `fecha_objetivo` (~5 años): acota fechas absurdas/lejanas y GARANTIZA que el ms
+// sea representable por `Date` (Number.MAX_SAFE_INTEGER excede el rango de Date → "Invalid Date" al
+// formatear en la ficha/agenda). No se prohíbe el pasado: "vencidos" es un estado válido de la Agenda.
+const MAX_FUTURO_MS = 5 * 365 * 24 * 60 * 60 * 1000;
+const MAX_MOTIVO = 2000;
+
+/**
+ * Programar un seguimiento (P7 · TAL-15). Cualquier sesión válida; `responsable` = usuario actual
+ * (server-side, nunca del cliente). Rechaza cliente inexistente o archivado. Se inserta con
+ * `estado:"pendiente"`; el pendiente aparece en la ficha (`clientes.ficha`) y en la Agenda de forma
+ * reactiva, sin tocar esas queries.
+ */
+export const crearSeguimiento = mutation({
+  args: {
+    cliente_id: v.id("clientes"),
+    fecha_objetivo: v.number(),
+    motivo: v.optional(v.string()),
+  },
+  returns: v.id("seguimientos"),
+  handler: async (ctx, args) => {
+    const usuario = await requireUsuario(ctx);
+
+    const cliente = await ctx.db.get(args.cliente_id);
+    if (!cliente || cliente.archivado === true) throw new ConvexError("Cliente no encontrado");
+
+    const f = args.fecha_objetivo;
+    if (!Number.isSafeInteger(f) || f <= 0 || f > Date.now() + MAX_FUTURO_MS) {
+      throw new ConvexError("Fecha objetivo inválida");
+    }
+
+    const motivoLimpio = args.motivo?.trim();
+    const motivo = motivoLimpio ? motivoLimpio : undefined;
+    if (motivo !== undefined && motivo.length > MAX_MOTIVO) {
+      throw new ConvexError("El motivo es demasiado largo");
+    }
+
+    return await ctx.db.insert("seguimientos", {
+      cliente_id: args.cliente_id,
+      fecha_objetivo: f,
+      motivo,
+      estado: "pendiente",
+      responsable: usuario._id,
+    });
+  },
+});
+
 /**
  * Cierra un seguimiento ("Marcar hecho"). Contrato: autoriza contra `responsable`
  * (o dueña), rechaza IDs inexistentes, es idempotente (si ya está "hecho" es no-op)

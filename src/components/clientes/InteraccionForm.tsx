@@ -5,6 +5,7 @@ import { Phone, MessageCircle, MapPin, Info } from "lucide-react";
 import { Textarea } from "@/components/ui/Textarea";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { fechaLocalISO, mediodiaLocalMs } from "@/lib/fecha";
 
 type Tipo = "llamada" | "mensaje" | "visita";
 type Canal = "whatsapp" | "email" | "telefono" | "instagram";
@@ -36,20 +37,6 @@ const CANAL_LABEL: Record<Canal, string> = {
   telefono: "Teléfono",
   instagram: "Instagram",
 };
-
-/** Fecha local en formato YYYY-MM-DD (para el `<input type="date">` y su comparación con hoy). */
-function fechaLocalISO(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-/** Un día YYYY-MM-DD → ms del MEDIODÍA local (hora documentada; evita el bug de "00:00" y edge de TZ). */
-function mediodiaLocalMs(iso: string): number {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, m - 1, d, 12, 0, 0, 0).getTime();
-}
 
 /** Medio mostrado (banda "Se registrará como …"): visita→En persona, llamada→Llamada, mensaje→canal|Mensaje. */
 function medioDerivado(tipo: Tipo, canal: Canal | ""): string {

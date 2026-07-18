@@ -120,11 +120,14 @@ export function FichaClienteView({
   ficha,
   now = Date.now(),
   onAnotarInteraccion,
+  onProgramarSeguimiento,
 }: {
   ficha: Ficha;
   now?: number;
   /** Abre el alta de interacción (P6). Si no llega, las CTAs de interacción quedan deshabilitadas. */
   onAnotarInteraccion?: () => void;
+  /** Abre la programación de seguimiento (P7). Si no llega, la CTA de seguimiento queda deshabilitada. */
+  onProgramarSeguimiento?: () => void;
 }) {
   const subtitulo = [ficha.cargo, ficha.empresa].filter(Boolean).join(" · ");
 
@@ -266,6 +269,7 @@ export function FichaClienteView({
               <SeccionVacia
                 texto="Sin seguimiento programado."
                 cta="Programar seguimiento"
+                onClick={onProgramarSeguimiento}
               />
             )}
           </div>

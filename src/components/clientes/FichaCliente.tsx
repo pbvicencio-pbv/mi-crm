@@ -7,36 +7,56 @@ import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { FichaClienteView } from "./FichaClienteView";
 import { InteraccionForm, type InteraccionDatos } from "./InteraccionForm";
+import { SeguimientoForm, type SeguimientoDatos } from "./SeguimientoForm";
 import { Modal } from "@/components/ui/Modal";
 import { Toast } from "@/components/ui/Toast";
 
-function mensajeError(e: unknown): string {
+type ModalState = null | { tipo: "interaccion" } | { tipo: "seguimiento" };
+
+function mensajeError(e: unknown, fallback: string): string {
   const d = (e as { data?: unknown } | null)?.data;
-  return typeof d === "string" ? d : "No se pudo registrar la interacción";
+  return typeof d === "string" ? d : fallback;
 }
 
-/** Contenedor: trae la ficha (reactiva), delega el render a la vista pura y orquesta el alta de
- *  interacción (modal + mutation + toast). Al registrar, la ficha se recalcula sola (reactiva). */
+/** Contenedor: trae la ficha (reactiva), delega el render a la vista pura y orquesta las altas de
+ *  interacción (P6) y seguimiento (P7) — modal + mutation + toast. Al escribir, la ficha se
+ *  recalcula sola (reactiva). */
 export function FichaCliente({ id }: { id: string }) {
   const clienteId = id as Id<"clientes">;
   const ficha = useQuery(api.clientes.ficha, { id: clienteId });
-  const registrar = useMutation(api.interacciones.registrar);
+  const registrarInteraccion = useMutation(api.interacciones.registrar);
+  const crearSeguimiento = useMutation(api.seguimientos.crearSeguimiento);
 
-  const [anotando, setAnotando] = useState(false);
+  const [modal, setModal] = useState<ModalState>(null);
   const [guardando, setGuardando] = useState(false);
   const [toast, setToast] = useState<{ tone: "success" | "danger"; msg: string } | null>(null);
 
   if (ficha === undefined) return <FichaSkeleton />;
   if (ficha === null) return <FichaNoDisponible />;
 
-  const onGuardar = async (datos: InteraccionDatos) => {
+  const cerrar = () => setModal(null);
+
+  const onGuardarInteraccion = async (datos: InteraccionDatos) => {
     setGuardando(true);
     try {
-      await registrar({ cliente_id: clienteId, ...datos });
-      setAnotando(false);
+      await registrarInteraccion({ cliente_id: clienteId, ...datos });
+      setModal(null);
       setToast({ tone: "success", msg: "Interacción registrada" });
     } catch (e) {
-      setToast({ tone: "danger", msg: mensajeError(e) }); // el modal permanece abierto
+      setToast({ tone: "danger", msg: mensajeError(e, "No se pudo registrar la interacción") });
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const onGuardarSeguimiento = async (datos: SeguimientoDatos) => {
+    setGuardando(true);
+    try {
+      await crearSeguimiento({ cliente_id: clienteId, ...datos });
+      setModal(null);
+      setToast({ tone: "success", msg: "Seguimiento agendado" });
+    } catch (e) {
+      setToast({ tone: "danger", msg: mensajeError(e, "No se pudo agendar el seguimiento") });
     } finally {
       setGuardando(false);
     }
@@ -44,20 +64,30 @@ export function FichaCliente({ id }: { id: string }) {
 
   return (
     <>
-      <FichaClienteView ficha={ficha} onAnotarInteraccion={() => setAnotando(true)} />
+      <FichaClienteView
+        ficha={ficha}
+        onAnotarInteraccion={() => setModal({ tipo: "interaccion" })}
+        onProgramarSeguimiento={() => setModal({ tipo: "seguimiento" })}
+      />
 
       <Modal
-        open={anotando}
-        onClose={() => setAnotando(false)}
+        open={modal?.tipo === "interaccion"}
+        onClose={cerrar}
         title="Registrar interacción"
         subtitle={ficha.nombre}
         size="lg"
       >
-        <InteraccionForm
-          guardando={guardando}
-          onCancel={() => setAnotando(false)}
-          onSubmit={onGuardar}
-        />
+        <InteraccionForm guardando={guardando} onCancel={cerrar} onSubmit={onGuardarInteraccion} />
+      </Modal>
+
+      <Modal
+        open={modal?.tipo === "seguimiento"}
+        onClose={cerrar}
+        title="Programar seguimiento"
+        subtitle={ficha.nombre}
+        size="lg"
+      >
+        <SeguimientoForm guardando={guardando} onCancel={cerrar} onSubmit={onGuardarSeguimiento} />
       </Modal>
 
       {toast && (

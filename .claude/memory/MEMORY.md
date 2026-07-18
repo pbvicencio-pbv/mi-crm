@@ -59,7 +59,7 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
   18-jul aunque este MEMORY lo daba por pendiente). Queda **TAL-59** (archivar) en Todo.
 - **M4 EN CURSO** — rama **`feat/m4-seguimiento`** (creada desde `main`, **pusheada a GitHub**; NO
   fusionada a `main`). TAL-14/TAL-15/TAL-17 movidas a **Todo** (TAL-16 Agenda ya Done). **TAL-14 (M4.1
-  Registrar interacción)** IMPLEMENTADA (Linear In Progress): mutation `interacciones.registrar`
+  Registrar interacción)** → **Done** (Linear; commit `2dc246d` pusheado a `origin/feat/m4-seguimiento`): mutation `interacciones.registrar`
   (autoriza con `requireUsuario`; `registrado_por` server-side; rechaza cliente inexistente/archivado;
   valida `fecha` server-side = entero seguro/>0/no-futuro con tolerancia 5 min; normaliza `canal` por
   tipo —solo "mensaje"—; límite nota 2000). Validadores `tipo/canalInteraccion` movidos a
@@ -72,10 +72,21 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
   **Gates verdes**: tsc, lint, build, **140 tests** (+22 nuevos: 10 backend, 9 form, 3 ficha),
   `convex dev --once` (funciones empujadas a `elated-donkey-854`; SIN cambio de esquema). **Smoke
   Playwright PASS**: login demo (Elena) → ficha → modal a 1280 y 375; derivación Llamada/WhatsApp OK;
-  **sin pulsar Guardar → sin escritura al live**. Commit en la rama; **sin merge a `main`** (pendiente
-  de aprobación al cerrar M4).
-- **Pendiente**: TAL-15 (programar seguimiento) · TAL-17 (cerrar seguimiento) · M5 (ventas) · M6
-  (cierre) · TAL-59 (archivar).
+  **sin pulsar Guardar → sin escritura al live**. Commit `2dc246d` en la rama (pusheado); **sin merge a `main`**.
+- **TAL-15 (M4.2 Programar seguimiento)** IMPLEMENTADA (Linear In Progress; plan NO-GO→GO, 1 mayor:
+  techo/validez de `fecha_objetivo`). Backend: `seguimientos.crearSeguimiento` (`requireUsuario`;
+  `responsable` server-side; rechaza cliente inexistente/archivado; `fecha_objetivo` = entero
+  seguro / >0 / ≤ `now+5 años` —garantiza representable por `Date`, permite *vencidos*—; motivo ≤2000).
+  Front: **`ui/Calendario.tsx`** (calendario propio: lunes primero `L M X J V S D`, marca hoy/seleccionado,
+  `min=hoy` deshabilita pasado, navegación de mes) + **`SeguimientoForm`** (atajos Mañana/En 3 días/En 1
+  semana + calendario sincronizados; banner "Agenda (Hoy)") + CTA "Programar seguimiento" activada en la
+  ficha (estado de modal como unión interacción|seguimiento). Helpers de fecha extraídos a
+  **`src/lib/fecha.ts`** (browser-local; distinto de `agenda.ts` que es TZ-aware) y `InteraccionForm`
+  refactorizado. **Gates verdes**: tsc, lint, build, **163 tests** (+23), `convex dev --once` (aditivo;
+  `_generated` SIN cambio porque `seguimientos` ya existía como módulo). **Smoke Playwright PASS** (modal +
+  calendario a 1280/375; atajo "En 3 días" → día 21 con hoy=18; pasado deshabilitado; **sin Agendar → sin
+  escritura al live**). **Commit pendiente** en la rama (no committeado aún).
+- **Pendiente**: TAL-17 (cerrar seguimiento) · M5 (ventas) · M6 (cierre) · TAL-59 (archivar).
 - Higiene Linear pendiente: M1.1–M1.3 siguen en Todo aunque están hechas.
 - **Datos demo en el deployment**: `elated-donkey-854` tiene **5 clientes demo** (+ ventas y
   seguimientos, sembrados para la Agenda). Útil: permite verificar listas/derivados **poblados
