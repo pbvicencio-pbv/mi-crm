@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { convexTest } from "convex-test";
 import schema from "./schema";
-import { decidirEstado, derivarEstadoCliente } from "./lib/derivados";
+import { decidirEstado, derivarEstadoCliente, derivarValorCliente } from "./lib/derivados";
 
 const modules = import.meta.glob(["./**/*.ts", "!./**/*.test.ts"]);
 
@@ -79,5 +79,59 @@ describe("derivarEstadoCliente (acotado por índice, ignora archivadas)", () => 
     muchas.push({ estado: "ganada", archivado: false });
     // El .first() sobre (cliente_id, archivado, estado="ganada") resuelve sin recorrer las 300.
     expect(await estadoConVentas(muchas)).toBe("ganado");
+  });
+});
+
+type VentaValor = {
+  estado: "ganada" | "abierta" | "perdida";
+  importe: number;
+  cantidad: number;
+  archivado: boolean;
+};
+
+async function valorConVentas(ventas: VentaValor[]) {
+  const t = convexTest(schema, modules);
+  return await t.run(async (ctx) => {
+    const uid = await ctx.db.insert("usuarios", { nombre: "U", email: "u@x.test", rol: "vendedor" });
+    const cid = await ctx.db.insert("clientes", {
+      nombre: "C",
+      prioridad: "media",
+      propietario: uid,
+      registrado_por: uid,
+      archivado: false,
+    });
+    for (const v of ventas) {
+      await ctx.db.insert("ventas", {
+        cliente_id: cid,
+        producto: "P",
+        importe: v.importe,
+        cantidad: v.cantidad,
+        estado: v.estado,
+        fecha: 1,
+        vendedor: uid,
+        registrado_por: uid,
+        archivado: v.archivado,
+      });
+    }
+    return await derivarValorCliente(ctx, cid);
+  });
+}
+
+describe("derivarValorCliente (Σ ganadas no archivadas · importe*cantidad)", () => {
+  it("suma solo ganadas no archivadas, contando la cantidad", async () => {
+    expect(
+      await valorConVentas([
+        { estado: "ganada", importe: 100, cantidad: 3, archivado: false }, // 300
+        { estado: "ganada", importe: 50, cantidad: 1, archivado: false }, // 50
+        { estado: "abierta", importe: 1000, cantidad: 5, archivado: false }, // ignorada
+        { estado: "perdida", importe: 999, cantidad: 9, archivado: false }, // ignorada
+        { estado: "ganada", importe: 500, cantidad: 2, archivado: true }, // archivada → ignorada
+      ]),
+    ).toBe(350);
+  });
+
+  it("sin ventas ganadas → 0", async () => {
+    expect(await valorConVentas([{ estado: "abierta", importe: 100, cantidad: 1, archivado: false }])).toBe(0);
+    expect(await valorConVentas([])).toBe(0);
   });
 });

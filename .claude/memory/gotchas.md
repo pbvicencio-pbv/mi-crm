@@ -28,6 +28,12 @@ Categorías sugeridas: `build` · `types` · `convex` · `auth` · `deploy` · `
 
 <!-- Añadir entradas nuevas arriba (más reciente primero) siguiendo el formato. -->
 
+## 2026-07-18 · [tests] Verify de UI con Playwright contra rutas protegidas (receta que funciona)
+- **Qué pasó:** al verificar la Ficha 360 sin extensión de navegador, tres tropiezos: (1) el script en el scratchpad no resolvía `import "playwright"` (`ERR_MODULE_NOT_FOUND`) porque ESM busca `node_modules` desde la carpeta del archivo; (2) todas las rutas salvo `/login` responden `307 → /login` (middleware), así que hay que loguear primero; (3) mi heurística "hay `role=alert` ⇒ login falló" dio falso negativo porque **`/hoy` tiene su propio `role="alert"`** (banner de la Agenda).
+- **Causa raíz:** supuestos sobre resolución de módulos ESM y sobre qué señales indican fallo de login.
+- **Regla preventiva:** receta de verify Playwright para PULSE: (a) colocar el `.mjs` en la **raíz del proyecto** (o donde esté `node_modules`), correr y borrarlo; (b) login real: `POST` del form en `/login` con `input[name=email]`/`input[name=password]` + `button[type=submit]`; credenciales demo desde `npx convex env get CRM_SEED_PW_DUENA` (dueña `elena.demo@pulsecrm.test` ve todos los clientes) — capturar en variable de shell, **no imprimir**; (c) éxito de login = `page.url()` deja de incluir `/login` (NO usar `role=alert`, que existe en `/hoy`); (d) tras login, navegar a la ficha y screenshot a 1280 y 375. Requiere `npx playwright install chromium` una vez. Read-only sobre `elated-donkey-854` (compartido) → seguro.
+- **Ocurrencias:** 1
+
 ## 2026-07-17 · [build] OneDrive rompe Next con EINVAL readlink en `.next/diagnostics/framework.json`
 - **Qué pasó:** `npm run dev` murió al arrancar con `[Error: EINVAL: invalid argument, readlink '…\.next\diagnostics\framework.json']` (y wipeó el `.next/BUILD_ID` de producción). Más tarde, `npm run build` falló **con el mismo EINVAL de forma INTERMITENTE** (varios builds previos habían pasado); OneDrive bloquea/sincroniza `.next` a mitad de operación.
 - **Causa raíz:** el repo vive bajo `OneDrive - FORTIA\…`; los reparse points de OneDrive rompen el `readlink` sobre `.next/diagnostics/*`. Afecta tanto a `next dev` (siempre) como a `next build` (intermitente).

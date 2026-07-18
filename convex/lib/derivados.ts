@@ -56,3 +56,21 @@ export async function derivarEstadoCliente(
   cache.set(key, estado);
   return estado;
 }
+
+/**
+ * Valor DERIVADO del cliente = Σ (importe * cantidad) de sus ventas en estado "ganada" y NO
+ * archivadas (TAL-13). No se persiste. Acotado por el índice `por_cliente_archivado_estado`
+ * (solo las ganadas de UN cliente; conteo diminuto en el MVP).
+ */
+export async function derivarValorCliente(
+  ctx: QueryCtx,
+  clienteId: Id<"clientes">,
+): Promise<number> {
+  const ganadas = await ctx.db
+    .query("ventas")
+    .withIndex("por_cliente_archivado_estado", (q) =>
+      q.eq("cliente_id", clienteId).eq("archivado", false).eq("estado", "ganada"),
+    )
+    .collect();
+  return ganadas.reduce((suma, v) => suma + v.importe * v.cantidad, 0);
+}

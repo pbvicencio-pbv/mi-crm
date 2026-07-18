@@ -258,3 +258,149 @@ describe("clientes · listar", () => {
     await expect(t.query(api.clientes.listar, {})).rejects.toThrow();
   });
 });
+
+describe("clientes · ficha", () => {
+  it("null si el cliente no existe o está archivado", async () => {
+    const { t, ids } = await mundo();
+    const elena = await como(t, "elena@x.test");
+    const id = await elena.mutation(api.clientes.crearCliente, { nombre: "X", propietario: ids.elena });
+    // Inexistente:
+    const borrado = await t.run(async (ctx) => {
+      const c = await ctx.db.insert("clientes", {
+        nombre: "Tmp", prioridad: "media", propietario: ids.elena, registrado_por: ids.elena, archivado: false,
+      });
+      await ctx.db.delete(c);
+      return c;
+    });
+    expect(await elena.query(api.clientes.ficha, { id: borrado })).toBeNull();
+    // Archivado:
+    await t.run((ctx) => ctx.db.patch(id, { archivado: true }));
+    expect(await elena.query(api.clientes.ficha, { id })).toBeNull();
+  });
+
+  it("valor derivado = Σ ganadas (importe*cantidad); ignora perdidas/abiertas/archivadas", async () => {
+    const { t, ids } = await mundo();
+    const cid = await t.run(async (ctx) => {
+      const c = await ctx.db.insert("clientes", {
+        nombre: "ConVentas", prioridad: "media", propietario: ids.elena, registrado_por: ids.elena, archivado: false,
+      });
+      const v = (estado: "ganada" | "abierta" | "perdida", importe: number, cantidad: number, archivado = false) =>
+        ctx.db.insert("ventas", {
+          cliente_id: c, producto: "P", importe, cantidad, estado, fecha: 1,
+          vendedor: ids.carlos, registrado_por: ids.carlos, archivado,
+        });
+      await v("ganada", 100, 3); // 300
+      await v("ganada", 50, 1); // 50
+      await v("abierta", 1000, 5); // ignorada
+      await v("perdida", 999, 9); // ignorada
+      await v("ganada", 500, 2, true); // archivada → ignorada
+      return c;
+    });
+    const ficha = await (await como(t, "elena@x.test")).query(api.clientes.ficha, { id: cid });
+    expect(ficha!.valor).toBe(350);
+    expect(ficha!.estado).toBe("ganado"); // hay ganada no archivada
+  });
+
+  it("ventas listadas con total = importe*cantidad (cantidad > 1) y vendedorNombre", async () => {
+    const { t, ids } = await mundo();
+    const cid = await t.run(async (ctx) => {
+      const c = await ctx.db.insert("clientes", {
+        nombre: "V", prioridad: "media", propietario: ids.elena, registrado_por: ids.elena, archivado: false,
+      });
+      await ctx.db.insert("ventas", {
+        cliente_id: c, producto: "Plan Pro", importe: 120, cantidad: 4, estado: "abierta", fecha: 10,
+        vendedor: ids.carlos, registrado_por: ids.carlos, archivado: false,
+      });
+      await ctx.db.insert("ventas", {
+        cliente_id: c, producto: "Archivada", importe: 1, cantidad: 1, estado: "ganada", fecha: 20,
+        vendedor: ids.carlos, registrado_por: ids.carlos, archivado: true, // no debe listarse
+      });
+      return c;
+    });
+    const ficha = await (await como(t, "elena@x.test")).query(api.clientes.ficha, { id: cid });
+    expect(ficha!.ventas).toHaveLength(1);
+    expect(ficha!.ventas[0].total).toBe(480); // 120 * 4
+    expect(ficha!.ventas[0].vendedorNombre).toBe("Carlos");
+    expect(ficha!.ventas[0].producto).toBe("Plan Pro");
+  });
+
+  it("interacciones desc por fecha; ultimoContacto = max; autorNombre resuelto", async () => {
+    const { t, ids } = await mundo();
+    const cid = await t.run(async (ctx) => {
+      const c = await ctx.db.insert("clientes", {
+        nombre: "I", prioridad: "media", propietario: ids.elena, registrado_por: ids.elena, archivado: false,
+      });
+      const i = (fecha: number, autor: typeof ids.elena) =>
+        ctx.db.insert("interacciones", { cliente_id: c, tipo: "llamada", fecha, registrado_por: autor });
+      await i(100, ids.elena);
+      await i(300, ids.carlos);
+      await i(200, ids.elena);
+      return c;
+    });
+    const ficha = await (await como(t, "elena@x.test")).query(api.clientes.ficha, { id: cid });
+    expect(ficha!.interacciones.map((x) => x.fecha)).toEqual([300, 200, 100]);
+    expect(ficha!.ultimoContacto).toBe(300);
+    expect(ficha!.interacciones[0].autorNombre).toBe("Carlos");
+  });
+
+  it("sin interacciones → ultimoContacto null y lista vacía", async () => {
+    const { t, ids } = await mundo();
+    const id = await (await como(t, "elena@x.test")).mutation(api.clientes.crearCliente, {
+      nombre: "SinInter", propietario: ids.elena,
+    });
+    const ficha = await (await como(t, "elena@x.test")).query(api.clientes.ficha, { id });
+    expect(ficha!.ultimoContacto).toBeNull();
+    expect(ficha!.interacciones).toEqual([]);
+  });
+
+  it("proximoSeguimiento = pendiente más próximo; ignora 'hecho'; null si no hay pendientes", async () => {
+    const { t, ids } = await mundo();
+    const cid = await t.run(async (ctx) => {
+      const c = await ctx.db.insert("clientes", {
+        nombre: "S", prioridad: "media", propietario: ids.elena, registrado_por: ids.elena, archivado: false,
+      });
+      await ctx.db.insert("seguimientos", { cliente_id: c, fecha_objetivo: 500, estado: "pendiente", responsable: ids.carlos, motivo: "Tarde" });
+      await ctx.db.insert("seguimientos", { cliente_id: c, fecha_objetivo: 300, estado: "pendiente", responsable: ids.carlos, motivo: "Pronto" });
+      await ctx.db.insert("seguimientos", { cliente_id: c, fecha_objetivo: 100, estado: "hecho", responsable: ids.carlos, motivo: "Viejo" });
+      return c;
+    });
+    const elena = await como(t, "elena@x.test");
+    const ficha = await elena.query(api.clientes.ficha, { id: cid });
+    expect(ficha!.proximoSeguimiento?.fechaObjetivo).toBe(300);
+    expect(ficha!.proximoSeguimiento?.motivo).toBe("Pronto");
+
+    // Sin pendientes → null
+    const soloHecho = await t.run(async (ctx) => {
+      const c = await ctx.db.insert("clientes", {
+        nombre: "SH", prioridad: "media", propietario: ids.elena, registrado_por: ids.elena, archivado: false,
+      });
+      await ctx.db.insert("seguimientos", { cliente_id: c, fecha_objetivo: 10, estado: "hecho", responsable: ids.carlos });
+      return c;
+    });
+    expect((await elena.query(api.clientes.ficha, { id: soloHecho }))!.proximoSeguimiento).toBeNull();
+  });
+
+  it("fallback 'Usuario no disponible' si el propietario/autor no resuelve", async () => {
+    const { t, ids } = await mundo();
+    const fantasma = await t.run(async (ctx) => {
+      const u = await ctx.db.insert("usuarios", { nombre: "Fantasma", email: "f@x.test", rol: "vendedor", activo: true });
+      await ctx.db.delete(u);
+      return u;
+    });
+    const cid = await t.run((ctx) =>
+      ctx.db.insert("clientes", {
+        nombre: "Huerfano", prioridad: "media", propietario: fantasma, registrado_por: ids.elena, archivado: false,
+      }),
+    );
+    const ficha = await (await como(t, "elena@x.test")).query(api.clientes.ficha, { id: cid });
+    expect(ficha!.propietarioNombre).toBe("Usuario no disponible");
+  });
+
+  it("sin sesión → rechaza", async () => {
+    const { t, ids } = await mundo();
+    const id = await (await como(t, "elena@x.test")).mutation(api.clientes.crearCliente, {
+      nombre: "X", propietario: ids.elena,
+    });
+    await expect(t.query(api.clientes.ficha, { id })).rejects.toThrow();
+  });
+});

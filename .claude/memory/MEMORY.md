@@ -40,8 +40,23 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
 - **Gate de acceso verificado en prod (18-jul)**: peticiones sin cookies a `/`, `/hoy`, `/clientes`
   responden **307 → /login**; `/login` 200. NO hay bypass. Landing directo a `/hoy` en un navegador
   ya usado = **sesión persistida** (cookie Convex Auth, `maxAge` 30 días en `middleware.ts`), no un fallo.
-- **M3 restante**: TAL-13 (ficha 360; cierra el chip de prioridad de TAL-35), TAL-49 (estado
-  auto-calc; depende de ventas/M5 para ganado/perdido), TAL-59 (archivar).
+- **M3.3 = TAL-13 (Ficha 360)**: COMMITEADA en local (GO de plan y GO de cierre de auditoría
+  recibidos). **Aún SIN push** (pendiente de autorización explícita del dueño; la auditoría no la
+  sustituye) y **Linear sigue In Progress** (se mueve a Done tras el push). Backend: `clientes.ficha`
+  (query reactiva read-only; `requireUsuario`; `null` si archivado/inexistente) con derivados —estado,
+  **valor** = Σ ganadas no archivadas `importe*cantidad` (`derivarValorCliente` nuevo), último
+  contacto = max(interacciones.fecha)— + bloques poblados en lectura (próximo seguimiento pendiente,
+  interacciones desc por fecha, ventas no archivadas con `total`, nombres con fallback "Usuario no
+  disponible"); 3 índices aditivos (`interacciones.por_cliente_fecha`,
+  `ventas.por_cliente_archivado_fecha`, `seguimientos.por_cliente_estado_fecha`) **ya empujados a
+  `elated-donkey-854`** vía `convex dev --once`. Front: `page.tsx`→`FichaCliente` (contenedor) +
+  `FichaClienteView` (vista pura) + contacto multicanal `wa.me`/`tel`/`mailto` (oculto si falta el
+  dato) + CTAs M4/M5 con `disabled` real. Plan pasó por NO-GO→GO (2 mayores: índice de próximo
+  seguimiento + `total` de venta). **Gates verdes**: tsc, lint, 118 tests (13 nuevos), build, `convex
+  dev --once`. **Verify Playwright PASS** (login demo → ficha a 1280 y 375; vacío "Cliente Prueba" +
+  poblado "Diego Herrera": valor $0 con venta abierta de $26K = correcto, contacto oculto sin datos).
+- **M3 restante tras TAL-13**: TAL-49 (estado auto-calc; depende de ventas/M5 para ganado/perdido),
+  TAL-59 (archivar).
 - **Pendiente**: M4 (seguimiento/interacciones) · M5 (ventas) · M6 (cierre).
 - Higiene Linear pendiente: M1.1–M1.3 siguen en Todo aunque están hechas.
 - **Datos demo en el deployment**: `elated-donkey-854` tiene **5 clientes demo** (+ ventas y

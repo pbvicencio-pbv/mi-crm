@@ -11,10 +11,10 @@
 
 import { ConvexError, v } from "convex/values";
 import { query, mutation } from "./_generated/server";
-import type { MutationCtx } from "./_generated/server";
+import type { MutationCtx, QueryCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { requireUsuario } from "./lib/auth";
-import { derivarEstadoCliente, type EstadoCliente } from "./lib/derivados";
+import { derivarEstadoCliente, derivarValorCliente, type EstadoCliente } from "./lib/derivados";
 
 const canalValidator = v.union(
   v.literal("whatsapp"),
@@ -228,5 +228,181 @@ export const listar = query({
       });
     }
     return filas;
+  },
+});
+
+// ---------- Ficha 360 (P4 · TAL-13) ----------
+
+// Techos de lectura por bloque (el MVP tiene poco por cliente; evita `.collect()` sin cota).
+const MAX_INTERACCIONES = 50;
+const MAX_VENTAS = 50;
+
+const tipoInteraccionValidator = v.union(
+  v.literal("llamada"),
+  v.literal("mensaje"),
+  v.literal("visita"),
+);
+// El canal de una interacción usa el mismo conjunto que el del cliente (orden del schema).
+const canalInteraccionValidator = v.union(
+  v.literal("whatsapp"),
+  v.literal("email"),
+  v.literal("telefono"),
+  v.literal("instagram"),
+);
+
+const fichaCliente = v.object({
+  _id: v.id("clientes"),
+  nombre: v.string(),
+  telefono: v.optional(v.string()),
+  email: v.optional(v.string()),
+  empresa: v.optional(v.string()),
+  cargo: v.optional(v.string()),
+  ciudad: v.optional(v.string()),
+  canal: v.optional(canalValidator),
+  origen: v.optional(origenValidator),
+  notas: v.optional(v.string()),
+  prioridad: prioridadValidator,
+  estado: estadoValidator, // DERIVADO
+  valor: v.number(), // DERIVADO = Σ ventas ganadas (importe*cantidad), no persistido
+  propietarioNombre: v.string(),
+  creadoEn: v.number(), // _creationTime (fecha de alta)
+  ultimoContacto: v.union(v.number(), v.null()), // max(interacciones.fecha)
+  proximoSeguimiento: v.union(
+    v.null(),
+    v.object({
+      _id: v.id("seguimientos"),
+      motivo: v.union(v.string(), v.null()),
+      fechaObjetivo: v.number(),
+    }),
+  ),
+  interacciones: v.array(
+    v.object({
+      _id: v.id("interacciones"),
+      tipo: tipoInteraccionValidator,
+      canal: v.optional(canalInteraccionValidator),
+      nota: v.union(v.string(), v.null()),
+      fecha: v.number(),
+      autorNombre: v.string(),
+    }),
+  ),
+  ventas: v.array(
+    v.object({
+      _id: v.id("ventas"),
+      producto: v.string(),
+      fecha: v.number(),
+      total: v.number(), // DERIVADO = importe * cantidad
+      vendedorNombre: v.string(),
+    }),
+  ),
+});
+
+/** Nombre de un usuario, con cache por ejecución y fallback si la referencia no resuelve. */
+async function nombreUsuario(
+  ctx: QueryCtx,
+  id: Id<"usuarios">,
+  cache: Map<string, string>,
+): Promise<string> {
+  const key = id as unknown as string;
+  const cacheado = cache.get(key);
+  if (cacheado !== undefined) return cacheado;
+  const u = await ctx.db.get(id);
+  const nombre = u?.nombre ?? "Usuario no disponible";
+  cache.set(key, nombre);
+  return nombre;
+}
+
+/**
+ * Ficha 360 del cliente (P4). Reactiva, read-only. Cualquier sesión válida (`requireUsuario`).
+ * `null` si no existe o está archivado. Devuelve los DERIVADOS (estado, valor, último contacto)
+ * y los bloques poblados en lectura (próximo seguimiento pendiente, historial de interacciones,
+ * ventas no archivadas). Las ESCRITURAS de esos bloques llegan en M4/M5.
+ */
+export const ficha = query({
+  args: { id: v.id("clientes") },
+  returns: v.union(v.null(), fichaCliente),
+  handler: async (ctx, { id }) => {
+    await requireUsuario(ctx);
+    const c = await ctx.db.get(id);
+    if (!c || c.archivado === true) return null;
+
+    const cacheEstado = new Map<string, EstadoCliente>();
+    const cacheNombres = new Map<string, string>();
+
+    const estado = await derivarEstadoCliente(ctx, c._id, cacheEstado);
+    const valor = await derivarValorCliente(ctx, c._id);
+    const propietarioNombre = await nombreUsuario(ctx, c.propietario, cacheNombres);
+
+    // Historial de interacciones (más recientes primero por la FECHA de dominio). El primer
+    // registro es también el "último contacto" → una sola lectura sirve a ambos.
+    const inters = await ctx.db
+      .query("interacciones")
+      .withIndex("por_cliente_fecha", (q) => q.eq("cliente_id", c._id))
+      .order("desc")
+      .take(MAX_INTERACCIONES);
+    const ultimoContacto = inters[0]?.fecha ?? null;
+    const interacciones = [];
+    for (const i of inters) {
+      interacciones.push({
+        _id: i._id,
+        tipo: i.tipo,
+        canal: i.canal,
+        nota: i.nota ?? null,
+        fecha: i.fecha,
+        autorNombre: await nombreUsuario(ctx, i.registrado_por, cacheNombres),
+      });
+    }
+
+    // Ventas no archivadas (más recientes primero). total = importe * cantidad (derivado).
+    const vtas = await ctx.db
+      .query("ventas")
+      .withIndex("por_cliente_archivado_fecha", (q) =>
+        q.eq("cliente_id", c._id).eq("archivado", false),
+      )
+      .order("desc")
+      .take(MAX_VENTAS);
+    const ventas = [];
+    for (const vta of vtas) {
+      ventas.push({
+        _id: vta._id,
+        producto: vta.producto,
+        fecha: vta.fecha,
+        total: vta.importe * vta.cantidad,
+        vendedorNombre: await nombreUsuario(ctx, vta.vendedor, cacheNombres),
+      });
+    }
+
+    // Próximo seguimiento pendiente = el de menor fecha_objetivo (acotado por índice, .first()).
+    const seg = await ctx.db
+      .query("seguimientos")
+      .withIndex("por_cliente_estado_fecha", (q) =>
+        q.eq("cliente_id", c._id).eq("estado", "pendiente"),
+      )
+      .order("asc")
+      .first();
+    const proximoSeguimiento = seg
+      ? { _id: seg._id, motivo: seg.motivo ?? null, fechaObjetivo: seg.fecha_objetivo }
+      : null;
+
+    return {
+      _id: c._id,
+      nombre: c.nombre,
+      telefono: c.telefono,
+      email: c.email,
+      empresa: c.empresa,
+      cargo: c.cargo,
+      ciudad: c.ciudad,
+      canal: c.canal,
+      origen: c.origen,
+      notas: c.notas,
+      prioridad: c.prioridad,
+      estado,
+      valor,
+      propietarioNombre,
+      creadoEn: c._creationTime,
+      ultimoContacto,
+      proximoSeguimiento,
+      interacciones,
+      ventas,
+    };
   },
 });

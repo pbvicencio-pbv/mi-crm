@@ -75,7 +75,11 @@ export default defineSchema({
     nota: v.optional(v.string()),
     fecha: v.number(), // timestamp (ms)
     registrado_por: v.id("usuarios"),
-  }).index("por_cliente", ["cliente_id"]),
+  })
+    .index("por_cliente", ["cliente_id"])
+    // Historial y "último contacto" ordenados por la FECHA de dominio (no _creationTime): la
+    // Ficha 360 lista con .order("desc").take(N) y toma el máximo con .first() (TAL-13).
+    .index("por_cliente_fecha", ["cliente_id", "fecha"]),
 
   seguimientos: defineTable({
     cliente_id: v.id("clientes"),
@@ -90,7 +94,10 @@ export default defineSchema({
     .index("por_estado_fecha", ["estado", "fecha_objetivo"])
     // Agenda con el scope del vendedor aplicado DENTRO del índice, antes de cualquier
     // límite/paginación (TAL-16): responsable → estado → fecha_objetivo.
-    .index("por_responsable_estado_fecha", ["responsable", "estado", "fecha_objetivo"]),
+    .index("por_responsable_estado_fecha", ["responsable", "estado", "fecha_objetivo"])
+    // "Próximo seguimiento" de un cliente en la Ficha 360 (TAL-13): acota por cliente + estado
+    // y ordena por fecha_objetivo → eq(cliente_id).eq(estado,"pendiente").order("asc").first().
+    .index("por_cliente_estado_fecha", ["cliente_id", "estado", "fecha_objetivo"]),
 
   ventas: defineTable({
     cliente_id: v.id("clientes"),
@@ -109,7 +116,10 @@ export default defineSchema({
     .index("por_archivado", ["archivado"])
     // Derivación del estado del cliente con lecturas constantes (TAL-16): por cada
     // cliente, .first() acotado sobre (cliente_id, archivado, estado).
-    .index("por_cliente_archivado_estado", ["cliente_id", "archivado", "estado"]),
+    .index("por_cliente_archivado_estado", ["cliente_id", "archivado", "estado"])
+    // Ventas no archivadas de un cliente ordenadas por la FECHA de dominio para la Ficha 360
+    // (TAL-13): eq(cliente_id).eq(archivado,false).order("desc").take(N).
+    .index("por_cliente_archivado_fecha", ["cliente_id", "archivado", "fecha"]),
 
   usuarios: defineTable({
     nombre: v.string(),
