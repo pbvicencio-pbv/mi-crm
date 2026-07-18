@@ -43,6 +43,23 @@ export const actual = query({
   },
 });
 
+/**
+ * Opciones para asignar responsable/propietario (cualquier sesión válida, NO solo dueña).
+ * La usan los formularios de cliente (P5) para el select de Propietario — por eso NO puede ser
+ * dueña-only como `listar`. Devuelve solo usuarios activos.
+ */
+export const opcionesAsignacion = query({
+  args: {},
+  returns: v.array(v.object({ _id: v.id("usuarios"), nombre: v.string() })),
+  handler: async (ctx) => {
+    await requireUsuario(ctx);
+    const todos = await ctx.db.query("usuarios").collect();
+    return todos
+      .filter((u) => u.activo !== false)
+      .map((u) => ({ _id: u._id, nombre: u.nombre }));
+  },
+});
+
 // ---------- M2.3 · Gestión de equipo (DUEÑA-only) ----------
 
 /** Lista el equipo activo. Solo dueña. `usuarios` es una tabla pequeña → `.collect()` es seguro. */
