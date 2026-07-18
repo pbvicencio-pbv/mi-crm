@@ -27,23 +27,23 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
 
 ## Estado del MVP (al 17-jul-2026)
 
-- **Hecho y desplegado**: M0 (diseño, 11 pantallas) · M1 (fundación) · shell de navegación (TAL-8)
-  · Agenda del día (TAL-16 / M4.3) · M2.1/TAL-9 (cuentas semilla) · M2.2/TAL-10 (login + protección
-  de rutas).
-- **Hecho, verificado y committeado LOCAL (sin push aún)**: M2.3/TAL-32 (gestión de equipo, dueña-only)
-  + M2.4/TAL-48 (Mi cuenta / perfil). Backend `bf5d715` (+24 tests); frontend `971fe44` (Equipo, Mi
-  cuenta, Modal/Select del DS, modal de confirmación de baja). Verify en navegador 33/33
-  (escritorio 1280px + móvil 375px) y security-review sin hallazgos. **Prod sigue con placeholders
-  hasta el push.**
-- **M3 (clientes) EN CURSO**: M3.1/TAL-11 (alta/edición de cliente) + TAL-34 (campo prioridad; el
-  schema ya lo tenía) + parte P5 de TAL-35 (asignar prioridad) → **hechos, verificados y committeados
-  en local** (`df88017`, sin push): `convex/clientes.ts` (crear/actualizar/obtener con propietario
-  validado server-side), `usuarios.opcionesAsignacion`, `ClienteForm` (P5), `ui/Textarea`, rutas
-  `/clientes/nuevo` y `/clientes/[id]/editar`. 14 tests nuevos (85 total). Verify navegador 13/13.
-  Falta de M3: TAL-12 (lista+búsqueda), TAL-13 (ficha 360; cierra el chip de prioridad de TAL-35),
-  TAL-49 (estado auto-calc), TAL-59 (archivar), TAL-36 (orden/filtro por prioridad, sub de TAL-12).
+- **Hecho y DESPLEGADO en prod (pusheado)**: M0 · M1 · shell (TAL-8) · Agenda (TAL-16) ·
+  M2.1/TAL-9 + M2.2/TAL-10 (login/rutas) · **M2.3/TAL-32 + M2.4/TAL-48** (Equipo + Mi cuenta;
+  `bf5d715`+`971fe44`) · **M3.1** = TAL-11 (alta/edición) + TAL-34 (prioridad) + P5 de TAL-35
+  (`df88017`; `clientes.crear/actualizar/obtener` con propietario validado server-side,
+  `usuarios.opcionesAsignacion`, `ClienteForm`, `ui/Textarea`, rutas nuevo/editar).
+- **Committeado LOCAL, pendiente de PUSH**: **M3.2** = TAL-12 (lista + búsqueda) + TAL-36
+  (orden/filtro por prioridad) → `88b4c75`. `clientes.listar` (acotada, estado derivado con
+  `derivarEstadoCliente`), `ClientesListaView` (vista pura testeable) + `ClientesLista` (contenedor),
+  `ui/Badge` variant "outline". 98 tests (13 nuevos: 4 convex + 9 componente). Verify navegador 12/12
+  (lista **poblada** read-only con datos demo: búsqueda, filtro, orden, badges, responsive).
+- **M3 restante**: TAL-13 (ficha 360; cierra el chip de prioridad de TAL-35), TAL-49 (estado
+  auto-calc; depende de ventas/M5 para ganado/perdido), TAL-59 (archivar).
 - **Pendiente**: M4 (seguimiento/interacciones) · M5 (ventas) · M6 (cierre).
 - Higiene Linear pendiente: M1.1–M1.3 siguen en Todo aunque están hechas.
+- **Datos demo en el deployment**: `elated-donkey-854` tiene **5 clientes demo** (+ ventas y
+  seguimientos, sembrados para la Agenda). Útil: permite verificar listas/derivados **poblados
+  read-only** sin crear datos. NO son clientes reales; aun así no escribir sobre ellos en verify.
 
 ### Verify en local (esta máquina)
 
