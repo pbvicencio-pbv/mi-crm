@@ -12,9 +12,11 @@ const VARIANTES: Record<Variant, string> = {
   danger: "bg-danger text-white hover:bg-danger-fg",
 };
 
+// Alturas táctiles (TAL-19): `md` y `lg` a 44px (objetivo cómodo en móvil). `sm` (32px) se reserva
+// para densidad de escritorio; en CTAs móviles se usa `md`.
 const TAMANOS: Record<Size, string> = {
   sm: "h-8 px-3 text-[13px]",
-  md: "h-10 px-4 text-sm",
+  md: "h-11 px-4 text-sm",
   lg: "h-11 px-5 text-sm",
 };
 

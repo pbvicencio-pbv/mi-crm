@@ -137,9 +137,9 @@ export default function LoginPage() {
                     type="button"
                     aria-label={showPw ? "Ocultar contraseña" : "Mostrar contraseña"}
                     onClick={() => setShowPw((v) => !v)}
-                    className="flex items-center text-slate-400 hover:text-slate-600"
+                    className="-mr-2 flex h-11 w-11 items-center justify-center rounded-md text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-border"
                   >
-                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 }
               />

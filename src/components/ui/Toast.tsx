@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { IconButton } from "@/components/ui/IconButton";
 
 /** Toast presentacional del DS. El padre controla su colocación y auto-cierre. */
 type Tono = "success" | "danger" | "warning" | "info";
@@ -38,14 +39,9 @@ export function Toast({
         {description && <div className="mt-0.5 text-[13px] text-slate-600">{description}</div>}
       </div>
       {onClose && (
-        <button
-          type="button"
-          aria-label="Cerrar aviso"
-          onClick={onClose}
-          className="shrink-0 rounded p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-        >
-          <X size={16} />
-        </button>
+        <IconButton label="Cerrar aviso" onClick={onClose} className="-my-2 -mr-2">
+          <X size={18} />
+        </IconButton>
       )}
     </div>
   );

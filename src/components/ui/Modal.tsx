@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect, useId } from "react";
 import { cn } from "@/lib/utils";
+import { IconButton } from "@/components/ui/IconButton";
 
 /**
  * Modal del DS: overlay + panel. Móvil = hoja inferior; escritorio = diálogo centrado.
@@ -64,16 +65,11 @@ export function Modal({
               </p>
             )}
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Cerrar"
-            className="-mr-1 flex-none rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-          >
+          <IconButton label="Cerrar" onClick={onClose} className="-mr-2 -mt-1">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6 6 18M6 6l12 12" />
             </svg>
-          </button>
+          </IconButton>
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
         {footer && (

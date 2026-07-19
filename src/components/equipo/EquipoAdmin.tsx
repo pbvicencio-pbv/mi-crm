@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Modal } from "@/components/ui/Modal";
+import { IconButton } from "@/components/ui/IconButton";
 import { Toast } from "@/components/ui/Toast";
 
 type Rol = "duena" | "vendedor";
@@ -155,25 +156,22 @@ export function EquipoAdmin() {
                     onChange={(e) => cambiarRol(u, e.target.value as Rol)}
                   />
                 </div>
-                <button
-                  type="button"
+                <IconButton
                   onClick={() => setModal({ modo: "edicion", u })}
                   title="Editar usuario"
-                  aria-label={`Editar ${u.nombre}`}
-                  className="flex h-9 w-9 flex-none items-center justify-center rounded-md text-slate-500 hover:bg-slate-100"
+                  label={`Editar ${u.nombre}`}
                 >
                   <IconPencil />
-                </button>
-                <button
-                  type="button"
+                </IconButton>
+                <IconButton
+                  tono="danger"
                   onClick={() => setConfirmar({ u })}
                   disabled={noBorrable || ocupado(u._id)}
                   title={delTitle}
-                  aria-label={`Desactivar ${u.nombre}`}
-                  className="flex h-9 w-9 flex-none items-center justify-center rounded-md text-danger hover:bg-danger-bg disabled:pointer-events-none disabled:opacity-40"
+                  label={`Desactivar ${u.nombre}`}
                 >
                   <IconTrash />
-                </button>
+                </IconButton>
               </div>
             );
           })}
@@ -300,9 +298,9 @@ function UsuarioForm({
               type="button"
               onClick={() => setVerPassword((v) => !v)}
               aria-label={verPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              className="text-slate-400 hover:text-slate-600"
+              className="-mr-2 flex h-11 w-11 items-center justify-center rounded-md text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-border"
             >
-              {verPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              {verPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           }
         />

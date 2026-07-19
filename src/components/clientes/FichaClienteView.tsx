@@ -153,7 +153,7 @@ export function FichaClienteView({
           <Link
             href="/clientes"
             aria-label="Volver a clientes"
-            className="flex-none rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+            className="flex h-11 w-11 flex-none items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-border"
           >
             <ChevronLeft size={20} />
           </Link>
@@ -168,8 +168,9 @@ export function FichaClienteView({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
-        {/* Columna izquierda: identidad + datos */}
-        <div className="flex flex-col gap-4">
+        {/* Columna izquierda: identidad + datos. `min-w-0` evita que el contenido mono (teléfono)
+            fuerce el min-content del track del grid y desborde a 320px. */}
+        <div className="flex min-w-0 flex-col gap-4">
           {/* Tarjeta de identidad */}
           <div className={`${CARD} p-4 sm:p-5`}>
             <div className="flex items-center gap-3.5">
@@ -263,7 +264,7 @@ export function FichaClienteView({
         </div>
 
         {/* Columna derecha: próximo seguimiento + interacciones + ventas */}
-        <div className="flex flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-4">
           {/* Próximo seguimiento */}
           <div className={`${CARD} p-4 sm:p-5`}>
             <div className="mb-3 text-sm font-bold">Próximo seguimiento</div>
@@ -307,7 +308,7 @@ export function FichaClienteView({
               {ficha.interacciones.length > 0 && (
                 <Button
                   variant="secondary"
-                  size="sm"
+                  size="md"
                   iconLeft={<Plus size={16} />}
                   onClick={onAnotarInteraccion}
                   disabled={!onAnotarInteraccion}
@@ -356,7 +357,7 @@ export function FichaClienteView({
               {ficha.ventas.length > 0 && (
                 <Button
                   variant="secondary"
-                  size="sm"
+                  size="md"
                   iconLeft={<Plus size={16} />}
                   onClick={onRegistrarVenta}
                   disabled={!onRegistrarVenta}
@@ -419,7 +420,7 @@ function SeccionVacia({ texto, cta, onClick }: { texto: string; cta: string; onC
       <p className="text-sm text-slate-500">{texto}</p>
       <Button
         variant="primary"
-        size="sm"
+        size="md"
         iconLeft={<Plus size={16} />}
         onClick={onClick}
         disabled={!onClick}

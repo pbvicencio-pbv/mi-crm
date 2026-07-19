@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus, MoreVertical, Pencil, Trash2, BarChart3 } from "lucide-react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Select } from "@/components/ui/Select";
+import { IconButton } from "@/components/ui/IconButton";
 import { formatMoney, formatMoneyShort, formatFecha } from "@/lib/format";
 
 export type EstadoVenta = "abierta" | "ganada" | "perdida";
@@ -187,14 +188,12 @@ export function VentasListaView({
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               <Select
                 label="Cliente"
-                size="sm"
                 options={[{ value: "", label: "Todos" }, ...clientesOpts]}
                 value={clienteId}
                 onChange={(e) => setClienteId(e.target.value)}
               />
               <Select
                 label="Periodo"
-                size="sm"
                 options={PERIODOS}
                 value={periodo}
                 onChange={(e) => setPeriodo(e.target.value as Periodo)}
@@ -307,16 +306,14 @@ function VentaRow({
 
       {/* Menú ⋮ — hermano por encima del enlace estirado (z-10). */}
       <div ref={ref} className="relative z-10 flex-none">
-        <button
-          type="button"
-          aria-label={`Acciones de ${v.producto}`}
+        <IconButton
+          label={`Acciones de ${v.producto}`}
           aria-haspopup="menu"
           aria-expanded={menu}
           onClick={() => setMenu((m) => !m)}
-          className="flex h-8 w-8 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600"
         >
           <MoreVertical size={18} />
-        </button>
+        </IconButton>
         {menu && (
           <div
             role="menu"

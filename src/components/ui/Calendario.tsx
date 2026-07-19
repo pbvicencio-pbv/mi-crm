@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { fechaLocalISO } from "@/lib/fecha";
+import { IconButton } from "@/components/ui/IconButton";
 
 const MESES = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -57,26 +58,16 @@ export function Calendario({
 
   return (
     <div className="rounded-lg border border-slate-200 p-3.5">
-      <div className="mb-3 flex items-center justify-between">
-        <button
-          type="button"
-          aria-label="Mes anterior"
-          onClick={() => irMes(-1)}
-          className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-        >
+      <div className="mb-2 flex items-center justify-between">
+        <IconButton label="Mes anterior" onClick={() => irMes(-1)}>
           <ChevronLeft size={18} />
-        </button>
+        </IconButton>
         <div className="text-[13px] font-bold text-slate-900">
           {MESES[ym.m]} {ym.y}
         </div>
-        <button
-          type="button"
-          aria-label="Mes siguiente"
-          onClick={() => irMes(1)}
-          className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-        >
+        <IconButton label="Mes siguiente" onClick={() => irMes(1)}>
           <ChevronRight size={18} />
-        </button>
+        </IconButton>
       </div>
 
       <div className="mb-1 grid grid-cols-7 gap-0.5">
@@ -112,7 +103,9 @@ export function Calendario({
               aria-pressed={esSel}
               aria-label={iso}
               onClick={() => onChange(iso)}
-              className={`mono flex h-[34px] items-center justify-center rounded-md text-[13px] enabled:hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-300 ${
+              // Excepción táctil documentada (TAL-19): grilla densa de 7 columnas → alto 40px (no se
+              // exige 44 de ancho para no desbordar a 320px); foco visible + separación adecuada.
+              className={`mono flex h-10 items-center justify-center rounded-md text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-border enabled:hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-300 ${
                 esSel || esHoy ? "font-bold" : "text-slate-900"
               }`}
               style={estilo}

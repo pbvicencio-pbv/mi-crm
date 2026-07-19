@@ -6,6 +6,7 @@ import { Search, X, Plus, Users, MoreVertical, Pencil, Trash2 } from "lucide-rea
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge, type BadgeTono } from "@/components/ui/Badge";
+import { IconButton } from "@/components/ui/IconButton";
 
 type Canal = "whatsapp" | "instagram" | "telefono" | "email";
 type Prioridad = "alta" | "media" | "baja";
@@ -104,14 +105,9 @@ export function ClientesListaView({
             className="h-11 w-full bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
           />
           {q && (
-            <button
-              type="button"
-              aria-label="Limpiar búsqueda"
-              onClick={() => setQ("")}
-              className="flex-none rounded p-1 text-slate-400 hover:text-slate-600"
-            >
-              <X size={16} />
-            </button>
+            <IconButton label="Limpiar búsqueda" onClick={() => setQ("")} className="-mr-2">
+              <X size={18} />
+            </IconButton>
           )}
         </div>
         <div className="flex flex-wrap gap-2">
@@ -227,16 +223,14 @@ function ClienteCard({
 
         {/* Menú ⋮ — hermano por encima del enlace estirado (z-10). */}
         <div ref={ref} className="relative z-10 flex-none">
-          <button
-            type="button"
-            aria-label={`Acciones de ${c.nombre}`}
+          <IconButton
+            label={`Acciones de ${c.nombre}`}
             aria-haspopup="menu"
             aria-expanded={menu}
             onClick={() => setMenu((v) => !v)}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600"
           >
             <MoreVertical size={18} />
-          </button>
+          </IconButton>
           {menu && (
             <div
               role="menu"
