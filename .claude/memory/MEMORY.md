@@ -120,6 +120,22 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
   live). **Ventas (`archivarVenta` + ⋮ en la pantalla de ventas) → M5.2/TAL-50** (hoy `ventas.ts` es stub;
   reutilizará `ConfirmDialog`). Gotcha nuevo (`gotchas.md`): `role="menuitem"` anula el rol implícito →
   en tests usar `getByRole("menuitem")`, no `button`/`link`.
+- **M5 · Ventas — COMPLETO Y DESPLEGADO** (18-jul): rama `feat/m5-ventas` (desde `main`), merge
+  fast-forward + push (Railway auto-deploy). **TAL-18 (M5.1 registrar venta)** `f9786b8` + **TAL-50
+  (M5.2 pantalla /ventas)** `7ab843a` → **Done**. Backend `convex/ventas.ts` (era stub): `crearVenta`,
+  `listar`, `actualizarVenta`, `archivarVenta` + `clientes.opcionesActivas`. **Autorización D1** (la
+  dueña opera todas; el vendedor solo las suyas: crea a su nombre, edita/archiva `venta.vendedor===yo`);
+  `archivarVenta` autoriza ANTES de la idempotencia. **Cascada de soft-delete**: `listar` descarta
+  ventas de clientes archivados (cierra el hueco que TAL-59 dejó para M5.2). `total` = importe*cantidad
+  derivado; el estado/valor del cliente se recalcula solo. Front: **`VentaForm`** (P8 reutilizable: alta
+  desde ficha o /ventas + edición; Vendedor editable solo dueña; Total en vivo), **`/ventas`** =
+  `VentasLista`+`VentasListaView` (KPIs En marcha/Ganado y contadores que reflejan Cliente+Periodo;
+  chips; "Este trimestre" = trimestre natural client-side; filas stretched-link→ficha; ⋮ Editar/Eliminar
+  gateado por D1; reusa `ConfirmDialog`). Sin embudo (F6/TAL-30) ni reporte avanzado (F15/TAL-22). Plan
+  NO-GO (3 mayores: cascada, `actualizar` falla-cerrado, D1) → GO. **Gates verdes**: tsc, lint, **232
+  tests** (+44), build, `convex dev --once`. **Smokes Playwright PASS** (1280/375, read-only, sin escribir
+  al live). **`archivarVenta` cubre la parte de ventas de TAL-59.** La pestaña "Ventas" ya existía en
+  `nav-items.ts`. **Siguiente**: M6 (cierre del MVP: pulido móvil + E2E).
 - Higiene Linear pendiente: M1.1–M1.3 siguen en Todo aunque están hechas.
 - **Datos demo en el deployment**: `elated-donkey-854` tiene **5 clientes demo** (+ ventas y
   seguimientos, sembrados para la Agenda). Útil: permite verificar listas/derivados **poblados

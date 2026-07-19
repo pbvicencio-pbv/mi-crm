@@ -28,6 +28,12 @@ Categorías sugeridas: `build` · `types` · `convex` · `auth` · `deploy` · `
 
 <!-- Añadir entradas nuevas arriba (más reciente primero) siguiendo el formato. -->
 
+## 2026-07-18 · [tests] Playwright `getByLabel` hace match por SUBSTRING → colisión "Cliente" vs "Nuevo cliente"
+- **Qué pasó:** el smoke de /ventas (TAL-50) reventó con "strict mode violation: getByLabel('Cliente') resolved to 2 elements": el `<select>` del filtro **Cliente** y el FAB de la BottomNav con `aria-label="Nuevo cliente"` (presente en el DOM aunque oculto por CSS en escritorio).
+- **Causa raíz:** `page.getByLabel(text)` de Playwright es, por defecto, **substring + case-insensitive**; "Cliente" casó también dentro de "Nuevo cliente". Y `getByLabel` resuelve TODOS los nodos del DOM (visibles u ocultos) antes de evaluar `isVisible`, así que el modo estricto falla aunque uno esté oculto.
+- **Regla preventiva:** en los smokes, usar `getByLabel("X", { exact: true })` para labels cortos que puedan ser substring de otro (Cliente, Vendedor, Periodo…). Alternativamente, scoping por `getByRole("dialog")` antes del `getByLabel`. Recordar que la BottomNav (`<768px`) vive en el DOM también en escritorio.
+- **Ocurrencias:** 1
+
 ## 2026-07-18 · [tests] `role="menuitem"` anula el rol implícito → `getByRole("button"/"link")` no lo encuentra
 - **Qué pasó:** al testear el menú ⋮ de la lista de clientes (TAL-59), 3 tests fallaron con "Unable to find role" pese a que el DOM mostraba el elemento. Buscaba `getByRole("button", {name:/Eliminar/})` y `getByRole("link", {name:/Editar/})`, pero a esos elementos les puse `role="menuitem"` (correcto para un `role="menu"`).
 - **Causa raíz:** un atributo `role` explícito SUSTITUYE al rol implícito del elemento; un `<button role="menuitem">` deja de exponerse como `button` para Testing Library (queda como `menuitem`), e igual un `<a role="menuitem">` deja de ser `link`.
