@@ -224,6 +224,25 @@ describe("clientes · obtener", () => {
   });
 });
 
+describe("clientes · opcionesActivas", () => {
+  it("devuelve {_id, nombre} de activos, excluye archivados; la llama un vendedor", async () => {
+    const { t, ids } = await mundo();
+    await t.run(async (ctx) => {
+      await ctx.db.insert("clientes", { nombre: "Activo", prioridad: "media", propietario: ids.elena, registrado_por: ids.elena, archivado: false });
+      await ctx.db.insert("clientes", { nombre: "Archivado", prioridad: "media", propietario: ids.elena, registrado_por: ids.elena, archivado: true });
+    });
+    const ops = await (await como(t, "carlos@x.test")).query(api.clientes.opcionesActivas, {});
+    const nombres = ops.map((o) => o.nombre);
+    expect(nombres).toContain("Activo");
+    expect(nombres).not.toContain("Archivado");
+  });
+
+  it("sin sesión → rechaza", async () => {
+    const { t } = await mundo();
+    await expect(t.query(api.clientes.opcionesActivas, {})).rejects.toThrow();
+  });
+});
+
 describe("usuarios · opcionesAsignacion", () => {
   it("lista activos, excluye inactivos, y la puede llamar un vendedor", async () => {
     const { t } = await mundo();

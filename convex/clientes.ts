@@ -275,6 +275,24 @@ export const listar = query({
   },
 });
 
+/**
+ * Opciones de cliente activo `{_id, nombre}` para selectores (p. ej. "Añadir venta" en /ventas · TAL-50).
+ * Cualquier sesión válida. Acotada; NO calcula derivados (a diferencia de `listar`), para no pagar el
+ * coste del estado en un selector.
+ */
+export const opcionesActivas = query({
+  args: {},
+  returns: v.array(v.object({ _id: v.id("clientes"), nombre: v.string() })),
+  handler: async (ctx) => {
+    await requireUsuario(ctx);
+    const activos = await ctx.db
+      .query("clientes")
+      .withIndex("por_archivado", (q) => q.eq("archivado", false))
+      .take(500);
+    return activos.map((c) => ({ _id: c._id, nombre: c.nombre }));
+  },
+});
+
 // ---------- Ficha 360 (P4 · TAL-13) ----------
 
 // Techos de lectura por bloque (el MVP tiene poco por cliente; evita `.collect()` sin cota).
