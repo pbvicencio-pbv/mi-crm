@@ -9,11 +9,12 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { FichaClienteView } from "./FichaClienteView";
 import { InteraccionForm, type InteraccionDatos } from "./InteraccionForm";
 import { SeguimientoForm, type SeguimientoDatos } from "./SeguimientoForm";
+import { VentaForm, type VentaDatos } from "@/components/ventas/VentaForm";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Toast } from "@/components/ui/Toast";
 
-type ModalState = null | { tipo: "interaccion" } | { tipo: "seguimiento" };
+type ModalState = null | { tipo: "interaccion" } | { tipo: "seguimiento" } | { tipo: "venta" };
 
 function mensajeError(e: unknown, fallback: string): string {
   const d = (e as { data?: unknown } | null)?.data;
@@ -27,10 +28,15 @@ export function FichaCliente({ id }: { id: string }) {
   const router = useRouter();
   const clienteId = id as Id<"clientes">;
   const ficha = useQuery(api.clientes.ficha, { id: clienteId });
+  const actual = useQuery(api.usuarios.actual);
+  const esDuena = actual?.rol === "duena";
+  // Opciones de vendedor SOLO para la dueña (D1): un vendedor registra a su nombre.
+  const vendedoresRaw = useQuery(api.usuarios.opcionesAsignacion, esDuena ? {} : "skip");
   const registrarInteraccion = useMutation(api.interacciones.registrar);
   const crearSeguimiento = useMutation(api.seguimientos.crearSeguimiento);
   const cerrarSeguimiento = useMutation(api.seguimientos.cerrar);
   const archivarCliente = useMutation(api.clientes.archivarCliente);
+  const crearVenta = useMutation(api.ventas.crearVenta);
 
   const [modal, setModal] = useState<ModalState>(null);
   const [guardando, setGuardando] = useState(false);
@@ -86,6 +92,28 @@ export function FichaCliente({ id }: { id: string }) {
     }
   };
 
+  const onGuardarVenta = async (datos: VentaDatos) => {
+    setGuardando(true);
+    try {
+      // El cliente lo fija la ficha; `datos.cliente_id` (del selector) no aplica aquí.
+      await crearVenta({
+        cliente_id: clienteId,
+        producto: datos.producto,
+        importe: datos.importe,
+        cantidad: datos.cantidad,
+        estado: datos.estado,
+        fecha: datos.fecha,
+        vendedor: datos.vendedor,
+      });
+      setModal(null);
+      setToast({ tone: "success", msg: "Venta registrada" });
+    } catch (e) {
+      setToast({ tone: "danger", msg: mensajeError(e, "No se pudo registrar la venta") });
+    } finally {
+      setGuardando(false);
+    }
+  };
+
   // Archivar (soft-delete · TAL-59). Éxito → navega a la lista (el cliente ya no aparece);
   // NO reseteamos `archivando` en el éxito porque el componente se desmonta al navegar. En error,
   // se reabilita el diálogo con el mensaje. La query `ficha` ya devolvería null tras archivar.
@@ -109,6 +137,7 @@ export function FichaCliente({ id }: { id: string }) {
         onProgramarSeguimiento={() => setModal({ tipo: "seguimiento" })}
         onCerrarSeguimiento={onCerrarSeguimiento}
         cerrandoSeguimiento={cerrandoSeguimiento}
+        onRegistrarVenta={actual ? () => setModal({ tipo: "venta" }) : undefined}
         onArchivar={() => setConfirmarArchivar(true)}
         archivando={archivando}
       />
@@ -131,6 +160,28 @@ export function FichaCliente({ id }: { id: string }) {
         size="lg"
       >
         <SeguimientoForm guardando={guardando} onCancel={cerrar} onSubmit={onGuardarSeguimiento} />
+      </Modal>
+
+      <Modal
+        open={modal?.tipo === "venta"}
+        onClose={cerrar}
+        title="Registrar venta"
+        subtitle={ficha.nombre}
+        size="lg"
+      >
+        {actual && (!esDuena || vendedoresRaw) && (
+          <VentaForm
+            modo="alta"
+            guardando={guardando}
+            onCancel={cerrar}
+            onSubmit={onGuardarVenta}
+            vendedorInicial={actual._id}
+            vendedoresOpts={
+              esDuena ? (vendedoresRaw ?? []).map((u) => ({ value: u._id, label: u.nombre })) : undefined
+            }
+            vendedorFijoNombre={esDuena ? undefined : actual.nombre}
+          />
+        )}
       </Modal>
 
       <ConfirmDialog

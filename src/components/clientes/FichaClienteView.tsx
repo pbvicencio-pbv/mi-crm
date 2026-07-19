@@ -124,6 +124,7 @@ export function FichaClienteView({
   onProgramarSeguimiento,
   onCerrarSeguimiento,
   cerrandoSeguimiento = false,
+  onRegistrarVenta,
   onArchivar,
   archivando = false,
 }: {
@@ -136,6 +137,8 @@ export function FichaClienteView({
   /** Cierra el próximo seguimiento ("Marcar hecho", P4·TAL-17). Si no llega, el botón queda deshabilitado. */
   onCerrarSeguimiento?: () => void;
   cerrandoSeguimiento?: boolean;
+  /** Abre el alta de venta (P8·TAL-18). Si no llega, las CTAs de venta quedan deshabilitadas. */
+  onRegistrarVenta?: () => void;
   /** Abre la confirmación de archivar cliente (soft-delete · TAL-59). Sin él, el botón queda deshabilitado. */
   onArchivar?: () => void;
   archivando?: boolean;
@@ -355,8 +358,9 @@ export function FichaClienteView({
                   variant="secondary"
                   size="sm"
                   iconLeft={<Plus size={16} />}
-                  disabled
-                  title="Próxima fase"
+                  onClick={onRegistrarVenta}
+                  disabled={!onRegistrarVenta}
+                  title={onRegistrarVenta ? undefined : "Próxima fase"}
                 >
                   Registrar
                 </Button>
@@ -382,7 +386,11 @@ export function FichaClienteView({
                 ))}
               </div>
             ) : (
-              <SeccionVacia texto="Aún no hay ventas registradas." cta="Registrar venta" />
+              <SeccionVacia
+                texto="Aún no hay ventas registradas."
+                cta="Registrar venta"
+                onClick={onRegistrarVenta}
+              />
             )}
           </div>
         </div>

@@ -244,6 +244,31 @@ describe("FichaClienteView · Marcar hecho (cerrar seguimiento)", () => {
   });
 });
 
+describe("FichaClienteView · Registrar venta (P8 · TAL-18)", () => {
+  it("con onRegistrarVenta y ventas: 'Registrar' habilitado y dispara el callback", async () => {
+    const onRegistrar = vi.fn();
+    render(<FichaClienteView ficha={LLENA} now={NOW} onRegistrarVenta={onRegistrar} />);
+    const btn = screen.getByRole("button", { name: "Registrar" });
+    expect(btn).toBeEnabled();
+    await userEvent.click(btn);
+    expect(onRegistrar).toHaveBeenCalledTimes(1);
+  });
+
+  it("sin ventas: 'Registrar venta' habilitado y dispara el callback", async () => {
+    const onRegistrar = vi.fn();
+    render(<FichaClienteView ficha={VACIA} now={NOW} onRegistrarVenta={onRegistrar} />);
+    const btn = screen.getByRole("button", { name: /Registrar venta/ });
+    expect(btn).toBeEnabled();
+    await userEvent.click(btn);
+    expect(onRegistrar).toHaveBeenCalledTimes(1);
+  });
+
+  it("sin callback: las CTAs de venta siguen deshabilitadas", () => {
+    render(<FichaClienteView ficha={LLENA} now={NOW} />);
+    expect(screen.getByRole("button", { name: "Registrar" })).toBeDisabled();
+  });
+});
+
 describe("FichaClienteView · Eliminar cliente (archivar · TAL-59)", () => {
   it("con onArchivar: 'Eliminar cliente' habilitado y al pulsarlo invoca el callback", async () => {
     const onArchivar = vi.fn();
