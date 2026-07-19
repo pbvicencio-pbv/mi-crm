@@ -28,7 +28,7 @@ export function AgendaHoy() {
   const cerrarMut = useMutation(api.seguimientos.cerrar);
   const [cerrando, setCerrando] = useState<Record<string, boolean>>({});
   const cerrandoRef = useRef<Set<string>>(new Set()); // guard síncrono anti doble-disparo
-  const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ tone: "success" | "danger"; msg: string } | null>(null);
 
   // Reprogramar al cruzar la medianoche local.
   useEffect(() => {
@@ -62,8 +62,9 @@ export function AgendaHoy() {
       setCerrando((c) => ({ ...c, [id]: true }));
       try {
         await cerrarMut({ id: id as Id<"seguimientos"> });
+        setToast({ tone: "success", msg: "Seguimiento completado" });
       } catch {
-        setError("No se pudo marcar como hecho. Reintenta.");
+        setToast({ tone: "danger", msg: "No se pudo marcar como hecho. Reintenta." });
       } finally {
         cerrandoRef.current.delete(id);
         setCerrando((c) => {
@@ -131,9 +132,14 @@ export function AgendaHoy() {
         </>
       )}
 
-      {error && (
+      {toast && (
         <div className="fixed bottom-20 right-4 z-40 w-[calc(100%-2rem)] max-w-sm md:bottom-6 md:right-6">
-          <Toast tone="danger" title="Error" description={error} onClose={() => setError(null)} />
+          <Toast
+            tone={toast.tone}
+            title={toast.tone === "success" ? "Listo" : "Error"}
+            description={toast.msg}
+            onClose={() => setToast(null)}
+          />
         </div>
       )}
     </div>

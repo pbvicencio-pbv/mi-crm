@@ -105,4 +105,31 @@ describe("AgendaHoy", () => {
     await userEvent.dblClick(screen.getByRole("button", { name: /marcar hecho/i }));
     expect(mutation).toHaveBeenCalledTimes(1);
   });
+
+  it("«Marcar hecho» exitoso muestra el toast «Seguimiento completado»", async () => {
+    h.mutation = vi.fn(() => Promise.resolve({ ok: true, yaCerrado: false }));
+    h.hoy = { results: [tarea("s1")], status: "Exhausted", loadMore: vi.fn() };
+    render(<AgendaHoy />);
+    await userEvent.click(screen.getByRole("button", { name: /marcar hecho/i }));
+    expect(await screen.findByText("Seguimiento completado")).toBeInTheDocument();
+  });
+
+  it("«Marcar hecho» con error muestra el toast de reintento", async () => {
+    h.mutation = vi.fn(() => Promise.reject(new Error("boom")));
+    h.hoy = { results: [tarea("s1")], status: "Exhausted", loadMore: vi.fn() };
+    render(<AgendaHoy />);
+    await userEvent.click(screen.getByRole("button", { name: /marcar hecho/i }));
+    expect(await screen.findByText("No se pudo marcar como hecho. Reintenta.")).toBeInTheDocument();
+  });
 });
+
+function tarea(id: string) {
+  return {
+    seguimientoId: id,
+    clienteId: "c1",
+    nombre: "Laura",
+    motivo: "m",
+    fechaObjetivo: Date.now(),
+    estadoCliente: "nuevo_lead",
+  };
+}
