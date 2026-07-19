@@ -11,13 +11,24 @@
 import { chromium } from "playwright";
 import { execSync } from "node:child_process";
 
-const REQUIRED = ["E2E_BASE_URL", "E2E_EMAIL_DUENA", "E2E_PW_DUENA", "E2E_EMAIL_VENDEDOR", "E2E_PW_VENDEDOR"];
+const REQUIRED = [
+  "E2E_BASE_URL",
+  "E2E_CONVEX_URL", // URL canónica del desechable; el preflight verifica que front y CLI la reportan
+  "E2E_CONVEX_DEPLOYMENT", // nombre del desechable para el binding EXPLÍCITO del CLI (--deployment)
+  "E2E_EMAIL_DUENA",
+  "E2E_PW_DUENA",
+  "E2E_EMAIL_VENDEDOR",
+  "E2E_PW_VENDEDOR",
+];
 const faltan = REQUIRED.filter((k) => !process.env[k]);
 if (faltan.length) {
   console.error(`Faltan variables E2E: ${faltan.join(", ")} (ver DEPLOY.md). No se imprime ningún valor.`);
   process.exit(2);
 }
 const BASE = process.env.E2E_BASE_URL;
+const CONVEX_URL = process.env.E2E_CONVEX_URL;
+const DEPLOY = process.env.E2E_CONVEX_DEPLOYMENT;
+const norm = (u) => String(u ?? "").replace(/\/+$/, "");
 const CRED = {
   duena: { email: process.env.E2E_EMAIL_DUENA, pw: process.env.E2E_PW_DUENA },
   vendedor: { email: process.env.E2E_EMAIL_VENDEDOR, pw: process.env.E2E_PW_VENDEDOR },
@@ -28,14 +39,69 @@ function assert(cond, msg) {
   if (!cond) throw new Error(`ASSERT: ${msg}`);
 }
 
-/** Baseline + guardián: resetea el desechable; si apunta a prod (sin E2E_ALLOW_RESET) → lanza. */
+/** Baseline + guardián: resetea el desechable (binding EXPLÍCITO --deployment); si el target no
+ *  tiene E2E_ALLOW_RESET (p. ej. prod) → lanza y abortamos. */
 function resetBaseline() {
   try {
-    execSync("npx convex run e2e:resetE2E", { stdio: "pipe" });
+    execSync(`npx convex run e2e:resetE2E --deployment ${DEPLOY}`, { stdio: "pipe" });
+  } catch (e) {
+    const detalle = (e?.stderr?.toString() || e?.stdout?.toString() || e?.message || "").trim();
+    throw new Error(
+      `resetE2E falló contra el desechable (--deployment ${DEPLOY}). Si es el gate, falta E2E_ALLOW_RESET. Detalle:\n${detalle}`,
+    );
+  }
+}
+
+/**
+ * Preflight CLI (cierre del Major de auditoría). Liga el CLI al desechable con `--deployment`
+ * EXPLÍCITO y prueba, por eco del `cloudUrl` auto-reportado por Convex, que ese target ES
+ * E2E_CONVEX_URL. Si e2e:ping lanza (deployment sin E2E_ALLOW_RESET, p. ej. prod) o el cloudUrl no
+ * coincide → aborta ANTES de escribir. Read-only.
+ */
+function preflightCli() {
+  let out;
+  try {
+    out = execSync(`npx convex run e2e:ping --deployment ${DEPLOY}`, {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
   } catch {
     throw new Error(
-      "resetE2E falló: el deployment configurado no es el desechable de E2E (E2E_ALLOW_RESET). Abortando para NO escribir en producción.",
+      "Preflight CLI: e2e:ping falló — el deployment del CLI no es el desechable (E2E_ALLOW_RESET). Abortando.",
     );
+  }
+  if (!out.includes(CONVEX_URL)) {
+    throw new Error(
+      "Preflight CLI: el deployment del CLI reporta un cloudUrl distinto de E2E_CONVEX_URL. Abortando.",
+    );
+  }
+}
+
+/**
+ * Preflight navegador (cierre del Major de auditoría). El canal de ESCRITURA real del front
+ * (NEXT_PUBLIC_CONVEX_URL inlineado) debe apuntar al mismo desechable. La página /e2e/preflight
+ * ejecuta api.e2e.ping con el mismo cliente que las escrituras y publica `data-cloud-url`; se
+ * contrasta contra E2E_CONVEX_URL. Read-only.
+ */
+async function preflightNavegador(browser) {
+  const page = await nuevaPagina(browser, 1024);
+  try {
+    await page.goto(`${BASE}/e2e/preflight`, { waitUntil: "domcontentloaded" });
+    try {
+      await page.waitForSelector('[data-e2e-ping="ok"]', { timeout: 20000 });
+    } catch {
+      throw new Error(
+        "Preflight navegador: /e2e/preflight no confirmó ping OK (¿front sin NEXT_PUBLIC_E2E=1, o su Convex no es el desechable?). Abortando.",
+      );
+    }
+    const cloud = await page.getAttribute('[data-e2e-ping="ok"]', "data-cloud-url");
+    if (norm(cloud) !== norm(CONVEX_URL)) {
+      throw new Error(
+        `Preflight navegador: el front escribe contra ${cloud || "(desconocido)"}, no contra E2E_CONVEX_URL. Abortando.`,
+      );
+    }
+  } finally {
+    await page.context().close();
   }
 }
 
@@ -83,14 +149,11 @@ async function recorridoCarlos(browser) {
   await modal(page).getByRole("button", { name: /Guardar interacción/ }).click();
   await esperarToast(page, "Interacción registrada");
 
-  // Programar seguimiento (atajo Mañana)
-  await page.getByRole("button", { name: /Programar seguimiento/ }).first().click().catch(async () => {
-    await page.getByRole("button", { name: /Anotar/ }).first().click(); // fallback: sección con historial
-  });
-  await modal(page).waitFor({ timeout: 6000 });
-  await modal(page).getByRole("button", { name: "Mañana" }).click();
-  await modal(page).getByRole("button", { name: /Agendar seguimiento/ }).click();
-  await esperarToast(page, "Seguimiento agendado");
+  // NOTA (UX real): este cliente viene de la agenda → YA tiene un seguimiento pendiente. La ficha
+  // muestra un ÚNICO "Próximo seguimiento" con "Marcar hecho"; el CTA "Programar seguimiento" solo
+  // aparece cuando no hay ninguno (diseño de una cita pendiente por cliente). Programar un
+  // seguimiento nuevo se ejercita en el Recorrido 2 (cliente nuevo). Aquí seguimos con la venta y
+  // cerramos el seguimiento vigente desde /hoy (que valida el toast "Seguimiento completado").
 
   // Registrar venta
   await page.getByRole("button", { name: /Registrar venta|^Registrar$/ }).first().click();
@@ -167,6 +230,11 @@ const RECORRIDOS = [
 const browser = await chromium.launch();
 let fallos = 0;
 try {
+  // Preflight fail-closed ANTES de cualquier escritura: CLI y navegador deben apuntar al mismo
+  // desechable (E2E_CONVEX_URL). Si algo no coincide, estas llamadas lanzan y abortan sin escribir.
+  preflightCli();
+  await preflightNavegador(browser);
+  log(`Preflight OK — CLI y navegador apuntan al desechable (${norm(CONVEX_URL)})`);
   for (const [nombre, fn] of RECORRIDOS) {
     resetBaseline(); // baseline + guardián anti-prod antes de cada recorrido
     try {

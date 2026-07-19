@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { convexTest } from "convex-test";
 import schema from "./schema";
-import { internal } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 
 const modules = import.meta.glob(["./**/*.ts", "!./**/*.test.ts"]);
 
@@ -47,5 +47,40 @@ describe("e2e:resetE2E (interna, env-gated, wipe + reseed)", () => {
     await t.mutation(internal.e2e.resetE2E, {});
     const cs = await t.run((ctx) => ctx.db.query("clientes").collect());
     expect(cs.length).toBe(5);
+  });
+
+  it("reutiliza usuarios demo con cuenta de auth (E2E con seedAuth) sin abortar", async () => {
+    vi.stubEnv("E2E_ALLOW_RESET", "true");
+    const t = convexTest(schema, modules);
+    // Estado que deja seedAuth en el desechable: usuarios demo enlazados a una cuenta (authId).
+    // Antes del fix, sembrarDemo abortaba aquí; resetE2E debe reutilizarlos (permitirAuth=true).
+    await t.run(async (ctx) => {
+      const authElena = await ctx.db.insert("users", { email: "elena.demo@pulsecrm.test" });
+      await ctx.db.insert("usuarios", {
+        nombre: "Elena Vargas", email: "elena.demo@pulsecrm.test", rol: "duena", authId: authElena,
+      });
+      const authCarlos = await ctx.db.insert("users", { email: "carlos.demo@pulsecrm.test" });
+      await ctx.db.insert("usuarios", {
+        nombre: "Carlos Méndez", email: "carlos.demo@pulsecrm.test", rol: "vendedor", authId: authCarlos,
+      });
+    });
+    const r = await t.mutation(internal.e2e.resetE2E, {});
+    expect(r.ok).toBe(true);
+    expect(r.clientes).toBe(5);
+  });
+});
+
+describe("e2e:ping (pública, fail-closed, eco de cloudUrl)", () => {
+  it("sin E2E_ALLOW_RESET → lanza (el preflight aborta en prod)", async () => {
+    const t = convexTest(schema, modules);
+    await expect(t.query(api.e2e.ping, {})).rejects.toThrow();
+  });
+
+  it("con E2E_ALLOW_RESET → devuelve ok y un cloudUrl (string)", async () => {
+    vi.stubEnv("E2E_ALLOW_RESET", "true");
+    const t = convexTest(schema, modules);
+    const r = await t.query(api.e2e.ping, {});
+    expect(r.ok).toBe(true);
+    expect(typeof r.cloudUrl).toBe("string");
   });
 });

@@ -31,6 +31,7 @@ async function upsertUsuarioDemo(
   email: string,
   nombre: string,
   rol: "duena" | "vendedor",
+  permitirAuth = false,
 ) {
   const existente = await ctx.db
     .query("usuarios")
@@ -38,7 +39,10 @@ async function upsertUsuarioDemo(
     .unique();
 
   if (existente) {
-    if (existente.authId) {
+    // En E2E (resetE2E) los usuarios demo SÍ tienen cuenta de auth (aprovisionada por `seedAuth`) y
+    // se reutilizan a propósito. En `seed:run` (dev/prod compartido) se mantiene la protección: no
+    // sembrar datos demo sobre una cuenta con autenticación.
+    if (existente.authId && !permitirAuth) {
       throw new ConvexError(
         `El email demo ${email} ya pertenece a una cuenta con autenticación; abortando la semilla.`,
       );
@@ -72,10 +76,11 @@ async function borrarDependientes(ctx: MutationCtx, clienteId: Id<"clientes">) {
  * ACOTADA los clientes demo previos (marcados `[DEMO]`, de usuarios demo) y sus dependientes, para
  * ser idempotente. Reutiliza los usuarios demo si ya existen (no cambia rol/nombre).
  */
-export async function sembrarDemo(ctx: MutationCtx) {
-  // 1) Usuarios demo (upsert seguro).
-  const duena = await upsertUsuarioDemo(ctx, EMAIL_DUENA, "Elena Vargas", "duena");
-  const vendedor = await upsertUsuarioDemo(ctx, EMAIL_VENDEDOR, "Carlos Méndez", "vendedor");
+export async function sembrarDemo(ctx: MutationCtx, opts: { permitirAuth?: boolean } = {}) {
+  const { permitirAuth = false } = opts;
+  // 1) Usuarios demo (upsert seguro). `permitirAuth` reutiliza cuentas con auth (caso E2E).
+  const duena = await upsertUsuarioDemo(ctx, EMAIL_DUENA, "Elena Vargas", "duena", permitirAuth);
+  const vendedor = await upsertUsuarioDemo(ctx, EMAIL_VENDEDOR, "Carlos Méndez", "vendedor", permitirAuth);
   const dueños = new Set<string>([
     duena._id as unknown as string,
     vendedor._id as unknown as string,

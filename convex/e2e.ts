@@ -5,7 +5,7 @@
 //  - `resetE2E` hace un WIPE de los datos de dominio; por eso NUNCA debe habilitarse en el
 //    deployment que sirve producción (`elated-donkey-854`).
 
-import { internalMutation } from "./_generated/server";
+import { internalMutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { sembrarDemo } from "./seed";
 
@@ -34,6 +34,27 @@ export const resetE2E = internalMutation({
         await ctx.db.delete(fila._id);
       }
     }
-    return await sembrarDemo(ctx);
+    return await sembrarDemo(ctx, { permitirAuth: true });
+  },
+});
+
+/**
+ * Preflight de identidad del deployment (TAL-20, cierre del Major de auditoría). Query PÚBLICA y
+ * fail-closed: solo responde donde `E2E_ALLOW_RESET==="true"` (el desechable) y devuelve la URL
+ * canónica del propio deployment (`CONVEX_CLOUD_URL`, inyectada por Convex, no falsificable desde
+ * la config del runner). Es la ÚNICA fuente de verdad que el navegador y el CLI contrastan contra
+ * `E2E_CONVEX_URL` ANTES de cualquier escritura: si apuntan a otro Convex (p. ej. prod, sin la
+ * variable), `ping` lanza y el runner aborta sin escribir nada.
+ */
+export const ping = query({
+  args: {},
+  returns: v.object({ ok: v.boolean(), cloudUrl: v.string() }),
+  handler: async () => {
+    if (process.env.E2E_ALLOW_RESET !== "true") {
+      throw new ConvexError(
+        "e2e:ping deshabilitado: solo activo en el deployment desechable de E2E (E2E_ALLOW_RESET).",
+      );
+    }
+    return { ok: true, cloudUrl: process.env.CONVEX_CLOUD_URL ?? "" };
   },
 });

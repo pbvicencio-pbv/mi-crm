@@ -84,16 +84,30 @@ npx convex run seedAuth:run                           # crea cuentas demo
 (wipe de datos de dominio + re-siembra demo) antes de cada corrida; **falla cerrado** en cualquier
 deployment sin esa variable (por eso es seguro que exista también en producción, inerte).
 
-**Credenciales E2E** (fuera del repo; el runner valida su presencia y **nunca las imprime**):
+**Variables del runner** (fuera del repo; el runner valida su presencia y **nunca imprime valores**):
 ```
 E2E_BASE_URL=http://localhost:3000
-E2E_EMAIL_DUENA=...        E2E_PW_DUENA=...
-E2E_EMAIL_VENDEDOR=...     E2E_PW_VENDEDOR=...
+E2E_CONVEX_URL=https://<desechable>.convex.cloud    # URL canónica del desechable (preflight)
+E2E_CONVEX_DEPLOYMENT=<desechable>                  # nombre del desechable (binding --deployment del CLI)
+E2E_EMAIL_DUENA=elena.demo@pulsecrm.test     E2E_PW_DUENA=...
+E2E_EMAIL_VENDEDOR=carlos.demo@pulsecrm.test E2E_PW_VENDEDOR=...
 ```
-**Correr:** build local del front apuntando al desechable y ejecutar el runner:
+
+**Preflight fail-closed (antes de escribir).** El runner verifica, ANTES de cualquier escritura, que
+el CLI **y** el navegador apuntan al mismo desechable, contrastando el `cloudUrl` auto-reportado por
+Convex (`e2e:ping`, fail-closed) contra `E2E_CONVEX_URL`:
+- **CLI:** `npx convex run e2e:ping --deployment $E2E_CONVEX_DEPLOYMENT` (binding explícito; sin `.env.local`).
+- **Navegador:** la ruta `/e2e/preflight` —pública solo si el front se compiló con `NEXT_PUBLIC_E2E=1`—
+  ejecuta `api.e2e.ping` con el MISMO cliente que las escrituras y publica su `cloudUrl`.
+
+Si el CLI o el navegador reportan un `cloudUrl` distinto de `E2E_CONVEX_URL` (o el front no se compiló
+con `NEXT_PUBLIC_E2E=1`, o el Convex no tiene `E2E_ALLOW_RESET`), el runner **aborta sin escribir**.
+
+**Correr:** build local del front apuntando al desechable **con el gate de preflight**, y ejecutar el runner:
 ```
-NEXT_PUBLIC_CONVEX_URL=<url-crm-pulse-e2e> npm run build && npm run start   # front E2E
-npm run e2e                                                                # recorridos
+NEXT_PUBLIC_CONVEX_URL=https://<desechable>.convex.cloud NEXT_PUBLIC_E2E=1 npm run build
+npm run start   # front E2E en :3000
+npm run e2e     # recorridos (con las variables E2E_* en el entorno)
 ```
 
 ## Requisitos

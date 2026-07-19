@@ -28,6 +28,18 @@ Categorías sugeridas: `build` · `types` · `convex` · `auth` · `deploy` · `
 
 <!-- Añadir entradas nuevas arriba (más reciente primero) siguiendo el formato. -->
 
+## 2026-07-19 · [deploy] `convex dev --once --env-file X` REESCRIBE `.env.local` (no solo lo lee)
+- **Qué pasó:** al empujar código al deployment DESECHABLE de E2E con `npx convex dev --once --env-file .env.e2e.local`, el CLI imprimió "saved … to .env.local" y **reescribió `.env.local`** apuntándolo al desechable (`utmost-orca-597`), sacándolo de prod (`elated-donkey-854`).
+- **Causa raíz:** `--env-file` sirve para ELEGIR el deployment (lectura), pero el aprovisionamiento del CLI persiste el deployment resuelto en `.env.local` por defecto, ignorando `--env-file` para la ESCRITURA.
+- **Regla preventiva:** antes de cualquier `convex dev --configure/--env-file` contra otro deployment, **respaldar `.env.local`** (`cp .env.local .env.local.bak`) y **restaurarlo enseguida** (`cp .env.local.bak .env.local`); verificar con `grep CONVEX_DEPLOYMENT .env.local`. Railway usa su propio env → solo afecta lo LOCAL, pero deja el CLI apuntando mal.
+- **Ocurrencias:** 1
+
+## 2026-07-19 · [convex] `resetE2E`/`sembrarDemo` abortaba sobre usuarios demo con `authId` (y el runner enmascaraba el error)
+- **Qué pasó:** los 3 recorridos E2E fallaban en el primer `resetE2E` con el mensaje del gate ("falta E2E_ALLOW_RESET"), pese a que `e2e:ping` (mismo gate) sí pasaba. El error REAL era otro: `sembrarDemo` lanzaba "El email demo … ya pertenece a una cuenta con autenticación; abortando la semilla".
+- **Causa raíz:** (1) `sembrarDemo` protege a `seed:run` (no sembrar sobre cuentas con `authId`), pero en E2E los usuarios demo SÍ tienen auth (los crea `seedAuth`) y reutilizarlos es lo deseado. (2) El `catch` de `resetBaseline` en el runner asumía que la ÚNICA causa de fallo era el gate y descartaba el stderr real, ocultando la causa.
+- **Regla preventiva:** (1) parametrizar la lógica compartida cuando dos callers tienen invariantes opuestos (`sembrarDemo(ctx, { permitirAuth })`: `resetE2E`→true, `seed:run`→false). (2) NUNCA descartar el stderr en un `catch` que envuelve `execSync`: incluir `e.stderr?.toString()` en el mensaje. (3) que el happy-path de una función gateada pase NO implica que otra con el mismo gate falle POR el gate — leer el error real.
+- **Ocurrencias:** 1
+
 ## 2026-07-18 · [tests] Playwright `getByLabel` hace match por SUBSTRING → colisión "Cliente" vs "Nuevo cliente"
 - **Qué pasó:** el smoke de /ventas (TAL-50) reventó con "strict mode violation: getByLabel('Cliente') resolved to 2 elements": el `<select>` del filtro **Cliente** y el FAB de la BottomNav con `aria-label="Nuevo cliente"` (presente en el DOM aunque oculto por CSS en escritorio).
 - **Causa raíz:** `page.getByLabel(text)` de Playwright es, por defecto, **substring + case-insensitive**; "Cliente" casó también dentro de "Nuevo cliente". Y `getByLabel` resuelve TODOS los nodos del DOM (visibles u ocultos) antes de evaluar `isVisible`, así que el modo estricto falla aunque uno esté oculto.
