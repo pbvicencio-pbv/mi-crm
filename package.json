@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "next lint",
     "convex": "convex dev",
-    "test": "vitest run"
+    "test": "vitest run",
+    "e2e": "node tests/e2e/run.mjs"
   },
   "dependencies": {
     "@auth/core": "0.41.1",

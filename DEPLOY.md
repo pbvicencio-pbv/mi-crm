@@ -55,6 +55,47 @@ npx convex env remove CRM_ALLOW_SEED
 ```
 El fallback de desarrollo `CRM_DEV_USER_EMAIL` (resuelve un usuario **solo cuando no hay sesión**, p. ej. desde el CLI) sigue disponible; sin él y sin sesión, las funciones responden "No autenticado" (falla cerrado; sin fuga de datos).
 
+## Estado actual del despliegue (Opción A · M6.2/TAL-20)
+
+Hoy PULSE corre en **Opción A**: Railway (NIXPACKS + `npm run start`, ver `railway.json`) con
+`NEXT_PUBLIC_CONVEX_URL` apuntando al deployment de Convex **`elated-donkey-854`**; las funciones se
+publican con `npx convex dev --once` (NO hay `CONVEX_DEPLOY_KEY` ni `convex deploy` en el build). Es
+el estado formalizado del MVP. La migración a **Opción B** (Convex de producción separado) es una
+tarea aparte (issue propio, con runbook + rollback).
+
+> ⚠️ `elated-donkey-854` sirve **producción**. No ejecutar pruebas con escritura contra él (ver E2E).
+
+## Pruebas E2E (TAL-20)
+
+Los recorridos E2E (`npm run e2e`, Playwright) **escriben** datos, así que corren **solo contra un
+deployment DESECHABLE**, nunca contra `elated-donkey-854`.
+
+**Aislamiento (una vez):** provisionar un deployment Convex desechable `crm-pulse-e2e`, separado de
+producción, y aprovisionarlo (comandos gateados):
+```
+# En el deployment DESECHABLE (NO en el de producción):
+npx convex env set JWT_PRIVATE_KEY '<clave RS256>'   # + JWKS (auth)
+npx convex env set CRM_SEED_PW_DUENA '<pw>'          # + CRM_SEED_PW_VENDEDOR
+npx convex env set CRM_ALLOW_SEED true
+npx convex env set E2E_ALLOW_RESET true               # habilita e2e:resetE2E (fail-closed sin esto)
+npx convex run seedAuth:run                           # crea cuentas demo
+```
+`e2e:resetE2E` (internal, gateada por `E2E_ALLOW_RESET`) deja el deployment en un baseline conocido
+(wipe de datos de dominio + re-siembra demo) antes de cada corrida; **falla cerrado** en cualquier
+deployment sin esa variable (por eso es seguro que exista también en producción, inerte).
+
+**Credenciales E2E** (fuera del repo; el runner valida su presencia y **nunca las imprime**):
+```
+E2E_BASE_URL=http://localhost:3000
+E2E_EMAIL_DUENA=...        E2E_PW_DUENA=...
+E2E_EMAIL_VENDEDOR=...     E2E_PW_VENDEDOR=...
+```
+**Correr:** build local del front apuntando al desechable y ejecutar el runner:
+```
+NEXT_PUBLIC_CONVEX_URL=<url-crm-pulse-e2e> npm run build && npm run start   # front E2E
+npm run e2e                                                                # recorridos
+```
+
 ## Requisitos
 - **Node ≥ 20** (fijado en `package.json` → `engines`).
 - Comandos: `npm run build` (producción), `npm run start` (servir), `npm test` (Vitest), `npm run lint`.
