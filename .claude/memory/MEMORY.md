@@ -104,7 +104,7 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
   `bcf6126f`). TAL-14/15/17 + endurecimiento **TAL-60** en **Done** (Linear); TAL-16 (Agenda) ya estaba
   Done. `origin/main` = `0a8bd2c` (el push arrastró también el docs `3f0f43f`, solo memoria, que quedaba
   local). Auditoría pre-merge sin bloqueantes. **Siguiente**: M5 (ventas) · M6 (cierre) · TAL-59
-  (archivar). Higiene Linear: M1.1–M1.3 aún en Todo aunque hechas.
+  (archivar).
 - **TAL-59 (Archivar/soft-delete · parte CLIENTES) → Done** (18-jul; GO de plan y de cierre). Rama
   `feat/tal-59-archivar`, merge fast-forward a `main` + push (Railway auto-deploy). Backend
   `clientes.archivarCliente` (`requireUsuario`; idempotente `{ok,yaArchivado}` estilo `seguimientos.cerrar`;
@@ -136,7 +136,10 @@ cliente + vendedor de la venta). Roles: `dueña`, `vendedor`. Producto en españ
   tests** (+44), build, `convex dev --once`. **Smokes Playwright PASS** (1280/375, read-only, sin escribir
   al live). **`archivarVenta` cubre la parte de ventas de TAL-59.** La pestaña "Ventas" ya existía en
   `nav-items.ts`. **Siguiente**: M6 (cierre del MVP: pulido móvil + E2E).
-- Higiene Linear pendiente: M1.1–M1.3 siguen en Todo aunque están hechas.
+- Higiene Linear: **al día**. Verificado 18-jul: NO quedan issues en "Todo" en el proyecto. M1
+  (TAL-5/6/7/8) está **Done** y el milestone al 100% (la nota previa de "M1.1–M1.3 en Todo" era
+  obsoleta; se cerraron el 16–17-jul). Único trabajo abierto: **M6** (TAL-19 M6.1 + TAL-20 M6.2) en
+  **Backlog**.
 - **Datos demo en el deployment**: `elated-donkey-854` tiene **5 clientes demo** (+ ventas y
   seguimientos, sembrados para la Agenda). Útil: permite verificar listas/derivados **poblados
   read-only** sin crear datos. NO son clientes reales; aun así no escribir sobre ellos en verify.
